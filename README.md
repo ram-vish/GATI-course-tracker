@@ -35,7 +35,9 @@ Tracks the courses brought in by the four GATI sources (Government, Academics, T
 
 ## Making changes
 
-You need Node.js and the Firebase command-line tool (`npm install -g firebase-tools`), and to be signed in with `firebase login` as an owner of the Firebase project.
+Every change saved to the `main` branch is published automatically by GitHub Actions (`.github/workflows/deploy.yml`): the site and the database rules go live within a couple of minutes. No keys are stored anywhere. Google trusts this repository's `main` branch directly through Workload Identity Federation, and the publishing account `github-deployer@gati-course-tracker.iam.gserviceaccount.com` can only publish the site and rules. To stop automatic publishing, delete the `github` workload identity pool in Google Cloud → IAM → Workload Identity Federation.
+
+To publish by hand instead, install Node.js and the Firebase command-line tool (`npm install -g firebase-tools`), sign in with `firebase login` as an owner of the Firebase project, and run:
 
 ```bash
 firebase deploy --only hosting,firestore:rules
