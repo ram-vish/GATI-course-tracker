@@ -46,7 +46,7 @@ def main(export_dir, target):
     docs.append(('config/main', cfg))
     now = datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%S.000Z')
     for email, name in PROGRAM_TEAM:
-        docs.append(('users/' + email, {'name': name, 'role': 'program', 'gatis': [], 'mustChangePassword': True,
+        docs.append(('users/' + email, {'name': name, 'role': 'program', 'gatis': [], 'defaultPassword': True,
                                         'createdAt': now, 'createdBy': 'setup'}))
     for i in range(0, len(docs), 400):
         writes = [{'update': {'name': f'{root}/{path}', 'fields': {k: enc(v) for k, v in data.items()}}} for path, data in docs[i:i + 400]]

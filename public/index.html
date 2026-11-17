@@ -413,6 +413,7 @@ function renderChrome(){
     return '<a href="#'+t[0]+'"'+(S.tab===t[0]?' aria-current="page"':'')+'>'+t[1]+extra+'</a>';}).join('');
   var n='';
   var samples=S.courses.filter(function(c){return c.sample;}).length;
+  if(S.me.defaultPw)n+='<div class="note warn"><span>You are still using the starting password. Change it to one only you know.</span><button class="sm" data-act="chpw">Change password</button></div>';
   if(samples)n+='<div class="note info"><span><b>'+samples+' sample courses are loaded</b> so you can see how the tracker works. They are examples, not your data.</span>'+(S.me.isOwner?'<button class="sm'+(S.armed==='samples'?' armed':'')+'" data-act="clear-samples">'+(S.armed==='samples'?'Click again to remove all samples':'Remove sample courses')+'</button>':'')+'</div>';
   if(S.slow)n+='<div class="note warn">The data can\'t be reached yet. What you see may be out of date; it will refresh by itself.</div>';
   $('notes').innerHTML=n;$('notes').hidden=!n;
@@ -636,7 +637,7 @@ function viewSetup(){
   var access='<p>'+(own?'You are in the program team. You can edit everything, add and remove people, unlock actuals and manage the lists on this page.':g.length?'You are a GATI head for <b>'+esc(g.map(gatiName).join(', '))+'</b>. You can add, edit and confirm courses for '+(g.length>1?'those sources':'that source')+'.':'You can see everything. Only GATI heads and the program team can change courses.')+'</p><p class="sub">Signed in as '+esc(S.me.email)+'</p><div class="row"><button data-act="chpw">Change password</button></div>';
   var users=S.users.slice().sort(function(a,b){var o={program:0,head:1,viewer:2};return (o[a.role]-o[b.role])||String(a.name||a.id).localeCompare(String(b.name||b.id));});
   var people='<ul class="list">'+users.map(function(u){var rl=u.role==='program'?'Program team':u.role==='head'?'GATI head · '+(u.gatis||[]).map(gatiName).join(', '):'Viewer';
-    return '<li><span><b>'+esc(u.name||u.id)+'</b> <span class="sub">'+esc(u.id)+'</span><br><span class="sub">'+esc(rl)+(u.mustChangePassword?' · has not signed in yet':'')+'</span></span>'+(own?'<span class="nowrap"><button class="sm" data-act="edit-person" data-id="'+esc(u.id)+'">Edit</button>'+(u.id!==S.me.id?' <button class="sm danger'+(S.armed==='u:'+u.id?' armed':'')+'" data-act="rm-person" data-id="'+esc(u.id)+'">'+(S.armed==='u:'+u.id?'Click again to remove':'Remove')+'</button>':'')+'</span>':'')+'</li>';}).join('')+'</ul>'+
+    return '<li><span><b>'+esc(u.name||u.id)+'</b> <span class="sub">'+esc(u.id)+'</span><br><span class="sub">'+esc(rl)+(u.defaultPassword?' · still on the starting password':'')+'</span></span>'+(own?'<span class="nowrap"><button class="sm" data-act="edit-person" data-id="'+esc(u.id)+'">Edit</button>'+(u.id!==S.me.id?' <button class="sm danger'+(S.armed==='u:'+u.id?' armed':'')+'" data-act="rm-person" data-id="'+esc(u.id)+'">'+(S.armed==='u:'+u.id?'Click again to remove':'Remove')+'</button>':'')+'</span>':'')+'</li>';}).join('')+'</ul>'+
     (own?'<div class="row"><button class="primary" data-act="add-person">Add a person</button></div>':'');
   var heads='<ul class="list">'+GATI.map(function(x){var nm=c.headNames[x.k],acc=users.filter(function(u){return u.role==='head'&&(u.gatis||[]).indexOf(x.k)>=0;});return '<li><span>'+gchip(x.k)+'</span><span>'+(nm?'<b>'+esc(nm)+'</b>':'<span class="muted">No head named</span>')+(acc.length?' · can edit: '+acc.map(function(u){return esc(u.name||u.id);}).join(', '):' <span class="sub">· no login with edit rights yet</span>')+'</span></li>';}).join('')+'</ul>';
   var hol='<p class="sub">Sundays are always left out. Saturdays are left out unless a course is marked as running on Saturdays. Dates listed here are left out as well.</p><ul class="list">'+(c.holidays.length?c.holidays.slice().sort(function(a,b){return a.d<b.d?-1:1;}).map(function(x){return '<li><span><b>'+nice(x.d)+'</b> '+esc(x.n||'')+'</span>'+(own?'<button class="sm" data-act="rm-hol" data-d="'+esc(x.d)+'">Remove</button>':'')+'</li>';}).join(''):'<li class="muted">No holidays listed yet.</li>')+'</ul>'+
@@ -863,6 +864,7 @@ window.addEventListener('hashchange',route);
 /* ---------- sign-in ---------- */
 var FB_CONFIG={"apiKey": "AIzaSyB1FzcFLhMss2G0eh815dK6VPFJ09JDoQo", "authDomain": "gati-course-tracker.firebaseapp.com", "projectId": "gati-course-tracker", "storageBucket": "gati-course-tracker.firebasestorage.app", "messagingSenderId": "668611637952", "appId": "1:668611637952:web:6e71b71494096af9b13325"};
 var DOMAIN='tataiis.org';
+var START_PW='TATAIIS@123';
 var EMU=/[?&]emu\b/.test(location.search)&&/^(localhost|127\.0\.0\.1)$/.test(location.hostname);
 var AUTHMSG='';
 function viewAuth(){
@@ -890,7 +892,7 @@ function submitPw(form){var forced=form.dataset.forced==='1',n1=$('pw-new').valu
   function err(m){var e=$('pw-err');e.textContent=m;e.hidden=false;}
   if(n1.length<8)return err('Choose a password of at least 8 characters.');if(n1!==n2)return err('The two new passwords are not the same.');
   var step=forced?Promise.resolve():u.reauthenticateWithCredential(firebase.auth.EmailAuthProvider.credential(u.email,$('pw-old').value));
-  step.then(function(){return u.updatePassword(n1);}).then(function(){return S.db.collection('users').doc(S.me.id).update({mustChangePassword:false});})
+  step.then(function(){return u.updatePassword(n1);}).then(function(){return S.db.collection('users').doc(S.me.id).update({defaultPassword:false});})
     .then(function(){if(!forced)closeDlg();toast('Password saved');}).catch(function(e){err(/wrong-password|invalid-credential/.test(e&&e.code||'')?'The current password is not right.':authErr(e));});}
 /* program team: add or edit a person */
 function tempPw(){var ch='ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789',a=new Uint32Array(10),o='';crypto.getRandomValues(a);for(var i=0;i<10;i++)o+=ch[a[i]%ch.length];return o;}
@@ -900,7 +902,7 @@ function personForm(u){
     '<label class="fld"><span>Work email</span><input type="email" id="pp-email" value="'+esc(u?u.id:'')+'"'+(u?' disabled':'')+' placeholder="name@'+esc(DOMAIN)+'"></label>'+
     '<label class="fld"><span>Access</span><select id="pp-role">'+opts([{k:'viewer',n:'Viewer · can see everything'},{k:'head',n:'GATI head · edits own source'},{k:'program',n:'Program team · full access'}],u?u.role:'viewer',null)+'</select></label>'+
     '<div class="fld"><span>GATI sources · for GATI heads</span><div class="checks">'+GATI.map(function(g){return '<label class="check"><input type="checkbox" id="pp-g-'+g.k+'" data-g2="'+g.k+'"'+(u&&(u.gatis||[]).indexOf(g.k)>=0?' checked':'')+'>'+esc(g.k==='N'?'NST':g.k)+'</label>';}).join('')+'</div></div>'+
-    (u?'':'<label class="fld wide"><span>Temporary password · they choose their own at first sign-in</span><input type="text" id="pp-pw" value="'+tempPw()+'" autocomplete="off"></label>')+
+    (u?'':'<label class="fld wide"><span>Starting password · they can change it any time</span><input type="text" id="pp-pw" value="'+esc(START_PW)+'" autocomplete="off"></label>')+
     '</div><p class="err" id="pp-err" hidden></p><div class="dlg-actions"><button type="button" data-act="dlg-close">Cancel</button><button type="submit" class="primary">'+(u?'Save':'Add person')+'</button></div></form>');}
 function submitPerson(form){var id=form.dataset.id,isNew=!id,name=$('pp-name').value.trim(),email=(isNew?$('pp-email').value:id).trim().toLowerCase(),role=$('pp-role').value;
   var gatis=GATI.map(function(g){return g.k;}).filter(function(k){return $('pp-g-'+k).checked;});
@@ -913,13 +915,13 @@ function submitPerson(form){var id=form.dataset.id,isNew=!id,name=$('pp-name').v
   var data={name:name,role:role,gatis:gatis,updatedAt:new Date().toISOString(),updatedBy:S.me.id};
   if(!isNew)return guard(function(){return S.db.collection('users').doc(email).update(data).then(function(){closeDlg();toast('Access saved');});});
   if(S.users.some(function(u){return u.id===email;}))return err('This person is already on the list. Use Edit instead.');
-  var pw=$('pp-pw').value;if(pw.length<8)return err('The temporary password needs at least 8 characters.');
+  var pw=$('pp-pw').value;if(pw.length<6)return err('The starting password needs at least 6 characters.');
   var sec=firebase.apps.filter(function(a){return a.name==='secondary';})[0];if(!sec){sec=firebase.initializeApp(FB_CONFIG,'secondary');sec.auth().setPersistence(firebase.auth.Auth.Persistence.NONE);if(EMU)sec.auth().useEmulator('http://127.0.0.1:9099');}
   var existed=false;
   guard(function(){return sec.auth().createUserWithEmailAndPassword(email,pw).catch(function(e){if(e&&e.code==='auth/email-already-in-use'){existed=true;return;}throw e;})
     .then(function(){return sec.auth().signOut();})
-    .then(function(){data.createdAt=data.updatedAt;data.createdBy=S.me.id;data.mustChangePassword=!existed;return S.db.collection('users').doc(email).set(data);})
-    .then(function(){closeDlg();openDlg('<div class="dlg"><h2>'+esc(name)+' is added</h2>'+(existed?'<p>This email already had a password, so it was kept. They sign in with it, or use Forgot password on the sign-in page.</p>':'<p>Send them these details. They will be asked to choose their own password the first time they sign in.</p><div class="calc"><b>Address:</b> '+esc(location.origin)+'<br><b>Email:</b> '+esc(email)+'<br><b>Temporary password:</b> '+esc(pw)+'</div>')+'<div class="dlg-actions"><button class="primary" data-act="dlg-close">Done</button></div></div>');})
+    .then(function(){data.createdAt=data.updatedAt;data.createdBy=S.me.id;data.defaultPassword=!existed;return S.db.collection('users').doc(email).set(data);})
+    .then(function(){closeDlg();openDlg('<div class="dlg"><h2>'+esc(name)+' is added</h2>'+(existed?'<p>This email already had a password, so it was kept. They sign in with it, or use Forgot password on the sign-in page.</p>':'<p>Send them these details. They can change the password any time with the Change password button.</p><div class="calc"><b>Address:</b> '+esc(location.origin)+'<br><b>Username:</b> '+esc(email)+'<br><b>Password:</b> '+esc(pw)+'</div>')+'<div class="dlg-actions"><button class="primary" data-act="dlg-close">Done</button></div></div>');})
     .catch(function(e){err(authErr(e));});});}
 
 /* ---------- data ---------- */
@@ -942,8 +944,7 @@ function boot(){
     var email=(u.email||'').toLowerCase();S.me={id:email,email:email,name:'',role:'',gatis:[],isOwner:false};S.authState='loading';render();AUTHMSG='';
     profUnsub=S.db.collection('users').doc(email).onSnapshot(function(snap){
       if(!snap.exists){var was=S.authState;S.authState='noprofile';stopData();return render();}
-      var p=snap.data();S.me={id:email,email:email,name:p.name||'',role:p.role||'viewer',gatis:p.gatis||[],isOwner:p.role==='program'};
-      if(p.mustChangePassword){S.authState='mustchange';stopData();return render();}
+      var p=snap.data();S.me={id:email,email:email,name:p.name||'',role:p.role||'viewer',gatis:p.gatis||[],isOwner:p.role==='program',defaultPw:!!p.defaultPassword};
       var start=S.authState!=='in';S.authState='in';if(start)startData();render();
     },function(){S.authState='noprofile';render();});});
 }

@@ -19,12 +19,12 @@ service cloud.firestore {
     function changed() { return request.resource.data.diff(resource.data).affectedKeys(); }
 
     // People and their access. Only the program team adds, edits or removes people.
-    // A person may only clear their own "must change password" flag.
+    // A person may only clear their own "still on the starting password" flag.
     match /users/{id} {
       allow read: if hasProfile();
       allow create, delete: if isProgram();
       allow update: if isProgram()
-        || (hasProfile() && id == email() && changed().hasOnly(['mustChangePassword']));
+        || (hasProfile() && id == email() && changed().hasOnly(['defaultPassword']));
     }
 
     // Lists of schools, labs, holidays and named heads.
