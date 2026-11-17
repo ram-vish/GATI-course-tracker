@@ -1,0 +1,954 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>html{-webkit-text-size-adjust:100%}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font-size:14px;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>GATI Course Tracker</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600&display=swap">
+<style>
+/* Layout: one-column workbench. Header with tabs, a filter row, then summary figures, charts, tables. */
+:root{
+  --bg:#f3f5f9; --surface:#ffffff; --surface-2:#edf0f6; --ink:#141b27; --ink-2:#48536a; --ink-3:#77839a;
+  --line:#dce1ea; --line-2:#c2cad8;
+  --accent:#1f5bb8; --accent-ink:#ffffff; --accent-soft:#e2ebfa;
+  --s-actual:#2a78d6; --s-green:#008300; --s-yellow:#eda100; --s-red:#e34948; --s-pipe:#86b6ef;
+  --good-soft:#e1f3e1; --good-ink:#0a5c0a; --warn-soft:#fcefcc; --warn-ink:#6b4a00; --crit-soft:#fae2e2; --crit-ink:#8f1f1f;
+  --shadow:0 1px 2px rgba(20,27,39,.06); --tier1:#e9edf5; --tier2:#d3dbeb; --tier3:#b9c5dd;
+  --font:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --font-head:'IBM Plex Sans Condensed','IBM Plex Sans',system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f131a; --surface:#181d26; --surface-2:#212835; --ink:#e9edf3; --ink-2:#b4bdcc; --ink-3:#8793a7;
+    --line:#2a3240; --line-2:#3b4557;
+    --accent:#74a9f5; --accent-ink:#0b1220; --accent-soft:#1c2b46;
+    --s-actual:#3987e5; --s-green:#199e70; --s-yellow:#c98500; --s-red:#d03b3b; --s-pipe:#1c5cab;
+    --good-soft:#12301c; --good-ink:#86dd9a; --warn-soft:#3a2e0c; --warn-ink:#f4c95c; --crit-soft:#3b1717; --crit-ink:#f3a0a0;
+    --shadow:none; --tier1:#232b39; --tier2:#2f3a4e; --tier3:#3d4b66; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0f131a; --surface:#181d26; --surface-2:#212835; --ink:#e9edf3; --ink-2:#b4bdcc; --ink-3:#8793a7;
+  --line:#2a3240; --line-2:#3b4557;
+  --accent:#74a9f5; --accent-ink:#0b1220; --accent-soft:#1c2b46;
+  --s-actual:#3987e5; --s-green:#199e70; --s-yellow:#c98500; --s-red:#d03b3b; --s-pipe:#1c5cab;
+  --good-soft:#12301c; --good-ink:#86dd9a; --warn-soft:#3a2e0c; --warn-ink:#f4c95c; --crit-soft:#3b1717; --crit-ink:#f3a0a0;
+  --shadow:none; --tier1:#232b39; --tier2:#2f3a4e; --tier3:#3d4b66; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:14px;line-height:1.45}
+.app{max-width:1280px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:18px}
+h1,h2,h3{font-family:var(--font-head);font-weight:600;margin:0;text-wrap:balance}
+h1{font-size:24px;letter-spacing:.01em}
+h2{font-size:17px}
+h3{font-size:14px}
+p{margin:0}
+.muted{color:var(--ink-3)} .sub{color:var(--ink-3);font-size:12px}
+.nowrap{white-space:nowrap}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:10px 20px}
+.brand{display:flex;flex-direction:column;gap:2px;min-width:0}
+.eyebrow{font-family:var(--font-head);font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+.gati-key{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px;color:var(--ink-2)}
+.gati-key b{font-family:var(--font-head);color:var(--accent)}
+.role{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border:1px solid var(--line-2);border-radius:999px;font-size:12px;color:var(--ink-2);background:var(--surface)}
+.role i{width:8px;height:8px;border-radius:50%;background:var(--ink-3);display:inline-block}
+.role.owner i{background:var(--accent)} .role.head i{background:var(--s-green)}
+
+nav.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line-2);overflow-x:auto}
+nav.tabs a{padding:9px 14px;text-decoration:none;color:var(--ink-2);font-family:var(--font-head);font-weight:600;font-size:15px;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;display:flex;gap:6px;align-items:center}
+nav.tabs a:hover{color:var(--ink)}
+nav.tabs a[aria-current="page"]{color:var(--accent);border-bottom-color:var(--accent)}
+.count{font-family:var(--font);font-size:11px;font-weight:500;padding:1px 6px;border-radius:999px;background:var(--surface-2);color:var(--ink-2)}
+.count.alert{background:var(--warn-soft);color:var(--warn-ink)}
+
+main{display:flex;flex-direction:column;gap:18px;min-width:0}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:8px;box-shadow:var(--shadow);min-width:0}
+.panel-h{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 16px;padding:12px 14px;border-bottom:1px solid var(--line)}
+.panel-b{padding:14px}
+.scroll{overflow-x:auto}
+
+.filters{display:flex;flex-wrap:wrap;gap:10px 12px;align-items:flex-end}
+.fld{display:flex;flex-direction:column;gap:3px;min-width:0}
+.fld > span, .lab{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);font-family:var(--font-head)}
+select,input[type=text],input[type=date],input[type=number],input[type=search],textarea{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line-2);border-radius:6px;padding:6px 8px;min-height:34px;max-width:100%}
+textarea{min-height:64px;resize:vertical}
+.checks{display:flex;flex-wrap:wrap;gap:6px}
+.check{display:inline-flex;align-items:center;gap:6px;padding:5px 9px;border:1px solid var(--line-2);border-radius:6px;background:var(--surface);min-height:34px;cursor:pointer;font-size:13px}
+.check input{margin:0}
+.spacer{flex:1 1 auto}
+
+button{font:inherit;cursor:pointer;color:var(--ink);background:var(--surface);border:1px solid var(--line-2);border-radius:6px;padding:6px 11px;min-height:34px;font-weight:500}
+button:hover{border-color:var(--ink-3)}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button.primary:hover{filter:brightness(1.08)}
+button.sm{min-height:28px;padding:3px 8px;font-size:12px}
+button.danger{color:var(--crit-ink)}
+button.armed{background:var(--crit-soft);border-color:var(--crit-ink);color:var(--crit-ink)}
+button:disabled{opacity:.5;cursor:not-allowed}
+
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.kpi{padding:14px;display:flex;flex-direction:column;gap:4px}
+.kpi .v{font-family:var(--font-head);font-size:30px;font-weight:600;line-height:1.1}
+.kpi .v small{font-size:14px;font-weight:500;color:var(--ink-3);font-family:var(--font)}
+.kpi .d{font-size:12px;color:var(--ink-2)}
+@media (max-width:900px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:460px){.kpis{grid-template-columns:1fr}}
+
+.charts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:900px){.charts{grid-template-columns:1fr}}
+.charts > div{min-width:0}
+.chart{position:relative;min-width:0}
+.chart svg{display:block;width:100%;min-width:500px;height:auto}
+.chart .grid{stroke:var(--line);stroke-width:1}
+.chart .base{stroke:var(--line-2);stroke-width:1}
+.chart text{font-family:var(--font);font-size:11px;fill:var(--ink-3);font-variant-numeric:tabular-nums}
+.chart text.cur{fill:var(--ink);font-weight:600}
+.chart .band{fill:transparent}
+.chart .band:hover{fill:var(--ink);fill-opacity:.05}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:10px;height:10px;border-radius:2px;display:inline-block;flex:none}
+.tip{position:absolute;z-index:5;pointer-events:none;background:var(--surface);border:1px solid var(--line-2);border-radius:6px;box-shadow:0 4px 14px rgba(0,0,0,.14);padding:8px 10px;font-size:12px;min-width:170px}
+.tip h4{margin:0 0 4px;font-size:12px;font-family:var(--font-head)}
+.tip div{display:flex;justify-content:space-between;gap:14px;align-items:center}
+.tip div span:first-child{display:inline-flex;gap:6px;align-items:center;color:var(--ink-2)}
+.tip .tot{border-top:1px solid var(--line);margin-top:4px;padding-top:4px;font-weight:600}
+
+table{border-collapse:collapse;width:100%;font-size:13px}
+th{font-family:var(--font-head);font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);text-align:left;padding:8px 10px;border-bottom:1px solid var(--line-2);white-space:nowrap;background:var(--surface)}
+td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child > td{border-bottom:0}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+tr.cur > td{background:var(--accent-soft)}
+tr.tot > td{font-weight:600;border-top:1px solid var(--line-2)}
+td .t{font-weight:600}
+td.c-main{min-width:340px;max-width:460px}
+.c-main .t{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.c-main > .sub{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+td.acts{white-space:nowrap}
+td.acts button{margin:0 4px 4px 0}
+tr.hist > td{background:var(--surface-2);padding:10px 14px}
+.hist ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.hist li{display:flex;flex-wrap:wrap;gap:2px 10px;font-size:12px}
+.hist time{color:var(--ink-3);font-variant-numeric:tabular-nums;white-space:nowrap}
+.hist .who{font-weight:600}
+.hist .chg{color:var(--ink-2);flex-basis:100%}
+.hist .chg s{color:var(--ink-3)}
+
+.pill{display:inline-flex;align-items:center;gap:6px;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:500;white-space:nowrap;border:1px solid transparent}
+.pill i{width:8px;height:8px;border-radius:50%;display:inline-block;flex:none}
+.pill.green{background:var(--good-soft);color:var(--good-ink)} .pill.green i{background:var(--s-green)}
+.pill.yellow{background:var(--warn-soft);color:var(--warn-ink)} .pill.yellow i{background:var(--s-yellow)}
+.pill.red{background:var(--crit-soft);color:var(--crit-ink)} .pill.red i{background:var(--s-red)}
+.pill.plain{background:var(--surface-2);color:var(--ink-2)}
+.pill.live{background:var(--accent-soft);color:var(--accent)} .pill.live i{background:var(--accent)}
+.pill.due{background:var(--warn-soft);color:var(--warn-ink);border-color:var(--warn-ink)}
+.gchip{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.gchip b{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:4px;background:var(--accent-soft);color:var(--accent);font-family:var(--font-head);font-size:12px}
+.tag{display:inline-block;margin-left:6px;padding:0 6px;border-radius:4px;font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;background:var(--surface-2);color:var(--ink-3);vertical-align:middle}
+.var{color:var(--warn-ink);font-size:12px}
+
+.bar{display:flex;gap:2px;height:8px;min-width:120px;align-items:stretch}
+.bar i{display:block;border-radius:4px;min-width:2px}
+.bar .a{background:var(--s-actual)} .bar .p{background:var(--s-pipe)}
+
+.note{padding:10px 14px;border-radius:8px;border:1px solid var(--line-2);background:var(--surface);display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:space-between}
+.note.warn{background:var(--warn-soft);border-color:transparent;color:var(--warn-ink)}
+.note.info{background:var(--accent-soft);border-color:transparent}
+.empty{padding:36px 16px;text-align:center;color:var(--ink-2);display:flex;flex-direction:column;gap:10px;align-items:center}
+.seg{display:inline-flex;border:1px solid var(--line-2);border-radius:6px;overflow:hidden}
+.seg button{border:0;border-radius:0;min-height:30px;padding:3px 10px;font-size:12px;background:var(--surface)}
+.seg button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);font-weight:600}
+
+.setup{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}
+@media (max-width:900px){.setup{grid-template-columns:1fr}}
+.list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.list li{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 12px;padding:7px 0;border-bottom:1px solid var(--line)}
+.list li:last-child{border-bottom:0}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end}
+.stack{display:flex;flex-direction:column;gap:12px}
+.prose{max-width:68ch;color:var(--ink-2);display:flex;flex-direction:column;gap:8px}
+.prose b{color:var(--ink)}
+
+dialog{border:1px solid var(--line-2);border-radius:10px;background:var(--surface);color:var(--ink);padding:0;width:min(680px,calc(100vw - 24px));max-height:calc(100vh - 24px)}
+dialog::backdrop{background:rgba(10,14,22,.5)}
+.dlg{padding:18px;display:flex;flex-direction:column;gap:14px}
+.fgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.fgrid .wide{grid-column:1/-1}
+.fgrid .fld select,.fgrid .fld input,.fgrid .fld textarea{width:100%}
+@media (max-width:520px){.fgrid{grid-template-columns:1fr}}
+.calc{padding:10px 12px;border-radius:6px;background:var(--surface-2);font-size:13px;color:var(--ink-2)}
+.calc b{color:var(--ink)}
+.err{color:var(--crit-ink);font-size:13px}
+.dlg-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+
+.stats{display:flex;flex-wrap:wrap;gap:6px 22px;align-items:baseline;padding:0 2px}
+td.labs{font-size:12px;color:var(--ink-2);min-width:150px}
+.labgrid{display:grid;grid-template-columns:minmax(0,1fr) 84px;gap:8px;margin-top:6px;align-items:center}
+.labgrid select,.labgrid input{width:100%}
+.labgrid .cls{font-size:13px;color:var(--ink-2)}
+.fgrid .check.wide{grid-column:1/-1}
+tr.t1 > td{background:var(--tier1);font-weight:600}
+tr.t2 > td{background:var(--tier2);font-weight:600}
+tr.t3 > td{background:var(--tier3);font-weight:700}
+.tblnote{padding:8px 14px 12px}
+.ms{position:relative}
+.ms-btn{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:118px;max-width:230px;text-align:left;font-weight:400}
+.ms-btn > span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.caret{width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-top:5px solid var(--ink-3);flex:none}
+.ms-pop{position:absolute;z-index:20;top:calc(100% + 4px);left:0;min-width:230px;max-width:min(360px,calc(100vw - 32px));max-height:470px;overflow:auto;background:var(--surface);border:1px solid var(--line-2);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.18);padding:8px;display:flex;flex-direction:column;gap:2px}
+.ms-opt{display:flex;align-items:center;gap:8px;padding:5px 6px;border-radius:4px;cursor:pointer;font-size:13px}
+.ms-opt:hover{background:var(--surface-2)}
+.ms-opt input{margin:0;flex:none}
+.ms-all{align-self:flex-start;margin-bottom:4px}
+.ms-quick{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+@media (max-width:560px){.ms-pop{position:fixed;left:16px;right:16px;top:auto;bottom:calc(16px + env(safe-area-inset-bottom,0px));max-width:none;max-height:60vh}}
+.totals{padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.tot-items{display:flex;flex-wrap:wrap;gap:10px 30px}
+.tot-items > div{display:flex;flex-direction:column;gap:2px}
+.tot-items b{font-family:var(--font-head);font-size:22px;line-height:1.1}
+.hov{border-bottom:1px dotted var(--ink-3);cursor:help}
+td[data-tip]{cursor:help}
+.ftip{position:fixed;z-index:60;pointer-events:none;background:var(--ink);color:var(--bg);border-radius:6px;padding:7px 10px;font-size:12px;line-height:1.5;white-space:pre-line;max-width:300px;font-variant-numeric:tabular-nums}
+
+table.mq th.grp{text-align:center}
+table.mq .gs{border-left:1px solid var(--line-2)}
+table.mq td.tcol{font-weight:600}
+table.mq th{padding-left:8px;padding-right:8px}
+tr.addrow > td{padding:6px 10px}
+.addnew{border-style:dashed;width:100%;justify-content:center;display:flex;gap:8px;align-items:center;color:var(--ink-2);background:transparent}
+.addnew b{font-size:18px;line-height:1;color:var(--accent)}
+.addnew:hover{color:var(--ink);border-color:var(--accent)}
+.reset{border-color:transparent;background:transparent;color:var(--accent);padding-inline:8px;display:inline-flex;gap:6px;align-items:center}
+.reset:hover{background:var(--accent-soft);border-color:transparent}
+.reset:disabled{color:var(--ink-3);opacity:.7}
+.reset span{font-size:16px;line-height:1}
+.who{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;justify-content:flex-end}
+.who .me{font-size:13px;color:var(--ink-2);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.panel.auth{max-width:440px;margin:24px auto 0;width:100%}
+.panel.auth .dlg .fld input{width:100%}
+.linkish{border:0;background:transparent;color:var(--accent);padding-inline:4px;margin-right:auto}
+.linkish:hover{text-decoration:underline}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:9px 14px;border-radius:8px;font-size:13px;z-index:50;max-width:calc(100vw - 32px)}
+@media (prefers-reduced-motion:no-preference){ button,nav.tabs a{transition:border-color .12s,color .12s,background .12s} }
+</style>
+
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <span class="eyebrow">Indian Institute of Skills</span>
+      <h1>GATI Course Tracker</h1>
+      <div class="gati-key"><span><b>G</b> Government</span><span><b>A</b> Academics</span><span><b>T</b> Technology partners</span><span><b>I</b> Industries</span></div>
+    </div>
+    <div id="role"></div>
+  </header>
+  <nav class="tabs" id="tabs" aria-label="Sections"></nav>
+  <div id="notes"></div>
+  <main id="main"><div class="panel"><div class="empty"><p>Loading the tracker…</p></div></div></main>
+</div>
+<dialog id="dlg"></dialog>
+<div id="toast" role="status" hidden></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+(function(){
+'use strict';
+var GATI=[{k:'G',n:'Government'},{k:'A',n:'Academics'},{k:'T',n:'Technology partners'},{k:'I',n:'Industries'},{k:'N',n:'NST'}];
+var CAMPUSES=['Ahmedabad','Mumbai'];
+var MODES=[{k:'Campus',n:'Offline · on campus'},{k:'Onsite',n:'Offline · onsite at client'},{k:'Online',n:'Online'},{k:'Hybrid',n:'Hybrid'}];
+var CONF=[{k:'green',n:'Confirmed'},{k:'yellow',n:'In process'},{k:'red',n:'Unlikely'}];
+var SER=[{k:'actual',n:'Actual',c:'var(--s-actual)'},{k:'green',n:'Pipeline · Confirmed',c:'var(--s-green)'},{k:'yellow',n:'Pipeline · In process',c:'var(--s-yellow)'},{k:'red',n:'Pipeline · Unlikely',c:'var(--s-red)'}];
+var DEFAULT_SCHOOLS=['School of Precision Manufacturing','School of Metal Joining','School of Intelligent Automation & Robotics','School of Future Mobility','School of Energy','School of Services Economy','LDP/FDP','Other'];
+var DEFAULT_LABS=['CNC Machining Lab','Metrology Lab','3D Printing Lab','Welding Lab (Manual & Robotics)','Industrial Robotics Lab','Cobot / AMR Lab','Mechatronics Lab','Industrial Automation Lab','Electrical Switchgear Lab','CAD/CAM/CAE Lab','Digital Manufacturing Lab','Cybersecurity Lab','Manufacturing Analytics Lab (AI/ML)','EV 2/3-Wheeler Tech Lab','EV 4-Wheeler Tech Lab','Battery Systems Lab','Green Hydrogen Lab','Human Intelligence Lab','Retail','Culinary'];
+var LABELS={title:'Course name',batch:'Batch / code',client:'Client / source',programType:'Programme type',gati:'GATI',school:'School',campus:'Campus',mode:'Mode',plannedStart:'Planned start',plannedEnd:'Planned end',batchSize:'Planned batch size',confidence:'Confidence',notes:'Notes',sat:'Saturdays count',trainingDays:'Training days',actualStart:'Actual start',actualEnd:'Actual end',actualBatch:'Actual throughput',male:'Male',female:'Female',labs:'Lab split',classPct:'Classroom %'};
+var ACTIONS={created:'Added to pipeline','created-actual':'Added directly to actuals by the program team',imported:'Imported',edited:'Edited',confirmed:'Moved to actuals and locked',dropped:'Marked as dropped',restored:'Restored to pipeline','edit-requested':'Requested an edit',unlocked:'Unlocked for one edit','request-declined':'Declined the edit request','edited-locked':'Edited a locked record'};
+var MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+var MONL=['January','February','March','April','May','June','July','August','September','October','November','December'];
+var TABS=[['dashboard','Dashboard'],['pipeline','Pipeline'],['actuals','Actuals'],['setup','Setup']];
+var QUICK=[['Full year',0,12],['H1',0,6],['H2',6,12],['Q1',0,3],['Q2',3,6],['Q3',6,9],['Q4',9,12]];
+
+var S={db:null,auth:null,authState:'loading',me:{id:null,name:'',email:'',role:'',gatis:[],isOwner:false},users:[],courses:[],config:null,names:{},
+  loaded:false,slow:false,err:null,tab:'dashboard',holSet:new Set(),openHist:new Set(),armed:null,online:false,
+  openMs:null,mview:'both',dl:null,
+  f:{fy:null,months:null,gati:null,school:null,campus:null,mode:null,ptype:null,conf:null,by:'school'},
+  pf:{fy:null,smonths:null,emonths:null,gati:null,school:null,campus:null,mode:null,ptype:null,conf:null,q:'',view:'active'},
+  af:{fy:null,smonths:null,emonths:null,gati:null,school:null,campus:null,mode:null,ptype:null,q:''}};
+
+/* ---------- helpers ---------- */
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];});}
+function num(n){return Math.round(Number(n)||0).toLocaleString('en-IN');}
+function $(id){return document.getElementById(id);}
+function pd(s){var p=s.split('-').map(Number);return new Date(Date.UTC(p[0],p[1]-1,p[2]));}
+function fd(d){return d.toISOString().slice(0,10);}
+function today(){var n=new Date();return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');}
+function nice(s){if(!s)return '—';var d=pd(s);return d.getUTCDate()+' '+MON[d.getUTCMonth()]+' '+String(d.getUTCFullYear()).slice(2);}
+function monthLabel(k){var p=k.split('-');return MON[Number(p[1])-1]+' '+p[0].slice(2);}
+function monthLong(k){var p=k.split('-');return MONL[Number(p[1])-1]+' '+p[0];}
+function stamp(iso){if(!iso)return '';var d=new Date(iso);return d.getDate()+' '+MON[d.getMonth()]+' '+d.getFullYear()+', '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
+function sum(o){var t=0;for(var k in o)t+=o[k];return t;}
+function cfg(){var c=S.config||{};var o=c.owners||{};return {schools:Array.isArray(c.schools)&&c.schools.length?c.schools:DEFAULT_SCHOOLS,labs:Array.isArray(c.labs)&&c.labs.length?c.labs:DEFAULT_LABS,holidays:Array.isArray(c.holidays)?c.holidays:[],owners:{G:o.G||[],A:o.A||[],T:o.T||[],I:o.I||[],N:o.N||[]},headNames:c.headNames||{}};}
+function gatiLong(g){return g.k==='N'?'NST':g.k+' · '+g.n;}
+function gatiName(k){var g=GATI.filter(function(x){return x.k===k;})[0];return g?g.n:'Unassigned';}
+function modeName(k){var m=MODES.filter(function(x){return x.k===k;})[0];return m?m.n:(k||'—');}
+function confName(k){var c=CONF.filter(function(x){return x.k===k;})[0];return c?c.n:'In process';}
+function nameOf(id){if(!id)return '—';if(id===S.me.id)return S.me.name||'You';return S.names[id]||'Someone';}
+function toast(msg){var t=$('toast');t.textContent=msg;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(function(){t.hidden=true;},3800);}
+
+/* Working days between two dates: Monday to Friday (plus Saturday when the course says so), minus listed holidays, grouped by month. */
+var memo=new Map();
+function wdays(start,end,sat){if(!start||!end||end<start)return {};var key=start+end+(sat?'s':'');var hit=memo.get(key);if(hit)return hit;
+  var out={},d=pd(start),e=pd(end),g=0;
+  while(d<=e&&g++<3700){var w=d.getUTCDay(),s=fd(d);if(w!==0&&(w!==6||sat)&&!S.holSet.has(s)){var k=s.slice(0,7);out[k]=(out[k]||0)+1;}d=new Date(d.getTime()+86400000);}
+  memo.set(key,out);return out;}
+function cdays(start,end){var out={},d=pd(start),e=pd(end),g=0;while(d<=e&&g++<3700){var k=fd(d).slice(0,7);out[k]=(out[k]||0)+1;d=new Date(d.getTime()+86400000);}return out;}
+function eff(c){var a=c.stage==='actual';return {start:a?c.actualStart:c.plannedStart,end:a?c.actualEnd:c.plannedEnd,batch:Number(a?c.actualBatch:c.batchSize)||0};}
+/* Training days per month. A "training days" figure on the course overrides the count and is spread across the months in proportion. */
+function planOf(start,end,sat,td){var m=wdays(start,end,sat),wd=sum(m);td=Number(td)||0;
+  if(td>0&&td!==wd&&start&&end&&end>=start){var base=wd?m:cdays(start,end),bt=sum(base),out={};for(var k in base)out[k]=base[k]*td/bt;return {days:td,months:out,range:wd,over:true};}
+  return {days:wd,months:m,range:wd,over:false};}
+function plan(c){var e=eff(c);return planOf(e.start,e.end,!!c.sat,c.trainingDays);}
+function counted(c){return c.mode!=='Online'||S.online;}
+function tpdOf(c){return counted(c)?plan(c).days*eff(c).batch:0;}
+function valid(c){var e=eff(c);return !!(e.start&&e.end&&e.end>=e.start);}
+function liveStatus(c){var t=today();if(t<c.plannedStart)return 'upcoming';if(t<=c.plannedEnd)return 'running';return 'ended';}
+
+/* ---------- permissions (app level) ---------- */
+function myGatis(){return S.me.role==='head'?(S.me.gatis||[]).slice():[];}
+function canAdd(){return S.me.isOwner||myGatis().length>0;}
+function ownsGati(c){return S.me.isOwner||myGatis().indexOf(c.gati)>=0;}
+function canEditCourse(c){if(S.me.isOwner)return true;if(!ownsGati(c))return false;return c.stage!=='actual'||!!c.unlocked;}
+
+/* ---------- periods ---------- */
+function fyOf(dateStr){var y=Number(dateStr.slice(0,4)),m=Number(dateStr.slice(5,7));return m>=4?y:y-1;}
+function fyMonths(fy){var out=[];for(var i=0;i<12;i++){var m=(3+i)%12,y=fy+(3+i>=12?1:0);out.push(y+'-'+String(m+1).padStart(2,'0'));}return out;}
+function fyLabel(fy){return 'FY '+fy+'–'+String(fy+1).slice(2);}
+function fyOptions(){var set={};set[fyOf(today())]=1;S.courses.forEach(function(c){if(valid(c)&&c.stage!=='dropped'){var e=eff(c);set[fyOf(e.start)]=1;set[fyOf(e.end)]=1;}});return Object.keys(set).map(Number).sort();}
+function selIdx(sel){var a=[];for(var i=0;i<12;i++)if(!sel||sel[i])a.push(i);return a;}
+function periodMonths(fy,sel){var all=fyMonths(fy);return selIdx(sel).map(function(i){return all[i];});}
+function monthsText(sel){var a=selIdx(sel);if(a.length===12)return 'Full year';if(!a.length)return 'None';
+  for(var q=1;q<QUICK.length;q++){if(a.length===QUICK[q][2]-QUICK[q][1]&&a[0]===QUICK[q][1]&&a[a.length-1]===QUICK[q][2]-1)return QUICK[q][0];}
+  if(a.length<=3)return a.slice().sort(function(x,y){return (3+x)%12-(3+y)%12;}).map(function(i){return MON[(3+i)%12];}).join(', ');return a.length+' months';}
+function periodLabel(fy,sel){var a=selIdx(sel);if(a.length===12)return fyLabel(fy);if(a.length===1)return monthLong(fyMonths(fy)[a[0]]);return monthsText(sel)+' '+fyLabel(fy);}
+function inMonths(c,set){var e=eff(c),p=plan(c);if(set[e.end.slice(0,7)]||set[e.start.slice(0,7)])return true;for(var k in p.months)if(set[k])return true;return false;}
+function toSet(a){var s={};a.forEach(function(k){s[k]=1;});return s;}
+
+/* ---------- multi-select filters ---------- */
+var MSOPTS={};
+function valOf(c,key){if(key==='gati')return c.gati||'-';if(key==='school')return c.school||'-';if(key==='campus')return c.campus||'-';if(key==='mode')return c.mode||'-';if(key==='ptype')return c.programType||'-';if(key==='conf')return c.confidence||'yellow';return '';}
+var FKEYS=['gati','school','campus','mode','ptype'];
+function pass(c,f,keys){for(var i=0;i<keys.length;i++){var s=f[keys[i]];if(s&&!s[valOf(c,keys[i])])return false;}return true;}
+function optsFor(key,fy){
+  if(key==='gati')return GATI.map(function(g){return {k:g.k,n:gatiLong(g),s:g.k==='N'?'NST':g.k};}).concat([{k:'-',n:'Unassigned'}]);
+  if(key==='campus')return CAMPUSES.map(function(x){return {k:x,n:x};});
+  if(key==='mode')return MODES.map(function(m){return {k:m.k,n:m.n,s:m.k};});
+  if(key==='conf')return CONF.map(function(c){return {k:c.k,n:c.n};});
+  if(/months$/.test(key)){var fm=fyMonths(fy);return [9,10,11,0,1,2,3,4,5,6,7,8].map(function(i){return {k:String(i),n:monthLong(fm[i])};});}
+  var seen={},out=[],extra=[],blankv=false;
+  if(key==='school')cfg().schools.forEach(function(x){seen[x]=1;out.push({k:x,n:x,s:x.replace('School of ','')});});
+  S.courses.forEach(function(c){var v=key==='school'?c.school:c.programType;if(!v)blankv=true;else if(!seen[v]){seen[v]=1;extra.push(v);}});
+  extra.sort().forEach(function(x){out.push({k:x,n:x});});if(blankv)out.push({k:'-',n:'Not set'});
+  return out;}
+function ms(scope,key,label,fy,disabled){
+  var id=scope+'-'+key,options=optsFor(key,fy),sel=S[scope][key],open=S.openMs===id&&!disabled;MSOPTS[id]=options;
+  var on=options.filter(function(o){return !sel||sel[o.k];}),all=on.length===options.length;
+  var isM=/months$/.test(key),txt=key==='months'?monthsText(sel):all?'All':!on.length?'None':isM?monthsText(sel):on.length<=2?on.map(function(o){return o.s||o.n;}).join(', '):on.length+' selected';
+  var h='<div class="fld"><span>'+label+'</span><div class="ms"><button type="button" class="ms-btn" id="msb-'+id+'" data-act="ms-toggle" data-ms="'+id+'" aria-expanded="'+open+'"'+(disabled?' disabled':'')+'><span>'+esc(disabled?'All dates':txt)+'</span><i class="caret"></i></button>';
+  if(open){h+='<div class="ms-pop">'+(isM?'<div class="ms-quick">'+QUICK.map(function(q){return '<button type="button" class="sm" data-act="ms-quick" data-ms="'+id+'" data-a="'+q[1]+'" data-b="'+q[2]+'">'+q[0]+'</button>';}).join('')+'</div>':'')+
+    '<button type="button" class="sm ms-all" data-act="ms-all" data-ms="'+id+'">'+(all?'Deselect all':'Select all')+'</button>'+
+    options.map(function(o,i){return '<label class="ms-opt"><input type="checkbox" id="msc-'+id+'-'+i+'" data-msc="'+id+'" data-v="'+esc(o.k)+'"'+(!sel||sel[o.k]?' checked':'')+'>'+esc(o.n)+'</label>';}).join('')+'</div>';}
+  return h+'</div></div>';}
+function setMs(id,sel){var p=id.split('-');S[p[0]][p[1]]=sel;}
+function getMs(id){var p=id.split('-');return S[p[0]][p[1]];}
+function tip(t){return ' data-tip="'+esc(t)+'" tabindex="0"';}
+
+/* ---------- aggregation ---------- */
+function blank(){return {actual:0,green:0,yellow:0,red:0};}
+function bucket(c){return c.stage==='actual'?'actual':(c.confidence||'yellow');}
+function dashCourses(){var f=S.f;return S.courses.filter(function(c){return (c.stage==='actual'||c.stage==='pipeline')&&valid(c)&&pass(c,f,FKEYS)&&(c.stage==='actual'||!f.conf||f.conf[c.confidence||'yellow']);});}
+function accum(){return {tp:blank(),tpd:blank(),starts:{a:0,p:0},ends:{a:0,p:0}};}
+function aggregate(list,months){var M={};months.forEach(function(m){M[m]=accum();});
+  list.forEach(function(c){var e=eff(c),p=plan(c),b=bucket(c),cnt=counted(c),sk=c.stage==='actual'?'a':'p';
+    if(cnt)for(var k in p.months){if(M[k])M[k].tpd[b]+=p.months[k]*e.batch;}
+    var em=e.end.slice(0,7),sm=e.start.slice(0,7);if(M[em]){M[em].tp[b]+=e.batch;M[em].ends[sk]++;}if(M[sm])M[sm].starts[sk]++;});
+  return M;}
+function pipeOf(o){return o.green+o.yellow+o.red;}
+function addInto(t,a){for(var k in t)t[k]+=a[k];}
+function accAdd(t,a){addInto(t.tp,a.tp);addInto(t.tpd,a.tpd);addInto(t.starts,a.starts);addInto(t.ends,a.ends);}
+
+/* ---------- rendering ---------- */
+function gchip(k){return '<span class="gchip"><b>'+esc(k||'–')+'</b>'+esc(gatiName(k))+'</span>';}
+function confPill(k){k=k||'yellow';return '<span class="pill '+k+'"><i></i>'+esc(confName(k))+'</span>';}
+function statusPill(st){if(st==='running')return '<span class="pill live"><i></i>In progress</span>';if(st==='ended')return '<span class="pill due">Ended · confirm</span>';return '<span class="pill plain">Upcoming</span>';}
+function opts(list,sel,all){return (all?'<option value="">'+esc(all)+'</option>':'')+list.map(function(o){var v=typeof o==='string'?o:o.k,n=typeof o==='string'?o:o.n;return '<option value="'+esc(v)+'"'+(v===sel?' selected':'')+'>'+esc(n)+'</option>';}).join('');}
+function courseCell(c){var bits=[c.batch,c.client,c.programType].filter(Boolean).map(esc).join(' · ');return '<div class="t" title="'+esc(c.title)+'">'+esc(c.title)+(c.sample?'<span class="tag">Sample</span>':'')+'</div>'+(bits?'<div class="sub" title="'+bits+'">'+bits+'</div>':'');}
+function daysCell(c){var p=plan(c),d=Math.round(p.days*10)/10,notes=[];if(c.sat)notes.push('Saturdays are counted');if(p.over)notes.push('Training days set by hand; '+p.range+' working days in the date range');return notes.length?'<span class="hov"'+tip(notes.join('\n'))+'>'+d+'</span>':String(d);}
+function tpdCell(c,set,label){if(!counted(c))return '<span class="hov muted"'+tip('Online course. Not counted in throughput days.')+'>0</span>';
+  var p=plan(c),b=eff(c).batch,ks=Object.keys(p.months).sort(),lines=ks.map(function(k){return monthLabel(k)+': '+num(p.months[k]*b);});
+  if(set){var inP=0;ks.forEach(function(k){if(set[k])inP+=p.months[k]*b;});lines.unshift('In '+label+': '+num(inP),'');}
+  return '<span class="hov"'+tip(lines.join('\n'))+'>'+num(p.days*b)+'</span>';}
+
+function renderChrome(){
+  var r=$('role'),g=myGatis(),html;
+  if(S.me.isOwner)html='<span class="role owner"><i></i>Program team · full edit rights</span>';
+  else if(g.length)html='<span class="role head"><i></i>GATI head · '+esc(g.map(gatiName).join(', '))+'</span>';
+  else html='<span class="role"><i></i>View only</span>';
+  r.innerHTML=S.authState==='in'?'<div class="who">'+html+'<span class="me" title="'+esc(S.me.email)+'">'+esc(S.me.name||S.me.email)+'</span><button class="sm" data-act="chpw">Change password</button><button class="sm" data-act="signout">Sign out</button></div>':'';
+  $('tabs').hidden=S.authState!=='in';if(S.authState!=='in'){$('notes').innerHTML='';return;}
+  var pipeN=S.courses.filter(function(c){return c.stage==='pipeline';}).length,actN=S.courses.filter(function(c){return c.stage==='actual';}).length;
+  var reqN=S.courses.filter(function(c){return c.stage==='actual'&&c.editRequest&&!c.unlocked;}).length;
+  var pend=0;
+  $('tabs').innerHTML=TABS.map(function(t){var extra='';
+    if(t[0]==='pipeline'&&S.loaded)extra='<span class="count">'+pipeN+'</span>';
+    if(t[0]==='actuals'&&S.loaded)extra='<span class="count">'+actN+'</span>'+(reqN&&S.me.isOwner?'<span class="count alert">'+reqN+' edit request'+(reqN>1?'s':'')+'</span>':'');
+    if(t[0]==='setup'&&pend)extra='<span class="count alert">'+pend+' access request'+(pend>1?'s':'')+'</span>';
+    return '<a href="#'+t[0]+'"'+(S.tab===t[0]?' aria-current="page"':'')+'>'+t[1]+extra+'</a>';}).join('');
+  var n='';
+  var samples=S.courses.filter(function(c){return c.sample;}).length;
+  if(samples)n+='<div class="note info"><span><b>'+samples+' sample courses are loaded</b> so you can see how the tracker works. They are examples, not your data.</span>'+(S.me.isOwner?'<button class="sm'+(S.armed==='samples'?' armed':'')+'" data-act="clear-samples">'+(S.armed==='samples'?'Click again to remove all samples':'Remove sample courses')+'</button>':'')+'</div>';
+  if(S.slow)n+='<div class="note warn">The data can\'t be reached yet. What you see may be out of date; it will refresh by itself.</div>';
+  $('notes').innerHTML=n;$('notes').hidden=!n;
+}
+
+function render(){
+  renderChrome();
+  var main=$('main');tipHide();
+  if(S.authState!=='in'){main.innerHTML=viewAuth();var f=main.querySelector('input');if(f&&!main.contains(document.activeElement))f.focus();return;}
+  if(S.err){main.innerHTML='<div class="panel"><div class="empty"><h2>The tracker data could not be loaded</h2><p>Check your internet connection and reload the page. If it keeps happening, ask the program team to check your access.</p></div></div>';return;}
+  if(!S.loaded){main.innerHTML='<div class="panel"><div class="empty"><p>'+(S.slow?'Still trying to reach the tracker data…':'Loading the tracker…')+'</p></div></div>';return;}
+  var keep={},act=document.activeElement,actId=act&&main.contains(act)?act.id:null,selS=null;
+  main.querySelectorAll('input[id],textarea[id]').forEach(function(el){if(el.type!=='checkbox')keep[el.id]=el.value;});
+  if(actId&&act.selectionStart!=null){try{selS=act.selectionStart;}catch(e){}}
+  main.innerHTML=S.tab==='pipeline'?viewPipeline():S.tab==='actuals'?viewActuals():S.tab==='setup'?viewSetup():viewDashboard();
+  for(var id in keep){var el=$(id);if(el)el.value=keep[id];}
+  if(actId&&$(actId)){$(actId).focus();if(selS!=null){try{$(actId).setSelectionRange(selS,selS);}catch(e){}}}
+}
+
+/* ----- dashboard ----- */
+function niceScale(mx){var raw=mx/4,p=Math.pow(10,Math.floor(Math.log10(Math.max(raw,1)))),c=[1,2,5,10].map(function(x){return x*p;}).filter(function(x){return x>=raw;})[0]||10*p;var step=Math.max(1,c);return {step:step,top:Math.max(step,Math.ceil(mx/step)*step)};}
+function axisFmt(v,top){return top>=10000?(v/1000)+'K':num(v);}
+function chartSVG(id,months,M,metric){
+  var W=600,H=232,L=46,R=6,T=12,B=28,pw=W-L-R,ph=H-T-B,cur=today().slice(0,7);
+  var totals=months.map(function(m){return sum(M[m][metric]);}),sc=niceScale(Math.max.apply(null,totals.concat([1])));
+  var g='';for(var v=0;v<=sc.top;v+=sc.step){var y=T+ph-(v/sc.top)*ph;g+='<line class="'+(v===0?'base':'grid')+'" x1="'+L+'" x2="'+(W-R)+'" y1="'+y+'" y2="'+y+'"/><text x="'+(L-8)+'" y="'+(y+4)+'" text-anchor="end">'+axisFmt(v,sc.top)+'</text>';}
+  var band=pw/months.length,bw=Math.min(24,band*0.62);
+  months.forEach(function(m,i){var x=L+i*band+(band-bw)/2,y0=T+ph,segs=SER.filter(function(s){return M[m][metric][s.k]>0;});
+    segs.forEach(function(s,j){var h=(M[m][metric][s.k]/sc.top)*ph,gap=j>0?2:0,hh=Math.max(1,h-gap),y=y0-h,last=j===segs.length-1;
+      if(last){var r=Math.min(4,hh,bw/2);g+='<path fill="'+s.c+'" d="M'+x+','+(y+hh)+' V'+(y+r)+' Q'+x+','+y+' '+(x+r)+','+y+' H'+(x+bw-r)+' Q'+(x+bw)+','+y+' '+(x+bw)+','+(y+r)+' V'+(y+hh)+' Z"/>';}
+      else g+='<rect fill="'+s.c+'" x="'+x+'" y="'+y+'" width="'+bw+'" height="'+hh+'"/>';
+      y0-=h;});
+    g+='<text class="'+(m===cur?'cur':'')+'" x="'+(L+i*band+band/2)+'" y="'+(H-10)+'" text-anchor="middle">'+MON[Number(m.slice(5))-1]+'</text>';
+    g+='<rect class="band" data-chart="'+id+'" data-i="'+i+'" x="'+(L+i*band)+'" y="'+T+'" width="'+band+'" height="'+ph+'"/>';});
+  return '<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Stacked columns by month. The same figures are in the month table below.">'+g+'</svg>';
+}
+function legend(){return '<div class="legend">'+SER.map(function(s){return '<span><i class="sw" style="background:'+s.c+'"></i>'+esc(s.n)+'</span>';}).join('')+'</div>';}
+var DASH={months:[],M:{}};
+function pick(o){return S.mview==='actual'?o.actual:S.mview==='pipe'?pipeOf(o):sum(o);}
+function pickSE(o){return S.mview==='actual'?o.a:S.mview==='pipe'?o.p:o.a+o.p;}
+var METS=[['starts','Courses starting'],['ends','Courses ending'],['tp','Throughput'],['tpd','Throughput days']];
+var DASHC={A:{},Mu:{},T:{}};
+function mval(a,met){var o=a[met];return (met==='starts'||met==='ends')?pickSE(o):pick(o);}
+function msplit(a,met){var o=a[met];return (met==='starts'||met==='ends')?[o.a,o.p]:[o.actual,pipeOf(o)];}
+function cellC(src,keys,met,cls){var tot=accum(),lines=[];keys.forEach(function(k){accAdd(tot,src[k]);});
+  if(S.mview==='both'){var sp=msplit(tot,met);lines.push('Actual: '+num(sp[0]),'Pipeline: '+num(sp[1]));}
+  if(keys.length>1){if(lines.length)lines.push('');keys.forEach(function(k){lines.push(monthLabel(k)+': '+num(mval(src[k],met)));});}
+  return '<td class="n'+(cls||'')+'"'+(lines.length?tip(lines.join('\n')):'')+'>'+num(mval(tot,met))+'</td>';}
+function monthRowC(label,keys,cls){return '<tr'+(cls?' class="'+cls+'"':'')+'><td class="nowrap">'+label+'</td>'+[['A',''],['Mu',''],['T',' tcol']].map(function(g){return METS.map(function(m,i){return cellC(DASHC[g[0]],keys,m[0],(i===0?' gs':'')+g[1]);}).join('');}).join('')+'</tr>';}
+function defaults(scope){var fy=fyOf(today());
+  if(scope==='f')return {fy:fy,months:null,gati:null,school:null,campus:null,mode:null,ptype:null,conf:null,by:S.f.by};
+  if(scope==='pf')return {fy:fy,smonths:null,emonths:null,gati:null,school:null,campus:null,mode:null,ptype:null,conf:null,q:'',view:'active'};
+  return {fy:fy,smonths:null,emonths:null,gati:null,school:null,campus:null,mode:null,ptype:null,q:''};}
+function isDefault(scope){var d=defaults(scope),f=S[scope];for(var k in d){if(k!=='by'&&norm(f[k])!==norm(d[k]))return false;}return !S.online;}
+function resetBtn(scope){return '<button type="button" class="reset" data-act="reset" data-scope="'+scope+'"'+(isDefault(scope)?' disabled':'')+'><span aria-hidden="true">↺</span> Reset filters</button>';}
+function onlineCheck(){return '<div class="fld"><span>Throughput days</span><label class="check"><input type="checkbox" id="g-online" data-g="online"'+(S.online?' checked':'')+'>Count online courses</label></div>';}
+function commonFilters(scope){return ms(scope,'gati','GATI')+ms(scope,'school','School')+ms(scope,'campus','Campus')+ms(scope,'mode','Mode')+ms(scope,'ptype','Programme type');}
+function viewDashboard(){
+  var f=S.f,fys=fyOptions();if(f.fy==null||fys.indexOf(f.fy)<0)f.fy=fyOf(today());
+  var months=periodMonths(f.fy,f.months),all=fyMonths(f.fy),set=toSet(months),list=dashCourses(),M=aggregate(list,months);DASH={months:months,M:M};
+  var t=today(),cur=t.slice(0,7),tot=accum(),pl=periodLabel(f.fy,f.months);
+  months.forEach(function(m){accAdd(tot,M[m]);});
+  var curAgg=aggregate(list,[cur])[cur];
+  var running=list.filter(function(c){var e=eff(c);return e.start<=t&&t<=e.end;});
+  var runN=running.reduce(function(s,c){return s+eff(c).batch;},0);
+  var male=0,female=0;list.forEach(function(c){if(c.stage==='actual'&&set[c.actualEnd.slice(0,7)]){male+=Number(c.male)||0;female+=Number(c.female)||0;}});
+  var h='<section class="panel"><div class="panel-b filters">'+
+    '<label class="fld"><span>Financial year</span><select id="f-fy" data-f="fy">'+fys.map(function(y){return '<option value="'+y+'"'+(y===f.fy?' selected':'')+'>'+fyLabel(y)+'</option>';}).join('')+'</select></label>'+
+    ms('f','months','Period',f.fy)+commonFilters('f')+ms('f','conf','Pipeline confidence')+onlineCheck()+resetBtn('f')+'</div></section>';
+  if(!S.courses.length)return h+'<div class="panel"><div class="empty"><h2>No courses yet</h2><p>Once GATI heads add courses to the pipeline, monthly throughput and throughput days appear here.</p>'+(canAdd()?'<button class="primary" data-act="add">Add the first pipeline course</button>':'')+'</div></div>';
+  if(!months.length)return h+'<div class="panel"><div class="empty"><h2>No months selected</h2><p>Pick at least one month in the Period filter.</p></div></div>';
+  h+='<section class="kpis">'+
+    '<div class="panel kpi"><span class="lab">Throughput · '+esc(pl)+'</span><span class="v">'+num(tot.tp.actual)+' <small>actual</small></span><span class="d">+ '+num(pipeOf(tot.tp))+' in pipeline · counted in the month the course ends</span><span class="d">Actual: '+num(male)+' male · '+num(female)+' female'+(tot.tp.actual-male-female>0?' · '+num(tot.tp.actual-male-female)+' not recorded':'')+'</span></div>'+
+    '<div class="panel kpi"><span class="lab">Throughput days · '+esc(pl)+'</span><span class="v">'+num(tot.tpd.actual)+' <small>actual</small></span><span class="d">+ '+num(pipeOf(tot.tpd))+' in pipeline · learners × training days</span><span class="d">Online courses are '+(S.online?'counted':'not counted')+'</span></div>'+
+    '<div class="panel kpi"><span class="lab">'+monthLong(cur)+'</span><span class="v">'+(curAgg.starts.a+curAgg.starts.p)+' <small>starting</small> · '+(curAgg.ends.a+curAgg.ends.p)+' <small>ending</small></span><span class="d">'+num(sum(curAgg.tp))+' throughput · '+num(sum(curAgg.tpd))+' throughput days this month</span></div>'+
+    '<div class="panel kpi"><span class="lab">Running today</span><span class="v">'+running.length+' <small>course'+(running.length===1?'':'s')+'</small></span><span class="d">'+num(runN)+' learners in session on '+nice(t)+'</span></div>'+
+    '</section>';
+  h+='<section class="panel"><div class="panel-h"><h2>Month by month · '+esc(pl)+'</h2>'+legend()+'</div><div class="panel-b charts">'+
+    '<div><h3>Throughput days</h3><p class="sub">Learners × training days, placed in the month the days fall in</p><div class="chart" id="ch-tpd"><div class="scroll">'+chartSVG('tpd',months,M,'tpd')+'</div></div></div>'+
+    '<div><h3>Throughput</h3><p class="sub">Learners, counted once in the month their course ends</p><div class="chart" id="ch-tp"><div class="scroll">'+chartSVG('tp',months,M,'tp')+'</div></div></div>'+
+    '</div></section>';
+  DASHC={A:aggregate(list.filter(function(c){return c.campus==='Ahmedabad';}),months),Mu:aggregate(list.filter(function(c){return c.campus==='Mumbai';}),months),T:M};
+  var rows='',qk=[],hk=[];
+  all.forEach(function(m,i){if(set[m]){rows+=monthRowC(monthLabel(m)+(m===cur?' <span class="sub">this month</span>':''),[m],m===cur?'cur':'');qk.push(m);hk.push(m);}
+    if(i%3===2){if(qk.length===3)rows+=monthRowC('Q'+(Math.floor(i/3)+1)+' total',qk,'t1');qk=[];}
+    if(i%6===5){if(hk.length===6)rows+=monthRowC('H'+(Math.floor(i/6)+1)+' total',hk,'t2');hk=[];}});
+  var views=[['actual','Actual'],['both','Actual + Pipeline'],['pipe','Pipeline']];
+  h+='<section class="panel"><div class="panel-h"><h2>Month and quarter table</h2><div class="seg" role="group" aria-label="Show">'+views.map(function(v){return '<button data-act="mview" data-v="'+v[0]+'" aria-pressed="'+(S.mview===v[0])+'">'+v[1]+'</button>';}).join('')+'</div></div>'+
+    '<div class="scroll"><table class="mq"><thead><tr><th rowspan="2">Month</th>'+['Ahmedabad','Mumbai','Total · both campuses'].map(function(g){return '<th colspan="4" class="grp gs">'+g+'</th>';}).join('')+'</tr><tr>'+[0,1,2].map(function(){return '<th class="n gs">Courses starting</th><th class="n">Courses ending</th><th class="n">Throughput</th><th class="n">TP days</th>';}).join('')+'</tr></thead><tbody>'+rows+(months.length>1?monthRowC(esc(pl)+' total',months,'t3'):'')+'</tbody></table></div>'+
+    '<p class="sub tblnote">Hold the cursor on a number: '+(S.mview==='both'?'month rows show actual and pipeline separately, and ':'')+'quarter, half-year and year totals show the month-by-month split.</p></section>';
+  /* breakdown */
+  var dims={school:['School',function(c){return c.school||'Not set';}],gati:['GATI',function(c){return c.gati?c.gati+' · '+gatiName(c.gati):'Unassigned';}],campus:['Campus',function(c){return c.campus||'Not set';}],mode:['Mode',function(c){return modeName(c.mode);}],ptype:['Programme type',function(c){return c.programType||'Not set';}]};
+  dims.gati[1]=function(c){var g=GATI.filter(function(x){return x.k===c.gati;})[0];return g?gatiLong(g):'Unassigned';};var dim=dims[f.by]||dims.school,groups={};
+  list.forEach(function(c){var k=dim[1](c),g=groups[k]||(groups[k]={n:0,tpA:0,tpP:0,dA:0,dP:0});var e=eff(c),p=plan(c),a=c.stage==='actual',hit=false,cnt=counted(c);
+    months.forEach(function(m){if(p.months[m]){hit=true;if(cnt){if(a)g.dA+=p.months[m]*e.batch;else g.dP+=p.months[m]*e.batch;}}});
+    if(set[e.end.slice(0,7)]){hit=true;if(a)g.tpA+=e.batch;else g.tpP+=e.batch;}
+    if(hit)g.n++;});
+  var keys=Object.keys(groups).filter(function(k){return groups[k].n;}).sort(function(a,b){return (groups[b].dA+groups[b].dP)-(groups[a].dA+groups[a].dP);});
+  var mx=Math.max.apply(null,keys.map(function(k){return groups[k].dA+groups[k].dP;}).concat([1]));
+  h+='<section class="panel"><div class="panel-h"><h2>Breakdown · '+esc(pl)+'</h2><div class="seg" role="group" aria-label="Break down by">'+Object.keys(dims).map(function(k){return '<button data-act="by" data-v="'+k+'" aria-pressed="'+(f.by===k)+'">'+dims[k][0]+'</button>';}).join('')+'</div></div><div class="scroll"><table><thead><tr><th>'+dim[0]+'</th><th class="n">Courses</th><th class="n">Throughput · actual</th><th class="n">Throughput · pipeline</th><th class="n">TP days · actual</th><th class="n">TP days · pipeline</th><th><span class="legend"><span><i class="sw" style="background:var(--s-actual)"></i>Actual</span><span><i class="sw" style="background:var(--s-pipe)"></i>Pipeline</span></span></th></tr></thead><tbody>'+
+    (keys.length?keys.map(function(k){var g=groups[k];return '<tr><td>'+esc(k)+'</td><td class="n">'+g.n+'</td><td class="n">'+num(g.tpA)+'</td><td class="n">'+num(g.tpP)+'</td><td class="n">'+num(g.dA)+'</td><td class="n">'+num(g.dP)+'</td><td><div class="bar" title="'+num(g.dA+g.dP)+' throughput days">'+(g.dA?'<i class="a" style="width:'+(g.dA/mx*100)+'%"></i>':'')+(g.dP?'<i class="p" style="width:'+(g.dP/mx*100)+'%"></i>':'')+'</div></td></tr>';}).join(''):'<tr><td colspan="7" class="muted">Nothing falls in this period with these filters.</td></tr>')+
+    '</tbody></table></div></section>';
+  /* lab utilisation: actuals delivered on campus, split by the lab percentages recorded at confirmation */
+  var labs={};function addLab(name,campus,v){var r=labs[name]||(labs[name]={Ahmedabad:0,Mumbai:0});if(r[campus]!=null)r[campus]+=v;}
+  list.forEach(function(c){if(c.stage!=='actual'||c.mode==='Online'||c.mode==='Onsite')return;var p=plan(c),b=eff(c).batch,tt=0;months.forEach(function(m){if(p.months[m])tt+=p.months[m]*b;});if(!tt)return;var used=0;
+    (c.labs||[]).forEach(function(l){if(l&&l.lab&&l.pct>0){addLab(l.lab,c.campus,tt*l.pct/100);used+=Number(l.pct);}});
+    if(c.classPct>0){addLab('Classroom',c.campus,tt*c.classPct/100);used+=Number(c.classPct);}
+    if(used<99.5)addLab('Not allocated',c.campus,tt*(100-used)/100);});
+  var lk=Object.keys(labs).sort(function(a,b){if(a==='Not allocated')return 1;if(b==='Not allocated')return -1;return (labs[b].Ahmedabad+labs[b].Mumbai)-(labs[a].Ahmedabad+labs[a].Mumbai);});
+  var lmx=Math.max.apply(null,lk.map(function(k){return labs[k].Ahmedabad+labs[k].Mumbai;}).concat([1]));
+  h+='<section class="panel"><div class="panel-h"><h2>Lab utilisation · '+esc(pl)+'</h2><span class="sub">Actual throughput days on campus, shared out by the lab and classroom percentages of each course. Onsite and online courses are left out.</span></div><div class="scroll"><table><thead><tr><th>Lab or space</th><th class="n">Ahmedabad</th><th class="n">Mumbai</th><th class="n">Both campuses</th><th></th></tr></thead><tbody>'+
+    (lk.length?lk.map(function(k){var r=labs[k],tt=r.Ahmedabad+r.Mumbai;return '<tr><td>'+esc(k)+'</td><td class="n">'+num(r.Ahmedabad)+'</td><td class="n">'+num(r.Mumbai)+'</td><td class="n">'+num(tt)+'</td><td><div class="bar"><i class="a" style="width:'+(tt/lmx*100)+'%"></i></div></td></tr>';}).join(''):'<tr><td colspan="5" class="muted">No on-campus actuals in this period yet.</td></tr>')+'</tbody></table></div></section>';
+  return h;
+}
+
+/* ----- history ----- */
+function labsText(v,cp){var a=(v||[]).filter(function(l){return l&&l.lab;}).map(function(l){return l.lab+' '+l.pct+'%';});if(cp>0)a.push('Classroom '+cp+'%');return a.join(' · ');}
+function fmtVal(f,v){if(v==null||v==='')return '—';if(f==='gati')return gatiName(v);if(f==='confidence')return confName(v);if(f==='mode')return modeName(v);if(f==='sat')return v?'Yes':'No';if(f==='labs')return labsText(v)||'—';if(/Start|End/.test(f))return nice(v);return String(v);}
+function histRow(c,cols){var hs=(c.history||[]).slice().reverse();
+  return '<tr class="hist"><td colspan="'+cols+'">'+(hs.length?'<ol>'+hs.map(function(h){
+    var chg=(h.changes||[]).map(function(x){return esc(LABELS[x.f]||x.f)+': <s>'+esc(fmtVal(x.f,x.from))+'</s> → '+esc(fmtVal(x.f,x.to));}).join(' · ');
+    return '<li><time>'+esc(stamp(h.at))+'</time><span class="who">'+esc(nameOf(h.by))+'</span><span>'+esc(ACTIONS[h.action]||h.action)+'</span>'+(h.note?'<span class="chg">'+esc(h.note)+'</span>':'')+(chg?'<span class="chg">'+chg+'</span>':'')+'</li>';}).join('')+'</ol>':'<span class="muted">No changes recorded.</span>')+(c.notes?'<p class="sub" style="margin-top:8px">Notes: '+esc(c.notes)+'</p>':'')+'</td></tr>';}
+function histBtn(c){var n=(c.history||[]).length;return '<button class="sm" data-act="hist" data-id="'+esc(c.id)+'" aria-expanded="'+S.openHist.has(c.id)+'">History · '+n+'</button>';}
+function dateFilters(scope,fys){var f=S[scope],off=f.fy==='',fy=off?fyOf(today()):f.fy;return '<label class="fld"><span>Financial year</span><select id="'+scope+'-fy" data-'+scope+'="fy"><option value="">All years</option>'+fys.map(function(y){return '<option value="'+y+'"'+(y===f.fy?' selected':'')+'>'+fyLabel(y)+'</option>';}).join('')+'</select></label>'+ms(scope,'smonths','Start month',fy,off)+ms(scope,'emonths','End month',fy,off);}
+/* A course is listed when its start or end falls in the chosen year, its start month is one of the ticked start months, and its end month is one of the ticked end months. */
+function datePass(c,f){if(f.fy==='')return true;if(!valid(c))return false;var all=fyMonths(f.fy),e=eff(c),si=all.indexOf(e.start.slice(0,7)),ei=all.indexOf(e.end.slice(0,7));
+  if(si<0&&ei<0)return false;if(f.smonths&&!(si>=0&&f.smonths[si]))return false;if(f.emonths&&!(ei>=0&&f.emonths[ei]))return false;return true;}
+function totalsBox(list,isActual){var n=0,learn=0,tpd=0,male=0,female=0;
+  list.forEach(function(c){if(!valid(c))return;var e=eff(c),p=plan(c);n++;learn+=e.batch;male+=Number(c.male)||0;female+=Number(c.female)||0;if(counted(c))tpd+=p.days*e.batch;});
+  var items=[['Courses',n],[isActual?'Throughput':'Batch size',learn]];
+  if(isActual)items.push(['Male',male],['Female',female]);
+  items.push(['TP days',tpd]);
+  return '<section class="panel totals"><h3>Totals for the list below</h3><div class="tot-items">'+items.map(function(i){return '<div><span class="lab">'+esc(i[0])+'</span><b>'+num(i[1])+'</b></div>';}).join('')+'</div><span class="sub">Online courses are '+(S.online?'counted':'not counted')+' in TP days</span></section>';}
+function matchQ(c,q){return !q||((c.title||'')+' '+(c.client||'')+' '+(c.school||'')+' '+(c.batch||'')+' '+(c.programType||'')).toLowerCase().indexOf(q)>=0;}
+var VIEW={list:[],actual:false};
+function exportBtn(){return true?'<button data-act="export">Export to Excel</button>':'';}
+
+/* ----- pipeline ----- */
+function viewPipeline(){
+  var f=S.pf;if(f.fy==null)f.fy=fyOf(today());var q=f.q.trim().toLowerCase(),fys=fyOptions(),dropped=f.view==='dropped';
+  var active=S.courses.filter(function(c){return c.stage==='pipeline';}),drops=S.courses.filter(function(c){return c.stage==='dropped';});
+  var list=(dropped?drops:active).filter(function(c){return pass(c,f,FKEYS.concat(['conf']))&&matchQ(c,q)&&datePass(c,f);})
+    .sort(function(a,b){return (a.plannedStart||'')<(b.plannedStart||'')?-1:1;});
+  VIEW={list:list,actual:false};
+  var due=active.filter(function(c){return liveStatus(c)==='ended';}).length;
+  var h='<section class="panel"><div class="panel-b filters">'+dateFilters('pf',fys)+commonFilters('pf')+ms('pf','conf','Confidence')+
+    '<label class="fld"><span>Search</span><input type="search" id="pf-q" data-pf="q" placeholder="Course, client, batch, school" value="'+esc(f.q)+'"></label>'+
+    '<div class="fld"><span>Show</span><div class="seg"><button data-act="pview" data-v="active" aria-pressed="'+!dropped+'">Active · '+active.length+'</button><button data-act="pview" data-v="dropped" aria-pressed="'+dropped+'">Dropped · '+drops.length+'</button></div></div>'+
+    onlineCheck()+resetBtn('pf')+'<span class="spacer"></span>'+exportBtn()+(canAdd()?'<button class="primary" data-act="add">Add pipeline course</button>':'')+'</div></section>';
+  if(due&&!dropped)h+='<div class="note warn"><span><b>'+due+' course'+(due>1?'s have':' has')+' passed the end date.</b> The GATI head confirms the actual dates, throughput and lab split to move '+(due>1?'them':'it')+' to Actuals.</span></div>';
+  if(!active.length&&!drops.length)return h+'<div class="panel"><div class="empty"><h2>The pipeline is empty</h2><p>GATI heads add the courses they expect to bring, with dates, batch size and how likely each one is.</p></div></div>';
+  h+=totalsBox(list,false);
+  h+='<section class="panel"><div class="scroll"><table><thead><tr><th>Course</th><th>GATI</th><th>School</th><th>Campus</th><th>Start</th><th>End</th><th class="n">Days</th><th class="n">Batch</th><th class="n">TP days</th><th>'+(dropped?'Reason':'Confidence')+'</th><th>Status</th><th></th></tr></thead><tbody>'+
+    (list.length?list.map(function(c){var st=liveStatus(c),can=canEditCourse(c),started=c.plannedStart<=today(),acts='';
+      if(dropped){if(can)acts+='<button class="sm" data-act="restore" data-id="'+esc(c.id)+'">Restore</button>';acts+=histBtn(c);if(S.me.isOwner)acts+='<button class="sm danger'+(S.armed===c.id?' armed':'')+'" data-act="del" data-id="'+esc(c.id)+'">'+(S.armed===c.id?'Click again to delete':'Delete')+'</button>';}
+      else{if(can&&started)acts+='<button class="sm'+(st==='ended'?' primary':'')+'" data-act="confirm" data-id="'+esc(c.id)+'">Move to actuals</button>';if(can)acts+='<button class="sm" data-act="edit" data-id="'+esc(c.id)+'">Edit</button>';acts+=histBtn(c);if(can)acts+='<button class="sm danger" data-act="drop" data-id="'+esc(c.id)+'">Drop</button>';}
+      return '<tr><td class="c-main">'+courseCell(c)+'</td><td>'+gchip(c.gati)+'</td><td title="'+esc(c.school)+'">'+esc((c.school||'').replace(/^School of /,''))+'</td><td>'+esc(c.campus)+'<div class="sub nowrap">'+esc(modeName(c.mode))+'</div></td>'+
+        '<td class="nowrap">'+nice(c.plannedStart)+'</td><td class="nowrap">'+nice(c.plannedEnd)+'</td><td class="n">'+daysCell(c)+'</td><td class="n">'+num(c.batchSize)+'</td><td class="n">'+tpdCell(c)+'</td><td>'+(dropped?esc(c.dropReason||'—'):confPill(c.confidence))+'</td><td>'+(dropped?'<span class="pill plain">Dropped</span>':statusPill(st))+'</td>'+
+        '<td class="acts">'+acts+'</td></tr>'+(S.openHist.has(c.id)?histRow(c,12):'');}).join('')
+      :'<tr><td colspan="12" class="muted">No '+(dropped?'dropped':'pipeline')+' courses match these filters.</td></tr>')+
+    (canAdd()&&!dropped?'<tr class="addrow"><td colspan="12"><button class="addnew" data-act="add"><b>+</b> Add new course</button></td></tr>':'')+'</tbody></table></div></section>';
+  return h;
+}
+
+/* ----- actuals ----- */
+function viewActuals(){
+  var f=S.af,q=f.q.trim().toLowerCase(),fys=fyOptions();if(f.fy==null)f.fy=fyOf(today());
+  var all=S.courses.filter(function(c){return c.stage==='actual';});
+  var list=all.filter(function(c){return pass(c,f,FKEYS)&&matchQ(c,q)&&datePass(c,f);})
+    .sort(function(a,b){return (a.actualEnd||'')>(b.actualEnd||'')?-1:1;});
+  VIEW={list:list,actual:true};
+  var h='<section class="panel"><div class="panel-b filters">'+dateFilters('af',fys)+commonFilters('af')+
+    '<label class="fld"><span>Search</span><input type="search" id="af-q" data-af="q" placeholder="Course, client, batch, school" value="'+esc(f.q)+'"></label>'+
+    onlineCheck()+resetBtn('af')+'<span class="spacer"></span>'+exportBtn()+(S.me.isOwner?'<button class="primary" data-act="add-actual">Add actual course</button>':'')+'</div></section>';
+  if(!all.length)return h+'<div class="panel"><div class="empty"><h2>No actuals yet</h2><p>When a pipeline course has run, its GATI head confirms the real dates, throughput and lab split. The record then moves here and is locked.</p></div></div>';
+  h+=totalsBox(list,true);
+  var shown=list.slice(0,300);
+  h+='<section class="panel"><div class="panel-h"><span class="sub">Locked records. A GATI head requests an edit; the program team approves it. Only the program team can add a course here directly.</span></div><div class="scroll"><table><thead><tr><th>Course</th><th>GATI</th><th>School</th><th>Campus</th><th>Start</th><th>End</th><th class="n">Days</th><th class="n">Throughput</th><th class="n">TP days</th><th>Lab split</th><th>Confirmed</th><th></th></tr></thead><tbody>'+
+    (shown.length?shown.map(function(c){var b=Number(c.actualBatch)||0;
+      var sv=(c.plannedStart&&c.actualStart!==c.plannedStart)?'<div class="var">Planned '+nice(c.plannedStart)+'</div>':'';
+      var ev=(c.plannedEnd&&c.actualEnd!==c.plannedEnd)?'<div class="var">Planned '+nice(c.plannedEnd)+'</div>':'';
+      var bv=(c.batchSize!=null&&Number(c.batchSize)!==b)?'<div class="var">'+(c.source==='master'?'Enrolled ':'Planned ')+num(c.batchSize)+'</div>':'';
+      var mf=(c.male!=null||c.female!=null)?'<div class="sub">'+num(c.male)+' M · '+num(c.female)+' F</div>':'';
+      var req=c.editRequest&&!c.unlocked,acts='';
+      if(S.me.isOwner){acts+='<button class="sm" data-act="edit" data-id="'+esc(c.id)+'">Edit</button>';if(req)acts+='<button class="sm primary" data-act="approve" data-id="'+esc(c.id)+'">Unlock for the GATI head</button><button class="sm" data-act="decline" data-id="'+esc(c.id)+'">Decline</button>';}
+      else if(ownsGati(c)){if(c.unlocked)acts+='<button class="sm primary" data-act="edit" data-id="'+esc(c.id)+'">Edit (unlocked)</button>';else if(!req)acts+='<button class="sm" data-act="request" data-id="'+esc(c.id)+'">Request edit</button>';}
+      acts+=histBtn(c);
+      return '<tr><td class="c-main">'+courseCell(c)+(req?'<div class="var">Edit requested by '+esc(nameOf(c.editRequest.by))+': '+esc(c.editRequest.reason||'')+'</div>':'')+(c.unlocked?'<div class="var">Unlocked for one edit</div>':'')+'</td><td>'+gchip(c.gati)+'</td><td title="'+esc(c.school)+'">'+esc((c.school||'').replace(/^School of /,''))+'</td><td>'+esc(c.campus)+'<div class="sub nowrap">'+esc(modeName(c.mode))+'</div></td>'+
+        '<td class="nowrap">'+nice(c.actualStart)+sv+'</td><td class="nowrap">'+nice(c.actualEnd)+ev+'</td><td class="n">'+daysCell(c)+'</td><td class="n">'+num(b)+mf+bv+'</td><td class="n">'+tpdCell(c)+'</td><td class="labs">'+(labsText(c.labs,c.classPct)?esc(labsText(c.labs,c.classPct)).replace(/ · /g,'<br>'):'<span class="muted">—</span>')+'</td><td><span class="nowrap">'+(c.confirmedAt?esc(stamp(c.confirmedAt).split(',')[0]):'—')+'</span><div class="sub">'+(c.source==='master'?'Master sheet':esc(nameOf(c.confirmedBy)))+'</div></td><td class="acts">'+acts+'</td></tr>'+(S.openHist.has(c.id)?histRow(c,12):'');}).join('')
+      :'<tr><td colspan="12" class="muted">No actuals match these filters.</td></tr>')+(S.me.isOwner?'<tr class="addrow"><td colspan="12"><button class="addnew" data-act="add-actual"><b>+</b> Add actual course</button></td></tr>':'')+'</tbody></table></div></section>';
+  if(list.length>shown.length)h+='<p class="sub">Showing the latest 300 of '+list.length+'. The totals and the Excel export cover all '+list.length+'. Pick a financial year or month to narrow the list.</p>';
+  return h;
+}
+
+/* ----- export ----- */
+function download(o){return new Promise(function(res){var u=URL.createObjectURL(o.data),a=document.createElement('a');a.href=u;a.download=o.filename;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u);},5000);res({status:'saved'});});}
+function xdate(s){if(!s)return '';var p=s.split('-').map(Number);return {t:'n',v:(Date.UTC(p[0],p[1]-1,p[2])-Date.UTC(1899,11,30))/86400000,z:'dd-mmm-yyyy'};}
+function exportList(){
+  if(typeof XLSX==='undefined')return toast('Excel export could not load. Reload the page and try again.');
+  var v=VIEW,a=v.actual,head=['Course','Batch / code','Client / source','Programme type','GATI','School','Campus','Mode',a?'Actual start':'Planned start',a?'Actual end':'Planned end','Training days','Saturdays counted'];
+  head=head.concat(a?['Enrolled / planned batch','Throughput','Male','Female']:['Batch size','Confidence','Status']);
+  head.push('TP days');
+  if(a)head=head.concat(['Lab 1','Lab 1 %','Lab 2','Lab 2 %','Lab 3','Lab 3 %','Classroom %','Confirmed on']);
+  head.push('Notes');
+  var rows=[head];
+  v.list.forEach(function(c){var e=eff(c),p=plan(c),cnt=counted(c),r=[c.title||'',c.batch||'',c.client||'',c.programType||'',gatiName(c.gati),c.school||'',c.campus||'',modeName(c.mode),xdate(e.start),xdate(e.end),Math.round(p.days*10)/10,c.sat?'Yes':'No'];
+    if(a)r.push(c.batchSize==null?'':Number(c.batchSize),e.batch,c.male==null?'':Number(c.male),c.female==null?'':Number(c.female));
+    else r.push(e.batch,confName(c.confidence),c.stage==='dropped'?'Dropped':({upcoming:'Upcoming',running:'In progress',ended:'Ended, to confirm'})[liveStatus(c)]);
+    r.push(cnt?Math.round(p.days*e.batch):0);
+    if(a){var L=c.labs||[];for(var i=0;i<3;i++){r.push(L[i]?L[i].lab:'',L[i]?Number(L[i].pct):'');}r.push(c.classPct==null?'':Number(c.classPct),c.confirmedAt?xdate(c.confirmedAt.slice(0,10)):'');}
+    r.push(c.stage==='dropped'&&c.dropReason?('Dropped: '+c.dropReason+'. '+(c.notes||'')):(c.notes||''));rows.push(r);});
+  var ws=XLSX.utils.aoa_to_sheet(rows);ws['!cols']=head.map(function(hh,i){return {wch:i===0?48:i<8?22:14};});
+  var wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,a?'Actuals':'Pipeline');
+  var buf=XLSX.write(wb,{bookType:'xlsx',type:'array'});
+  download({filename:'GATI-'+(a?'actuals':'pipeline')+'-'+today()+'.xlsx',data:new Blob([buf])}).then(function(){toast('Saved '+v.list.length+' rows to Excel');}).catch(function(e){if(!e||e.code!=='declined')toast(e&&e.code==='rate_limited'?'A save is already waiting for your answer.':'The file could not be saved.');});
+}
+
+/* ----- setup ----- */
+function viewSetup(){
+  var c=cfg(),own=S.me.isOwner,g=myGatis();
+  var access='<p>'+(own?'You are in the program team. You can edit everything, add and remove people, unlock actuals and manage the lists on this page.':g.length?'You are a GATI head for <b>'+esc(g.map(gatiName).join(', '))+'</b>. You can add, edit and confirm courses for '+(g.length>1?'those sources':'that source')+'.':'You can see everything. Only GATI heads and the program team can change courses.')+'</p><p class="sub">Signed in as '+esc(S.me.email)+'</p><div class="row"><button data-act="chpw">Change password</button></div>';
+  var users=S.users.slice().sort(function(a,b){var o={program:0,head:1,viewer:2};return (o[a.role]-o[b.role])||String(a.name||a.id).localeCompare(String(b.name||b.id));});
+  var people='<ul class="list">'+users.map(function(u){var rl=u.role==='program'?'Program team':u.role==='head'?'GATI head · '+(u.gatis||[]).map(gatiName).join(', '):'Viewer';
+    return '<li><span><b>'+esc(u.name||u.id)+'</b> <span class="sub">'+esc(u.id)+'</span><br><span class="sub">'+esc(rl)+(u.mustChangePassword?' · has not signed in yet':'')+'</span></span>'+(own?'<span class="nowrap"><button class="sm" data-act="edit-person" data-id="'+esc(u.id)+'">Edit</button>'+(u.id!==S.me.id?' <button class="sm danger'+(S.armed==='u:'+u.id?' armed':'')+'" data-act="rm-person" data-id="'+esc(u.id)+'">'+(S.armed==='u:'+u.id?'Click again to remove':'Remove')+'</button>':'')+'</span>':'')+'</li>';}).join('')+'</ul>'+
+    (own?'<div class="row"><button class="primary" data-act="add-person">Add a person</button></div>':'');
+  var heads='<ul class="list">'+GATI.map(function(x){var nm=c.headNames[x.k],acc=users.filter(function(u){return u.role==='head'&&(u.gatis||[]).indexOf(x.k)>=0;});return '<li><span>'+gchip(x.k)+'</span><span>'+(nm?'<b>'+esc(nm)+'</b>':'<span class="muted">No head named</span>')+(acc.length?' · can edit: '+acc.map(function(u){return esc(u.name||u.id);}).join(', '):' <span class="sub">· no login with edit rights yet</span>')+'</span></li>';}).join('')+'</ul>';
+  var hol='<p class="sub">Sundays are always left out. Saturdays are left out unless a course is marked as running on Saturdays. Dates listed here are left out as well.</p><ul class="list">'+(c.holidays.length?c.holidays.slice().sort(function(a,b){return a.d<b.d?-1:1;}).map(function(x){return '<li><span><b>'+nice(x.d)+'</b> '+esc(x.n||'')+'</span>'+(own?'<button class="sm" data-act="rm-hol" data-d="'+esc(x.d)+'">Remove</button>':'')+'</li>';}).join(''):'<li class="muted">No holidays listed yet.</li>')+'</ul>'+
+    (own?'<div class="row"><label class="fld"><span>Date</span><input type="date" id="hol-d"></label><label class="fld"><span>Holiday</span><input type="text" id="hol-n" placeholder="e.g. Diwali"></label><button data-act="add-hol">Add holiday</button></div>':'');
+  function listPanel(items,key,ph){return '<ul class="list">'+items.map(function(s){return '<li><span>'+esc(s)+'</span>'+(own?'<button class="sm" data-act="rm-item" data-k="'+key+'" data-v="'+esc(s)+'">Remove</button>':'')+'</li>';}).join('')+'</ul>'+(own?'<div class="row"><label class="fld"><span>'+ph+'</span><input type="text" id="new-'+key+'" placeholder="Name"></label><button data-act="add-item" data-k="'+key+'">Add</button></div>':'');}
+  return '<div class="setup">'+
+    '<section class="panel"><div class="panel-h"><h2>Your access</h2></div><div class="panel-b stack">'+access+'</div></section>'+
+    '<section class="panel"><div class="panel-h"><h2>People and access</h2></div><div class="panel-b stack">'+people+'</div></section>'+
+    '<section class="panel"><div class="panel-h"><h2>GATI heads</h2></div><div class="panel-b stack">'+heads+'</div></section>'+
+    '<section class="panel"><div class="panel-h"><h2>Schools</h2></div><div class="panel-b stack">'+listPanel(c.schools,'schools','New school')+'</div></section>'+
+    '<section class="panel"><div class="panel-h"><h2>Labs</h2><span class="sub">Classroom is always offered as well</span></div><div class="panel-b stack">'+listPanel(c.labs,'labs','New lab')+'</div></section>'+
+    '<section class="panel"><div class="panel-h"><h2>Holiday calendar</h2></div><div class="panel-b stack">'+hol+'</div></section>'+
+    '<section class="panel"><div class="panel-h"><h2>How the numbers are worked out</h2></div><div class="panel-b prose">'+
+    '<p><b>Throughput</b> is the number of learners. It is counted once, in the month the course ends. For actuals it is the number who completed.</p>'+
+    '<p><b>Throughput days</b> is learners × training days, placed in the month the days fall in. A course from October to December adds to each of the three months separately.</p>'+
+    '<p><b>Training days</b> are Monday to Friday between the two dates, minus holidays. Tick "Saturdays count" on a course that runs Monday to Saturday. If a course trains on fewer days than its date range, enter the number of training days by hand; it is spread across the months in proportion.</p>'+
+    '<p><b>Online courses</b> count in throughput but not in throughput days, unless you tick "Count online courses".</p>'+
+    '<p><b>Start month and End month</b> filters on Pipeline and Actuals list a course by the month it starts and the month it ends. The end month is the month its throughput is counted in.</p><p><b>Quarters</b> follow the April to March year: Q1 Apr–Jun, Q2 Jul–Sep, Q3 Oct–Dec, Q4 Jan–Mar. H1 is Apr–Sep and H2 is Oct–Mar.</p>'+
+    '<p><b>Lab utilisation</b> shares each on-campus actual course\'s throughput days across up to three labs and the classroom, using the percentages entered when the course is moved to Actuals.</p></div></section></div>';
+}
+
+/* ---------- dialogs ---------- */
+function openDlg(html){var d=$('dlg');d.innerHTML=html;if(!d.open)d.showModal();}
+function closeDlg(){var d=$('dlg');if(d.open)d.close();d.innerHTML='';}
+function extrasHTML(p,c){var labs=(c&&c.labs)||[],lo=cfg().labs.concat(['Classroom']);labs.forEach(function(l){if(l&&l.lab&&lo.indexOf(l.lab)<0)lo.push(l.lab);});
+  var h='<label class="fld"><span>Male</span><input type="number" id="'+p+'-male" min="0" step="1" value="'+esc(c&&c.male!=null?c.male:'')+'"></label><label class="fld"><span>Female</span><input type="number" id="'+p+'-female" min="0" step="1" value="'+esc(c&&c.female!=null?c.female:'')+'"></label>'+
+    '<div class="wide"><span class="lab">Where it ran · up to three labs, the rest in the classroom</span><div class="labgrid">';
+  for(var i=1;i<=3;i++){var l=labs[i-1]||{};h+='<select id="'+p+'-lab'+i+'" aria-label="Lab '+i+'">'+opts(lo.filter(function(x){return x!=='Classroom';}),l.lab||'','Lab '+i+' · none')+'</select><input type="number" id="'+p+'-pct'+i+'" min="0" max="100" step="1" placeholder="%" aria-label="Lab '+i+' percent" value="'+esc(l.pct!=null?l.pct:'')+'">';}
+  h+='<span class="cls">Classroom</span><input type="number" id="'+p+'-class" min="0" max="100" step="1" placeholder="%" aria-label="Classroom percent" value="'+esc(c&&c.classPct!=null?c.classPct:'')+'"></div><p class="sub" id="'+p+'-labsum"></p></div>';
+  return h;}
+function readExtras(p,batch){var o={labs:[],classPct:null,male:null,female:null},tot=0;
+  var m=$(p+'-male').value,f=$(p+'-female').value;if(m!=='')o.male=Math.round(Number(m));if(f!=='')o.female=Math.round(Number(f));
+  for(var i=1;i<=3;i++){var lab=$(p+'-lab'+i).value,pct=Number($(p+'-pct'+i).value)||0;if(lab&&pct>0){o.labs.push({lab:lab,pct:pct});tot+=pct;}else if(lab||pct>0)return {err:'Choose both a lab and a percentage for lab '+i+', or clear both.'};}
+  var cp=$(p+'-class').value;if(cp!==''&&Number(cp)>0){o.classPct=Number(cp);tot+=o.classPct;}
+  if(tot>0&&Math.abs(tot-100)>0.5)return {err:'The lab and classroom percentages add up to '+tot+'%. They should add up to 100%.'};
+  if((o.male!=null||o.female!=null)&&(o.male||0)+(o.female||0)!==batch)return {err:'Male and female add up to '+((o.male||0)+(o.female||0))+', but the throughput is '+batch+'.'};
+  return o;}
+function labSum(p){var el=$(p+'-labsum');if(!el)return;var t=0;for(var i=1;i<=3;i++)t+=Number($(p+'-pct'+i).value)||0;t+=Number($(p+'-class').value)||0;el.textContent=t?('Total '+t+'%'+(Math.abs(t-100)>0.5?' · should be 100%':'')):'Leave empty for onsite and online courses.';}
+function courseForm(c,newActual){
+  var isA=!!newActual||(c&&c.stage==='actual'),e=c?eff(c):{start:'',end:'',batch:''};
+  var gl=S.me.isOwner?GATI.map(function(g){return g.k;}):myGatis();
+  var gsel=c?(c.gati||''):(gl.length===1?gl[0]:'');
+  var types={};S.courses.forEach(function(x){if(x.programType)types[x.programType]=1;});
+  openDlg('<form class="dlg" id="cf" novalidate data-id="'+esc(c?c.id:'')+'" data-na="'+(newActual?1:0)+'"><h2>'+(c?(isA?'Edit locked record':'Edit pipeline course'):(newActual?'Add a completed course to actuals':'Add pipeline course'))+'</h2>'+(newActual?'<p class="sub">For a course that has already run and was never in the pipeline. It is saved as a locked actual record.</p>':'')+'<div class="fgrid">'+
+    '<label class="fld wide"><span>Course name</span><input type="text" id="cf-title" value="'+esc(c?c.title:'')+'" maxlength="200"></label>'+
+    '<label class="fld"><span>Client / source organisation</span><input type="text" id="cf-client" value="'+esc(c?c.client:'')+'" maxlength="160" placeholder="Who is sending the learners"></label>'+
+    '<label class="fld"><span>Batch / code</span><input type="text" id="cf-batchcode" value="'+esc(c?c.batch:'')+'" maxlength="80" placeholder="e.g. Batch 6, FDP Batch 14"></label>'+
+    '<label class="fld"><span>GATI source</span><select id="cf-gati">'+opts(GATI.filter(function(g){return gl.indexOf(g.k)>=0||(c&&c.gati===g.k);}).map(function(g){return {k:g.k,n:gatiLong(g)};}),gsel,S.me.isOwner?'Unassigned':(gl.length===1?null:'Choose'))+'</select></label>'+
+    '<label class="fld"><span>Programme type</span><input type="text" id="cf-ptype" list="cf-types" value="'+esc(c?c.programType:'')+'" maxlength="60" placeholder="e.g. FS, PS, AIP, IHoT"><datalist id="cf-types">'+Object.keys(types).sort().map(function(t){return '<option value="'+esc(t)+'">';}).join('')+'</datalist></label>'+
+    '<label class="fld"><span>School</span><select id="cf-school">'+opts(cfg().schools.concat(c&&c.school&&cfg().schools.indexOf(c.school)<0?[c.school]:[]),c?c.school:'','Choose')+'</select></label>'+
+    '<label class="fld"><span>Campus</span><select id="cf-campus">'+opts(CAMPUSES,c?c.campus:'','Choose')+'</select></label>'+
+    '<label class="fld"><span>Mode</span><select id="cf-mode">'+opts(MODES,c?c.mode:'Campus',null)+'</select></label>'+
+    (isA?'':'<label class="fld"><span>Confidence</span><select id="cf-conf">'+opts(CONF.map(function(x){return {k:x.k,n:x.k.charAt(0).toUpperCase()+x.k.slice(1)+' · '+x.n};}),c?(c.confidence||'yellow'):'yellow',null)+'</select></label>')+
+    '<label class="fld"><span>'+(isA?'Actual start':'Planned start')+'</span><input type="date" id="cf-start" value="'+esc(e.start||'')+'"></label>'+
+    '<label class="fld"><span>'+(isA?'Actual end':'Planned end')+'</span><input type="date" id="cf-end" value="'+esc(e.end||'')+'"></label>'+
+    '<label class="fld"><span>'+(isA?'Actual throughput (learners)':'Batch size (learners)')+'</span><input type="number" id="cf-batch" min="1" step="1" value="'+esc(e.batch||'')+'"></label>'+
+    '<label class="fld"><span>Training days · only if fewer than the date range</span><input type="number" id="cf-td" min="0" step="1" placeholder="Counted from the dates" value="'+esc(c&&c.trainingDays?c.trainingDays:'')+'"></label>'+
+    '<label class="check wide"><input type="checkbox" id="cf-sat"'+(c&&c.sat?' checked':'')+'>Saturdays count as training days for this course (Monday to Saturday courses)</label>'+
+    (isA?extrasHTML('cf',c):'')+
+    '<label class="fld wide"><span>Notes</span><textarea id="cf-notes" maxlength="600">'+esc(c?c.notes:'')+'</textarea></label></div>'+
+    '<div class="calc" id="cf-calc"></div><p class="err" id="cf-err" hidden></p>'+
+    '<div class="dlg-actions"><button type="button" data-act="dlg-close">Cancel</button><button type="submit" class="primary">'+(c?'Save changes':(newActual?'Add to actuals':'Add to pipeline'))+'</button></div></form>');
+  calcPreview('cf');labSum('cf');
+}
+function calcPreview(p){var form=$(p),s=$(p+'-start').value,e=$(p+'-end').value,b=Number($(p+'-batch').value)||0,el=$(p+'-calc');
+  var sat=$(p+'-sat')?$(p+'-sat').checked:form.dataset.sat==='1',td=$(p+'-td')?$(p+'-td').value:form.dataset.td,mode=$(p+'-mode')?$(p+'-mode').value:form.dataset.mode;
+  if(!s||!e){el.textContent='Enter the dates and batch size to see training days and throughput days.';return;}
+  if(e<s){el.textContent='The end date is before the start date.';return;}
+  var pl=planOf(s,e,sat,td),ks=Object.keys(pl.months).sort();
+  el.innerHTML='<b>'+Math.round(pl.days*10)/10+' training day'+(pl.days===1?'':'s')+'</b>'+(pl.over?' (set by hand; '+pl.range+' in the date range)':'')+' · <b>'+num(pl.days*b)+' throughput days</b>'+(ks.length>1&&b?' ('+esc(ks.map(function(k){return monthLabel(k).slice(0,3)+' '+num(pl.months[k]*b);}).join(' · '))+')':'')+' · throughput of <b>'+num(b)+'</b> counted in '+esc(monthLabel(e.slice(0,7)))+(mode==='Online'?' · online, so throughput days are not counted by default':'')+(pl.days===0?' · no training days in this range, check the dates or tick Saturdays':'');}
+function confirmForm(c){
+  var t=today();
+  openDlg('<form class="dlg" id="mf" novalidate data-id="'+esc(c.id)+'" data-sat="'+(c.sat?1:0)+'" data-td="'+esc(c.trainingDays||'')+'" data-mode="'+esc(c.mode||'')+'"><h2>Move to actuals</h2><p><b>'+esc(c.title)+'</b><br><span class="sub">'+esc(gatiName(c.gati))+' · '+esc(c.school)+' · planned '+nice(c.plannedStart)+' → '+nice(c.plannedEnd)+', batch of '+num(c.batchSize)+'</span></p><div class="fgrid">'+
+    '<label class="fld"><span>Actual start</span><input type="date" id="mf-start" value="'+esc(c.plannedStart)+'"></label>'+
+    '<label class="fld"><span>Actual end</span><input type="date" id="mf-end" value="'+esc(c.plannedEnd>t?t:c.plannedEnd)+'" max="'+t+'"></label>'+
+    '<label class="fld wide"><span>Actual throughput (learners who completed)</span><input type="number" id="mf-batch" min="1" step="1" value="'+esc(c.batchSize)+'"></label>'+
+    extrasHTML('mf',c)+'</div>'+
+    '<div class="calc" id="mf-calc"></div><p class="sub">Once confirmed, this record is locked. A later change needs the program team to unlock it.</p><p class="err" id="mf-err" hidden></p>'+
+    '<div class="dlg-actions"><button type="button" data-act="dlg-close">Cancel</button><button type="submit" class="primary">Confirm and lock</button></div></form>');
+  calcPreview('mf');labSum('mf');
+}
+function textForm(id,c,title,blurb,label,btn){
+  openDlg('<form class="dlg" id="'+id+'" novalidate data-id="'+esc(c.id)+'"><h2>'+title+'</h2><p><b>'+esc(c.title)+'</b><br><span class="sub">'+blurb+'</span></p>'+
+    '<label class="fld"><span>'+label+'</span><textarea id="'+id+'-reason" maxlength="400"></textarea></label><p class="err" id="'+id+'-err" hidden></p>'+
+    '<div class="dlg-actions"><button type="button" data-act="dlg-close">Cancel</button><button type="submit" class="primary">'+btn+'</button></div></form>');
+}
+
+/* ---------- writes ---------- */
+function courseRef(id){return S.db.collection('courses').doc(id);}
+function byId(id){return S.courses.filter(function(c){return c.id===id;})[0];}
+function hist(c,entry){entry.at=new Date().toISOString();entry.by=S.me.id;return (c.history||[]).concat([entry]).slice(-100);}
+function fail(e){toast(e&&e.code==='quota_exceeded'?'The tracker is full. Ask the program team to clear old records.':'Could not save. Your sharing level may be view-only; ask the program team.');}
+function showErr(p,msg){var el=$(p+'-err');el.textContent=msg;el.hidden=false;}
+var busy=false;
+function guard(fn){if(busy)return;busy=true;Promise.resolve().then(fn).catch(fail).then(function(){busy=false;});}
+function norm(v){return v==null||v===''||v===false||(Array.isArray(v)&&!v.length)?'':JSON.stringify(v);}
+
+function submitCourse(form){
+  var id=form.dataset.id,c=id?byId(id):null,na=form.dataset.na==='1'&&S.me.isOwner,isA=na||(c&&c.stage==='actual');
+  var td=$('cf-td').value;
+  var v={title:$('cf-title').value.trim(),client:$('cf-client').value.trim(),batch:$('cf-batchcode').value.trim(),programType:$('cf-ptype').value.trim(),gati:$('cf-gati').value,school:$('cf-school').value,campus:$('cf-campus').value,mode:$('cf-mode').value,notes:$('cf-notes').value.trim(),sat:$('cf-sat').checked,trainingDays:td!==''&&Number(td)>0?Number(td):null};
+  var s=$('cf-start').value,e=$('cf-end').value,b=Math.round(Number($('cf-batch').value));
+  if(!v.title)return showErr('cf','Enter the course name.');
+  if((!v.gati&&!S.me.isOwner)||!v.school||!v.campus)return showErr('cf','Choose the GATI source, school and campus.');
+  if(!s||!e)return showErr('cf','Enter both dates.');
+  if(e<s)return showErr('cf','The end date is before the start date.');
+  if(!(b>=1))return showErr('cf','Enter the number of learners.');
+  if(isA&&e>today())return showErr('cf','An actual end date cannot be in the future.');
+  if(isA){var x=readExtras('cf',b);if(x.err)return showErr('cf',x.err);v.actualStart=s;v.actualEnd=e;v.actualBatch=b;v.labs=x.labs;v.classPct=x.classPct;v.male=x.male;v.female=x.female;}
+  else{v.plannedStart=s;v.plannedEnd=e;v.batchSize=b;v.confidence=$('cf-conf').value;}
+  guard(function(){var now=new Date().toISOString();
+    if(!c){v.stage=na?'actual':'pipeline';v.createdBy=S.me.id;v.createdAt=now;v.updatedAt=now;v.history=[{at:now,by:S.me.id,action:na?'created-actual':'created'}];
+      if(na){v.plannedStart=v.actualStart;v.plannedEnd=v.actualEnd;v.batchSize=v.actualBatch;v.confidence='green';v.confirmedBy=S.me.id;v.confirmedAt=now;v.unlocked=false;v.editRequest=null;}
+      return S.db.collection('courses').doc().set(v).then(function(){closeDlg();toast(na?'Added to actuals and locked':'Added to the pipeline');});}
+    var changes=[];Object.keys(v).forEach(function(k){if(norm(c[k])!==norm(v[k]))changes.push({f:k,from:c[k]==null?null:c[k],to:v[k]});});
+    if(!changes.length){closeDlg();return;}
+    var patch={};changes.forEach(function(x){patch[x.f]=x.to;});patch.updatedAt=now;patch.updatedBy=S.me.id;patch.history=hist(c,{action:isA?'edited-locked':'edited',changes:changes});
+    if(isA&&!S.me.isOwner){patch.unlocked=false;patch.editRequest=null;}
+    return courseRef(c.id).update(patch).then(function(){closeDlg();toast(isA&&!S.me.isOwner?'Saved. The record is locked again.':'Changes saved');});});
+}
+function submitConfirm(form){
+  var c=byId(form.dataset.id);if(!c)return closeDlg();
+  var s=$('mf-start').value,e=$('mf-end').value,b=Math.round(Number($('mf-batch').value));
+  if(!s||!e)return showErr('mf','Enter both dates.');
+  if(e<s)return showErr('mf','The end date is before the start date.');
+  if(e>today())return showErr('mf','The course has not ended yet. Use an end date of today or earlier.');
+  if(!(b>=1))return showErr('mf','Enter the number of learners who completed.');
+  var x=readExtras('mf',b);if(x.err)return showErr('mf',x.err);
+  guard(function(){var now=new Date().toISOString(),ch=[];
+    if(s!==c.plannedStart)ch.push({f:'actualStart',from:c.plannedStart,to:s});if(e!==c.plannedEnd)ch.push({f:'actualEnd',from:c.plannedEnd,to:e});if(b!==Number(c.batchSize))ch.push({f:'actualBatch',from:c.batchSize,to:b});
+    return courseRef(c.id).update({stage:'actual',actualStart:s,actualEnd:e,actualBatch:b,male:x.male,female:x.female,labs:x.labs,classPct:x.classPct,confirmedBy:S.me.id,confirmedAt:now,unlocked:false,editRequest:null,updatedAt:now,updatedBy:S.me.id,history:hist(c,{action:'confirmed',changes:ch})})
+      .then(function(){closeDlg();toast('Moved to actuals and locked');});});
+}
+function submitRequest(form){
+  var c=byId(form.dataset.id);if(!c)return closeDlg();var r=$('rf-reason').value.trim();
+  if(!r)return showErr('rf','Say what needs to change.');
+  guard(function(){var now=new Date().toISOString();
+    return courseRef(c.id).update({editRequest:{by:S.me.id,at:now,reason:r},history:hist(c,{action:'edit-requested',note:r})}).then(function(){closeDlg();toast('Request sent to the program team');});});
+}
+function submitDrop(form){
+  var c=byId(form.dataset.id);if(!c)return closeDlg();var r=$('df-reason').value.trim();
+  guard(function(){return courseRef(c.id).update({stage:'dropped',dropReason:r,updatedAt:new Date().toISOString(),updatedBy:S.me.id,history:hist(c,{action:'dropped',note:r})}).then(function(){closeDlg();toast('Marked as dropped. It stays in the Dropped list.');});});
+}
+function saveCfg(next){var c=cfg();var out={schools:c.schools,labs:c.labs,holidays:c.holidays,headNames:c.headNames};for(var k in next)out[k]=next[k];return S.db.doc('config/main').set(out);}
+function arm(key){if(S.armed===key){S.armed=null;return true;}S.armed=key;clearTimeout(arm.t);arm.t=setTimeout(function(){S.armed=null;render();},4000);render();return false;}
+
+/* ---------- events ---------- */
+document.addEventListener('click',function(ev){
+  var b=ev.target.closest('[data-act]'),inMs=ev.target.closest('.ms');
+  if(!inMs&&S.openMs){S.openMs=null;render();}
+  if(!b)return;var a=b.dataset.act,id=b.dataset.id,c=id?byId(id):null,mid=b.dataset.ms;
+  if(a==='ms-toggle'){S.openMs=S.openMs===mid?null:mid;return render();}
+  if(a==='ms-all'){var cur=getMs(mid),op=MSOPTS[mid]||[],isAll=!cur||op.every(function(o){return cur[o.k];});setMs(mid,isAll?{}:null);return render();}
+  if(a==='ms-quick'){var qa=Number(b.dataset.a),qb=Number(b.dataset.b),qs=null;if(qb-qa<12){qs={};for(var qi=qa;qi<qb;qi++)qs[qi]=1;}setMs(mid,qs);return render();}
+  if(a==='mview'){S.mview=b.dataset.v;return render();}
+  if(a==='reset'){var sc=b.dataset.scope,qi=$(sc+'-q');S[sc]=defaults(sc);S.online=false;S.openMs=null;if(qi)qi.value='';return render();}
+  if(a==='export')return exportList();
+  if(a==='dlg-close')return closeDlg();
+  if(a==='add')return courseForm(null);
+  if(a==='add-actual'&&S.me.isOwner)return courseForm(null,true);
+  if(a==='edit'&&c&&canEditCourse(c))return courseForm(c);
+  if(a==='confirm'&&c&&canEditCourse(c))return confirmForm(c);
+  if(a==='request'&&c)return textForm('rf',c,'Request an edit','This record is locked. Say what needs to change; the program team can unlock it for one edit.','What needs to change, and why','Send request');
+  if(a==='drop'&&c&&canEditCourse(c))return textForm('df',c,'Drop this course','It leaves the pipeline and the dashboard, and stays in the Dropped list for later analysis.','Why it was dropped (optional)','Mark as dropped');
+  if(a==='restore'&&c&&canEditCourse(c))return guard(function(){return courseRef(id).update({stage:'pipeline',dropReason:null,history:hist(c,{action:'restored'})}).then(function(){toast('Restored to the pipeline');});});
+  if(a==='hist'){if(S.openHist.has(id))S.openHist.delete(id);else S.openHist.add(id);return render();}
+  if(a==='by'){S.f.by=b.dataset.v;return render();}
+  if(a==='pview'){S.pf.view=b.dataset.v;return render();}
+  if(a==='del'&&c&&S.me.isOwner){if(!arm(id))return;return guard(function(){return courseRef(id).delete().then(function(){toast('Deleted for good');});});}
+  if(a==='approve'&&c)return guard(function(){return courseRef(id).update({unlocked:true,history:hist(c,{action:'unlocked'})}).then(function(){toast('Unlocked for one edit');});});
+  if(a==='decline'&&c)return guard(function(){return courseRef(id).update({editRequest:null,history:hist(c,{action:'request-declined'})}).then(function(){toast('Request declined');});});
+  if(a==='clear-samples'){if(!arm('samples'))return;var ids=S.courses.filter(function(x){return x.sample;}).map(function(x){return x.id;});
+    return guard(function(){return ids.reduce(function(p,i){return p.then(function(){return courseRef(i).delete();});},Promise.resolve()).then(function(){toast('Sample courses removed');});});}
+  if(a==='signout'){S.auth.signOut();return;}
+  if(a==='chpw')return pwForm(false);
+  if(a==='forgot')return forgotPw();
+  if(a==='add-person'&&S.me.isOwner)return personForm(null);
+  if(a==='edit-person'&&S.me.isOwner)return personForm(S.users.filter(function(u){return u.id===id;})[0]);
+  if(a==='rm-person'&&S.me.isOwner&&id!==S.me.id){if(!arm('u:'+id))return;return guard(function(){return S.db.collection('users').doc(id).delete().then(function(){toast('Access removed');});});}
+  if(a==='add-hol'){var d=$('hol-d').value,n=$('hol-n').value.trim();if(!d)return toast('Choose the holiday date');
+    return guard(function(){var h=cfg().holidays.filter(function(x){return x.d!==d;}).concat([{d:d,n:n}]);return saveCfg({holidays:h}).then(function(){$('hol-d').value='';$('hol-n').value='';render();});});}
+  if(a==='rm-hol')return guard(function(){return saveCfg({holidays:cfg().holidays.filter(function(x){return x.d!==b.dataset.d;})});});
+  if(a==='add-item'){var k=b.dataset.k,inp=$('new-'+k),s=inp.value.trim();if(!s)return toast('Enter a name');if(cfg()[k].indexOf(s)>=0)return toast('That name is already listed');
+    return guard(function(){var o={};o[k]=cfg()[k].concat([s]);return saveCfg(o).then(function(){inp.value='';render();});});}
+  if(a==='rm-item')return guard(function(){var k=b.dataset.k,o={};o[k]=cfg()[k].filter(function(x){return x!==b.dataset.v;});return saveCfg(o);});
+});
+document.addEventListener('submit',function(ev){ev.preventDefault();var f=ev.target;if(f.id==='login')return doLogin();if(f.id==='pw')return submitPw(f);if(f.id==='pf-person')return submitPerson(f);if(f.id==='cf')submitCourse(f);else if(f.id==='mf')submitConfirm(f);else if(f.id==='rf')submitRequest(f);else if(f.id==='df')submitDrop(f);});
+function setF(obj,k,el){obj[k]=el.type==='checkbox'?el.checked:(k==='fy'?(el.value===''?'':Number(el.value)):el.value);}
+document.addEventListener('change',function(ev){var el=ev.target,d=el.dataset;
+  if(d.g==='online'){S.online=el.checked;return render();}
+  if(d.msc){var op=MSOPTS[d.msc]||[],cur=getMs(d.msc),ns={},cnt=0;op.forEach(function(o){var on=o.k===d.v?el.checked:(!cur||!!cur[o.k]);if(on){ns[o.k]=1;cnt++;}});setMs(d.msc,cnt===op.length?null:ns);return render();}
+  if(d.f){setF(S.f,d.f,el);return render();}
+  if(d.pf&&el.tagName==='SELECT'){setF(S.pf,d.pf,el);return render();}
+  if(d.af&&el.tagName==='SELECT'){setF(S.af,d.af,el);return render();}
+  if(el.closest&&el.closest('#cf')){calcPreview('cf');labSum('cf');}
+  if(el.closest&&el.closest('#mf')){calcPreview('mf');labSum('mf');}});
+document.addEventListener('input',function(ev){var el=ev.target;
+  if(el.dataset.pf==='q'){S.pf.q=el.value;return render();}
+  if(el.dataset.af==='q'){S.af.q=el.value;return render();}
+  if(el.closest&&el.closest('#cf')){calcPreview('cf');labSum('cf');}
+  if(el.closest&&el.closest('#mf')){calcPreview('mf');labSum('mf');}});
+/* chart hover */
+document.addEventListener('mousemove',function(ev){var t=ev.target;
+  if(!(t.classList&&t.classList.contains('band'))){document.querySelectorAll('.tip').forEach(function(x){x.remove();});return;}
+  var metric=t.dataset.chart,wrap=$('ch-'+metric),m=DASH.months[Number(t.dataset.i)],a=DASH.M[m];if(!wrap||!a)return;
+  var tip=wrap.querySelector('.tip');if(!tip){document.querySelectorAll('.tip').forEach(function(x){x.remove();});tip=document.createElement('div');tip.className='tip';wrap.appendChild(tip);}
+  var key=metric+m;if(tip.dataset.k!==key){tip.dataset.k=key;tip.innerHTML='<h4>'+esc(monthLong(m))+' · '+(metric==='tpd'?'throughput days':'throughput')+'</h4>'+SER.map(function(s){return '<div><span><i class="sw" style="background:'+s.c+'"></i>'+esc(s.n)+'</span><span>'+num(a[metric][s.k])+'</span></div>';}).join('')+'<div class="tot"><span>Total</span><span>'+num(sum(a[metric]))+'</span></div>'+(metric==='tp'?'<div><span>Courses ending</span><span>'+(a.ends.a+a.ends.p)+'</span></div>':'');}
+  var r=wrap.getBoundingClientRect(),x=ev.clientX-r.left+14,w=tip.offsetWidth;if(x+w>r.width)x=Math.max(0,ev.clientX-r.left-w-14);
+  tip.style.left=x+'px';tip.style.top=Math.max(0,ev.clientY-r.top-20)+'px';});
+/* hover details */
+var tipEl=null;
+function tipHide(){if(tipEl)tipEl.hidden=true;}
+function tipShow(t,x,y){if(!tipEl){tipEl=document.createElement('div');tipEl.className='ftip';document.body.appendChild(tipEl);}
+  if(tipEl.textContent!==t.dataset.tip)tipEl.textContent=t.dataset.tip;tipEl.hidden=false;var w=tipEl.offsetWidth,hh=tipEl.offsetHeight;
+  tipEl.style.left=Math.max(8,Math.min(x+14,window.innerWidth-w-8))+'px';tipEl.style.top=(y+18+hh>window.innerHeight?Math.max(8,y-hh-10):y+18)+'px';}
+document.addEventListener('mouseover',function(ev){var t=ev.target.closest&&ev.target.closest('[data-tip]');if(t)tipShow(t,ev.clientX,ev.clientY);else tipHide();});
+document.addEventListener('mousemove',function(ev){if(!tipEl||tipEl.hidden)return;var t=ev.target.closest&&ev.target.closest('[data-tip]');if(t)tipShow(t,ev.clientX,ev.clientY);});
+document.addEventListener('focusin',function(ev){var t=ev.target.closest&&ev.target.closest('[data-tip]');if(t){var r=t.getBoundingClientRect();tipShow(t,r.left,r.bottom-10);}});
+document.addEventListener('focusout',tipHide);
+document.addEventListener('keydown',function(ev){if(ev.key==='Escape'&&S.openMs){var id=S.openMs;S.openMs=null;render();var bb=$('msb-'+id);if(bb)bb.focus();}});
+function route(){var h=(location.hash||'').replace('#','');S.tab=TABS.some(function(t){return t[0]===h;})?h:'dashboard';render();}
+window.addEventListener('hashchange',route);
+
+/* ---------- sign-in ---------- */
+var FB_CONFIG={"apiKey": "AIzaSyB1FzcFLhMss2G0eh815dK6VPFJ09JDoQo", "authDomain": "gati-course-tracker.firebaseapp.com", "projectId": "gati-course-tracker", "storageBucket": "gati-course-tracker.firebasestorage.app", "messagingSenderId": "668611637952", "appId": "1:668611637952:web:6e71b71494096af9b13325"};
+var DOMAIN='tataiis.org';
+var EMU=/[?&]emu\b/.test(location.search)&&/^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+var AUTHMSG='';
+function viewAuth(){
+  if(S.authState==='loading')return '<div class="panel"><div class="empty"><p>Loading…</p></div></div>';
+  if(S.authState==='out')return '<div class="panel auth"><form id="login" class="dlg" novalidate><h2>Sign in</h2><p class="sub">Use your '+esc(DOMAIN)+' email address and password.</p>'+
+    '<label class="fld"><span>Email</span><input type="email" id="li-email" autocomplete="username" placeholder="name@'+esc(DOMAIN)+'"></label>'+
+    '<label class="fld"><span>Password</span><input type="password" id="li-pw" autocomplete="current-password"></label>'+
+    '<p class="err" id="li-err"'+(AUTHMSG?'':' hidden')+'>'+esc(AUTHMSG)+'</p><div class="dlg-actions"><button type="button" class="linkish" data-act="forgot">Forgot password?</button><button type="submit" class="primary">Sign in</button></div></form></div>';
+  if(S.authState==='noprofile')return '<div class="panel auth"><div class="dlg"><h2>No access yet</h2><p>You are signed in as <b>'+esc(S.me.email)+'</b>, but this email has not been given access to the tracker.</p><p class="sub">Ask the program team to add you under Setup → People and access.</p><div class="dlg-actions"><button data-act="signout">Sign out</button></div></div></div>';
+  if(S.authState==='mustchange')return '<div class="panel auth">'+pwHTML(true)+'</div>';
+  return '';}
+function authErr(e){var c=e&&e.code||'';if(/invalid-credential|wrong-password|user-not-found|invalid-login/.test(c))return 'The email or password is not right.';if(/too-many-requests/.test(c))return 'Too many attempts. Wait a few minutes and try again, or use Forgot password.';if(/invalid-email/.test(c))return 'Enter a valid email address.';if(/network/.test(c))return 'No internet connection. Check it and try again.';if(/operation-not-allowed|configuration-not-found/.test(c))return 'Email sign-in is not switched on in Firebase yet.';if(/weak-password/.test(c))return 'Choose a password of at least 8 characters.';if(/requires-recent-login/.test(c))return 'For safety, sign out and sign in again, then change your password.';return 'Something went wrong ('+c+'). Try again.';}
+function doLogin(){var em=$('li-email').value.trim().toLowerCase(),pw=$('li-pw').value;AUTHMSG='';
+  if(!em||!pw){AUTHMSG='Enter your email and password.';return render();}
+  S.auth.signInWithEmailAndPassword(em,pw).catch(function(e){AUTHMSG=authErr(e);var el=$('li-err');if(el){el.textContent=AUTHMSG;el.hidden=false;}});}
+function forgotPw(){var el=$('li-email'),em=el?el.value.trim().toLowerCase():'';var er=$('li-err');
+  if(!em){er.textContent='Enter your email above first, then click Forgot password.';er.hidden=false;return;}
+  S.auth.sendPasswordResetEmail(em).then(function(){er.textContent='If '+em+' has a login, an email to reset the password is on its way. Check the spam folder too.';er.hidden=false;}).catch(function(e){er.textContent=authErr(e);er.hidden=false;});}
+function pwHTML(forced){return '<form id="pw" class="dlg" novalidate data-forced="'+(forced?1:0)+'"><h2>'+(forced?'Set your own password':'Change password')+'</h2>'+(forced?'<p>Welcome, '+esc(S.me.name||S.me.email)+'. You signed in with a temporary password. Choose your own to continue.</p>':'')+
+  (forced?'':'<label class="fld"><span>Current password</span><input type="password" id="pw-old" autocomplete="current-password"></label>')+
+  '<label class="fld"><span>New password · at least 8 characters</span><input type="password" id="pw-new" autocomplete="new-password"></label><label class="fld"><span>New password again</span><input type="password" id="pw-new2" autocomplete="new-password"></label><p class="err" id="pw-err" hidden></p>'+
+  '<div class="dlg-actions">'+(forced?'<button type="button" data-act="signout">Sign out</button>':'<button type="button" data-act="dlg-close">Cancel</button>')+'<button type="submit" class="primary">Save password</button></div></form>';}
+function pwForm(){openDlg(pwHTML(false));}
+function submitPw(form){var forced=form.dataset.forced==='1',n1=$('pw-new').value,n2=$('pw-new2').value,u=S.auth.currentUser;
+  function err(m){var e=$('pw-err');e.textContent=m;e.hidden=false;}
+  if(n1.length<8)return err('Choose a password of at least 8 characters.');if(n1!==n2)return err('The two new passwords are not the same.');
+  var step=forced?Promise.resolve():u.reauthenticateWithCredential(firebase.auth.EmailAuthProvider.credential(u.email,$('pw-old').value));
+  step.then(function(){return u.updatePassword(n1);}).then(function(){return S.db.collection('users').doc(S.me.id).update({mustChangePassword:false});})
+    .then(function(){if(!forced)closeDlg();toast('Password saved');}).catch(function(e){err(/wrong-password|invalid-credential/.test(e&&e.code||'')?'The current password is not right.':authErr(e));});}
+/* program team: add or edit a person */
+function tempPw(){var ch='ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789',a=new Uint32Array(10),o='';crypto.getRandomValues(a);for(var i=0;i<10;i++)o+=ch[a[i]%ch.length];return o;}
+function personForm(u){
+  openDlg('<form class="dlg" id="pf-person" novalidate data-id="'+esc(u?u.id:'')+'"><h2>'+(u?'Edit access':'Add a person')+'</h2><div class="fgrid">'+
+    '<label class="fld"><span>Name</span><input type="text" id="pp-name" value="'+esc(u?u.name:'')+'" maxlength="80"></label>'+
+    '<label class="fld"><span>Work email</span><input type="email" id="pp-email" value="'+esc(u?u.id:'')+'"'+(u?' disabled':'')+' placeholder="name@'+esc(DOMAIN)+'"></label>'+
+    '<label class="fld"><span>Access</span><select id="pp-role">'+opts([{k:'viewer',n:'Viewer · can see everything'},{k:'head',n:'GATI head · edits own source'},{k:'program',n:'Program team · full access'}],u?u.role:'viewer',null)+'</select></label>'+
+    '<div class="fld"><span>GATI sources · for GATI heads</span><div class="checks">'+GATI.map(function(g){return '<label class="check"><input type="checkbox" id="pp-g-'+g.k+'" data-g2="'+g.k+'"'+(u&&(u.gatis||[]).indexOf(g.k)>=0?' checked':'')+'>'+esc(g.k==='N'?'NST':g.k)+'</label>';}).join('')+'</div></div>'+
+    (u?'':'<label class="fld wide"><span>Temporary password · they choose their own at first sign-in</span><input type="text" id="pp-pw" value="'+tempPw()+'" autocomplete="off"></label>')+
+    '</div><p class="err" id="pp-err" hidden></p><div class="dlg-actions"><button type="button" data-act="dlg-close">Cancel</button><button type="submit" class="primary">'+(u?'Save':'Add person')+'</button></div></form>');}
+function submitPerson(form){var id=form.dataset.id,isNew=!id,name=$('pp-name').value.trim(),email=(isNew?$('pp-email').value:id).trim().toLowerCase(),role=$('pp-role').value;
+  var gatis=GATI.map(function(g){return g.k;}).filter(function(k){return $('pp-g-'+k).checked;});
+  function err(m){var e=$('pp-err');e.textContent=m;e.hidden=false;}
+  if(!name)return err('Enter the person\'s name.');
+  if(!/^[^@\s]+@[^@\s]+$/.test(email))return err('Enter a valid email address.');
+  if(email.slice(-DOMAIN.length-1)!=='@'+DOMAIN)return err('Only '+DOMAIN+' email addresses can be added.');
+  if(role==='head'&&!gatis.length)return err('Tick at least one GATI source for a GATI head.');
+  if(role!=='head')gatis=[];
+  var data={name:name,role:role,gatis:gatis,updatedAt:new Date().toISOString(),updatedBy:S.me.id};
+  if(!isNew)return guard(function(){return S.db.collection('users').doc(email).update(data).then(function(){closeDlg();toast('Access saved');});});
+  if(S.users.some(function(u){return u.id===email;}))return err('This person is already on the list. Use Edit instead.');
+  var pw=$('pp-pw').value;if(pw.length<8)return err('The temporary password needs at least 8 characters.');
+  var sec=firebase.apps.filter(function(a){return a.name==='secondary';})[0];if(!sec){sec=firebase.initializeApp(FB_CONFIG,'secondary');sec.auth().setPersistence(firebase.auth.Auth.Persistence.NONE);if(EMU)sec.auth().useEmulator('http://127.0.0.1:9099');}
+  var existed=false;
+  guard(function(){return sec.auth().createUserWithEmailAndPassword(email,pw).catch(function(e){if(e&&e.code==='auth/email-already-in-use'){existed=true;return;}throw e;})
+    .then(function(){return sec.auth().signOut();})
+    .then(function(){data.createdAt=data.updatedAt;data.createdBy=S.me.id;data.mustChangePassword=!existed;return S.db.collection('users').doc(email).set(data);})
+    .then(function(){closeDlg();openDlg('<div class="dlg"><h2>'+esc(name)+' is added</h2>'+(existed?'<p>This email already had a password, so it was kept. They sign in with it, or use Forgot password on the sign-in page.</p>':'<p>Send them these details. They will be asked to choose their own password the first time they sign in.</p><div class="calc"><b>Address:</b> '+esc(location.origin)+'<br><b>Email:</b> '+esc(email)+'<br><b>Temporary password:</b> '+esc(pw)+'</div>')+'<div class="dlg-actions"><button class="primary" data-act="dlg-close">Done</button></div></div>');})
+    .catch(function(e){err(authErr(e));});});}
+
+/* ---------- data ---------- */
+var unsub=[];
+function stopData(){unsub.forEach(function(f){try{f();}catch(e){}});unsub=[];S.loaded=false;S.courses=[];S.users=[];S.config=null;}
+function startData(){var db=S.db,timer=setTimeout(function(){S.slow=true;render();},10000);
+  unsub.push(db.collection('courses').onSnapshot(function(snap){S.courses=snap.docs.map(function(d){var o=Object.assign({},d.data());o.id=d.id;return o;});S.loaded=true;
+    if(!snap.metadata.fromCache){clearTimeout(timer);S.slow=false;}render();},function(){clearTimeout(timer);S.slow=false;S.err='dberr';render();}));
+  unsub.push(db.doc('config/main').onSnapshot(function(snap){S.config=snap.exists?snap.data():null;S.holSet=new Set(cfg().holidays.map(function(h){return h.d;}));memo.clear();render();},function(){}));
+  unsub.push(db.collection('users').onSnapshot(function(snap){S.users=snap.docs.map(function(d){var o=Object.assign({},d.data());o.id=d.id;return o;});S.names={};S.users.forEach(function(u){S.names[u.id]=u.name||u.id;});render();},function(){}));}
+var profUnsub=null;
+function boot(){
+  route();
+  if(typeof firebase==='undefined'){S.authState='out';AUTHMSG='The page could not load. Check your internet connection and reload.';return render();}
+  firebase.initializeApp(FB_CONFIG);S.auth=firebase.auth();S.db=firebase.firestore();S.db.settings({ignoreUndefinedProperties:true,merge:true});
+  if(EMU){S.auth.useEmulator('http://127.0.0.1:9099');S.db.useEmulator('127.0.0.1',8080);}
+  S.auth.onAuthStateChanged(function(u){
+    if(profUnsub){profUnsub();profUnsub=null;}stopData();closeDlg();
+    if(!u){S.authState='out';S.me={id:null,name:'',email:'',role:'',gatis:[],isOwner:false};return render();}
+    var email=(u.email||'').toLowerCase();S.me={id:email,email:email,name:'',role:'',gatis:[],isOwner:false};S.authState='loading';render();AUTHMSG='';
+    profUnsub=S.db.collection('users').doc(email).onSnapshot(function(snap){
+      if(!snap.exists){var was=S.authState;S.authState='noprofile';stopData();return render();}
+      var p=snap.data();S.me={id:email,email:email,name:p.name||'',role:p.role||'viewer',gatis:p.gatis||[],isOwner:p.role==='program'};
+      if(p.mustChangePassword){S.authState='mustchange';stopData();return render();}
+      var start=S.authState!=='in';S.authState='in';if(start)startData();render();
+    },function(){S.authState='noprofile';render();});});
+}
+boot();
+})();
+</script>
+</body>
+</html>

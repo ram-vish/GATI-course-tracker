@@ -1,0 +1,51 @@
+rules_version = '2';
+
+// Who can do what in the GATI Course Tracker.
+// Everyone must be signed in with a @tataiis.org email AND be listed in the "users" collection.
+// Roles: "program" (program team, full access), "head" (GATI head for the sources in "gatis"), "viewer" (read only).
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function email() { return request.auth.token.email.lower(); }
+    function signedIn() {
+      return request.auth != null && request.auth.token.email != null
+        && email().matches('.*@tataiis[.]org');
+    }
+    function profilePath() { return /databases/$(database)/documents/users/$(email()); }
+    function hasProfile() { return signedIn() && exists(profilePath()); }
+    function me() { return get(profilePath()).data; }
+    function isProgram() { return hasProfile() && me().role == 'program'; }
+    function isHeadFor(g) { return hasProfile() && me().role == 'head' && g in me().gatis; }
+    function changed() { return request.resource.data.diff(resource.data).affectedKeys(); }
+
+    // People and their access. Only the program team adds, edits or removes people.
+    // A person may only clear their own "must change password" flag.
+    match /users/{id} {
+      allow read: if hasProfile();
+      allow create, delete: if isProgram();
+      allow update: if isProgram()
+        || (hasProfile() && id == email() && changed().hasOnly(['mustChangePassword']));
+    }
+
+    // Lists of schools, labs, holidays and named heads.
+    match /config/{doc} {
+      allow read: if hasProfile();
+      allow write: if isProgram();
+    }
+
+    // Courses. GATI heads work only on their own sources.
+    // A locked actual can only be changed by a head after the program team unlocks it;
+    // until then the head may only file an edit request.
+    match /courses/{id} {
+      allow read: if hasProfile();
+      allow create: if isProgram()
+        || (isHeadFor(request.resource.data.gati) && request.resource.data.stage == 'pipeline');
+      allow update: if isProgram()
+        || (isHeadFor(resource.data.gati) && isHeadFor(request.resource.data.gati)
+            && (resource.data.stage != 'actual'
+                || resource.data.get('unlocked', false) == true
+                || changed().hasOnly(['editRequest', 'history'])));
+      allow delete: if isProgram();
+    }
+  }
+}

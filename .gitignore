@@ -1,0 +1,7 @@
+# Data exports and secrets never go into this repository
+*.xlsx
+*.csv
+export/
+service-account*.json
+.firebase/
+node_modules/
