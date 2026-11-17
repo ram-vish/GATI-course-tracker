@@ -233,6 +233,74 @@ tr.addrow > td{padding:6px 10px}
 .panel.auth .dlg .fld input{width:100%}
 .linkish{border:0;background:transparent;color:var(--accent);padding-inline:4px;margin-right:auto}
 .linkish:hover{text-decoration:underline}
+.th-f{display:inline-flex;align-items:center;gap:4px}
+.hf{border:0;background:transparent;padding:3px;min-height:0;border-radius:4px;color:var(--ink-3);display:inline-flex;line-height:0}
+.hf:hover{background:var(--surface-2);color:var(--ink)}
+.hf.on{background:var(--accent);color:var(--accent-ink)}
+.hf svg,.hfhint svg{width:11px;height:11px}
+.hfhint{display:inline-flex;align-items:center;gap:5px;align-self:center}
+.hfhint svg{fill:currentColor}
+.ms-pop.hpop{position:fixed;text-transform:none;letter-spacing:0;font-family:var(--font);font-weight:400;font-size:13px;color:var(--ink);white-space:normal;z-index:40}
+.ms-pop hr{border:0;border-top:1px solid var(--line);margin:6px 0;width:100%}
+.ms-sec-t{font-family:var(--font-head);font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);padding:2px 6px 4px}
+tr.t4 > td{background:var(--tier3);font-weight:700;border-top:2px solid var(--ink-3)}
+.calnav{display:flex;gap:4px;align-items:center}
+.calnav button{min-width:34px}
+.calnav input{min-height:34px}
+.cal-head{display:flex;flex-direction:column;gap:4px;min-width:0}
+.g-sum{display:flex;flex-wrap:wrap;gap:4px 18px;font-size:13px;color:var(--ink-2)}
+.g-sum b{color:var(--ink);font-variant-numeric:tabular-nums}
+.sw-online{background:repeating-linear-gradient(135deg,var(--ink-3) 0 2px,transparent 2px 4px)}
+.gantt{--lw:300px;overflow:auto;max-height:calc(100vh - 230px);min-height:320px;position:relative;border-top:1px solid var(--line)}
+@media (max-width:700px){.gantt{--lw:150px}}
+.g-head{position:sticky;top:0;z-index:5;background:var(--surface);width:max-content;min-width:100%}
+.g-hrow{display:flex;border-bottom:1px solid var(--line-2)}
+.g-corner{position:sticky;left:0;z-index:6;background:var(--surface);width:var(--lw);flex:none;padding:4px 10px;font-family:var(--font-head);font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);border-right:1px solid var(--line-2);box-sizing:border-box;display:flex;align-items:center}
+.g-cells{display:flex;flex:none}
+.g-cell{flex:none;box-sizing:border-box;border-left:1px solid var(--line);text-align:center;font-size:11px;color:var(--ink-3);overflow:hidden;white-space:nowrap;padding:3px 0;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.25}
+.g-cell b{color:var(--ink-2);font-weight:600;font-variant-numeric:tabular-nums}
+.g-cell .wd{font-size:10px}
+.g-cell.we{background:var(--surface-2)}
+.g-cell.hol{background:var(--warn-soft)}
+.g-cell.td{background:var(--accent-soft)}
+.g-cell.td b{color:var(--accent)}
+.g-mon{font-family:var(--font-head);font-weight:600;color:var(--ink-2);padding:6px 0}
+.g-year .g-cell{border-left:0}
+.g-year .g-mon{border-left:1px solid var(--line-2)}
+.g-ld{height:30px;cursor:help}
+.g-year .g-ld{justify-content:flex-end;padding:2px 0 0}
+.g-ld i{display:block;width:100%;background:var(--s-pipe);border-radius:1px 1px 0 0;min-height:0}
+.g-year .g-ld.td i{background:var(--accent)}
+.g-body{position:relative;width:max-content;min-width:100%}
+.g-grid{position:absolute;top:0;bottom:0;left:var(--lw);pointer-events:none;z-index:0}
+.g-grid i{position:absolute;top:0;bottom:0}
+.g-grid .we{background:var(--surface-2)}
+.g-grid .hol{background:var(--warn-soft)}
+.g-grid .ml{border-left:1px solid var(--line-2)}
+.g-grid .now{border-left:2px solid var(--accent);z-index:3}
+.g-row,.g-grp{display:flex;position:relative;border-bottom:1px solid var(--line)}
+.g-left{position:sticky;left:0;z-index:2;width:var(--lw);flex:none;background:var(--surface);padding:5px 10px;border-right:1px solid var(--line-2);box-sizing:border-box;min-width:0;display:flex;flex-direction:column;justify-content:center}
+.g-left .t{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.g-left .sub{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11px}
+.g-grp .g-left{background:var(--surface-2);font-family:var(--font-head);font-weight:600;font-size:13px;flex-direction:row;justify-content:flex-start;align-items:center;gap:4px}
+.g-track{position:relative;flex:none;height:40px;z-index:1}
+.g-trk-grp{height:30px;background:color-mix(in srgb,var(--surface-2) 70%,transparent)}
+.g-bar{position:absolute;top:9px;height:22px;border-radius:4px;font-size:11px;line-height:22px;color:#fff;padding:0 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-sizing:border-box;cursor:help}
+.g-bar:hover,.g-bar:focus-visible{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--ink-3)}
+.g-bar.cl{border-top-left-radius:0;border-bottom-left-radius:0}
+.g-bar.cr{border-top-right-radius:0;border-bottom-right-radius:0}
+.g-bar.online{background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.3) 0 4px,transparent 4px 8px)}
+.k-actual{background-color:var(--s-actual)}
+.k-green{background-color:var(--s-green)}
+.k-yellow{background-color:var(--s-yellow);color:#0b0b0b}
+.k-red{background-color:var(--s-red)}
+.g-empty{padding:40px 16px;text-align:center;color:var(--ink-2);position:sticky;left:0;width:min(100%,600px)}
+.g-year .g-track{height:32px}
+.g-year .g-bar{top:7px;height:18px;line-height:18px}
+td.prog{min-width:170px}
+.pbar{height:8px;border-radius:4px;background:var(--surface-2);overflow:hidden;margin:5px 0 3px}
+.pbar i{display:block;height:100%;border-radius:4px}
+tr.subhead > td{background:var(--surface-2);font-weight:600;font-size:12px;color:var(--ink-2)}
 #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:9px 14px;border-radius:8px;font-size:13px;z-index:50;max-width:calc(100vw - 32px)}
 @media (prefers-reduced-motion:no-preference){ button,nav.tabs a{transition:border-color .12s,color .12s,background .12s} }
 </style>
@@ -273,15 +341,17 @@ var LABELS={title:'Course name',batch:'Batch / code',client:'Client / source',pr
 var ACTIONS={created:'Added to pipeline','created-actual':'Added directly to actuals by the program team',imported:'Imported',edited:'Edited',confirmed:'Moved to actuals and locked',dropped:'Marked as dropped',restored:'Restored to pipeline','edit-requested':'Requested an edit',unlocked:'Unlocked for one edit','request-declined':'Declined the edit request','edited-locked':'Edited a locked record'};
 var MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 var MONL=['January','February','March','April','May','June','July','August','September','October','November','December'];
-var TABS=[['dashboard','Dashboard'],['pipeline','Pipeline'],['actuals','Actuals'],['setup','Setup']];
+var TABS=[['dashboard','Dashboard'],['actuals','Actuals'],['pipeline','Pipeline'],['calendar','Calendar'],['setup','Setup']];
 var QUICK=[['Full year',0,12],['H1',0,6],['H2',6,12],['Q1',0,3],['Q2',3,6],['Q3',6,9],['Q4',9,12]];
 
 var S={db:null,auth:null,authState:'loading',me:{id:null,name:'',email:'',role:'',gatis:[],isOwner:false},users:[],courses:[],config:null,names:{},
   loaded:false,slow:false,err:null,tab:'dashboard',holSet:new Set(),openHist:new Set(),armed:null,online:false,
   openMs:null,mview:'both',dl:null,
-  f:{fy:null,months:null,gati:null,school:null,campus:null,mode:null,ptype:null,conf:null,by:'school'},
-  pf:{fy:null,smonths:null,emonths:null,gati:null,school:null,campus:null,mode:null,ptype:null,conf:null,q:'',view:'active'},
-  af:{fy:null,smonths:null,emonths:null,gati:null,school:null,campus:null,mode:null,ptype:null,q:''}};
+  cal:{view:'month',anchor:today(),group:'school',scrollKey:''},
+  kf:{gati:null,school:null,campus:null,mode:null,ptype:null,kind:null},
+  f:{fys:curFY(),months:null,gati:null,school:null,campus:null,mode:null,ptype:null,conf:null,by:'school'},
+  pf:{fys:curFY(),smonths:null,emonths:null,gati:null,school:null,campus:null,mode:null,ptype:null,conf:null,status:null,q:'',view:'active'},
+  af:{fys:curFY(),smonths:null,emonths:null,gati:null,school:null,campus:null,mode:null,ptype:null,q:''}};
 
 /* ---------- helpers ---------- */
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];});}
@@ -340,10 +410,17 @@ function monthsText(sel){var a=selIdx(sel);if(a.length===12)return 'Full year';i
 function periodLabel(fy,sel){var a=selIdx(sel);if(a.length===12)return fyLabel(fy);if(a.length===1)return monthLong(fyMonths(fy)[a[0]]);return monthsText(sel)+' '+fyLabel(fy);}
 function inMonths(c,set){var e=eff(c),p=plan(c);if(set[e.end.slice(0,7)]||set[e.start.slice(0,7)])return true;for(var k in p.months)if(set[k])return true;return false;}
 function toSet(a){var s={};a.forEach(function(k){s[k]=1;});return s;}
+function curFY(){var o={};o[fyOf(today())]=1;return o;}
+function fyList(f){var all=fyOptions();return f.fys?all.filter(function(y){return f.fys[y];}):all;}
+function oneFY(f){var l=fyList(f);return l.length===1?l[0]:null;}
+function fysText(l){if(!l.length)return 'No year';var all=fyOptions();if(l.length===all.length&&all.length>1)return 'All years';if(l.length===1)return fyLabel(l[0]);
+  var contiguous=l.every(function(y,i){return i===0||y===l[i-1]+1;});return contiguous?fyLabel(l[0])+' to '+String(l[l.length-1]).slice(0)+'–'+String(l[l.length-1]+1).slice(2):l.map(fyLabel).join(', ');}
+function multiLabel(l,sel){if(l.length===1)return periodLabel(l[0],sel);return (selIdx(sel).length===12?'':monthsText(sel)+' · ')+fysText(l);}
+function monIdx(ym){return (Number(ym.slice(5,7))+8)%12;}
 
 /* ---------- multi-select filters ---------- */
 var MSOPTS={};
-function valOf(c,key){if(key==='gati')return c.gati||'-';if(key==='school')return c.school||'-';if(key==='campus')return c.campus||'-';if(key==='mode')return c.mode||'-';if(key==='ptype')return c.programType||'-';if(key==='conf')return c.confidence||'yellow';return '';}
+function valOf(c,key){if(key==='gati')return c.gati||'-';if(key==='school')return c.school||'-';if(key==='campus')return c.campus||'-';if(key==='mode')return c.mode||'-';if(key==='ptype')return c.programType||'-';if(key==='conf')return c.confidence||'yellow';if(key==='status')return liveStatus(c);if(key==='kind')return bucket(c);return '';}
 var FKEYS=['gati','school','campus','mode','ptype'];
 function pass(c,f,keys){for(var i=0;i<keys.length;i++){var s=f[keys[i]];if(s&&!s[valOf(c,keys[i])])return false;}return true;}
 function optsFor(key,fy){
@@ -351,21 +428,40 @@ function optsFor(key,fy){
   if(key==='campus')return CAMPUSES.map(function(x){return {k:x,n:x};});
   if(key==='mode')return MODES.map(function(m){return {k:m.k,n:m.n,s:m.k};});
   if(key==='conf')return CONF.map(function(c){return {k:c.k,n:c.n};});
-  if(/months$/.test(key)){var fm=fyMonths(fy);return [9,10,11,0,1,2,3,4,5,6,7,8].map(function(i){return {k:String(i),n:monthLong(fm[i])};});}
+  if(key==='status')return [{k:'upcoming',n:'Upcoming'},{k:'running',n:'In progress'},{k:'ended',n:'Ended · to confirm'}];
+  if(key==='kind')return SER.map(function(x){return {k:x.k,n:x.n,s:x.k==='actual'?'Actual':confName(x.k)};});
+  if(key==='fys')return fyOptions().map(function(y){return {k:String(y),n:fyLabel(y)};});
+  if(/months$/.test(key)){var fm=fy!=null?fyMonths(fy):null;return [9,10,11,0,1,2,3,4,5,6,7,8].map(function(i){return {k:String(i),n:fm?monthLong(fm[i]):MONL[(3+i)%12]};});}
   var seen={},out=[],extra=[],blankv=false;
   if(key==='school')cfg().schools.forEach(function(x){seen[x]=1;out.push({k:x,n:x,s:x.replace('School of ','')});});
   S.courses.forEach(function(c){var v=key==='school'?c.school:c.programType;if(!v)blankv=true;else if(!seen[v]){seen[v]=1;extra.push(v);}});
   extra.sort().forEach(function(x){out.push({k:x,n:x});});if(blankv)out.push({k:'-',n:'Not set'});
   return out;}
+function msText(key,options,sel,on,all){if(key==='fys')return all&&options.length>1?'All years':!on.length?'None':on.length<=2?on.map(function(o){return o.n;}).join(', '):on.length+' years';
+  if(/months$/.test(key))return monthsText(sel);return all?'All':!on.length?'None':on.length<=2?on.map(function(o){return o.s||o.n;}).join(', '):on.length+' selected';}
+function msBody(scope,key,title,fy){var id=scope+'-'+key,options=optsFor(key,fy),sel=S[scope][key];MSOPTS[id]=options;
+  var on=options.filter(function(o){return !sel||sel[o.k];}),all=on.length===options.length;
+  return (title?'<div class="ms-sec-t">'+esc(title)+'</div>':'')+(/months$/.test(key)?'<div class="ms-quick">'+QUICK.map(function(q){return '<button type="button" class="sm" data-act="ms-quick" data-ms="'+id+'" data-a="'+q[1]+'" data-b="'+q[2]+'">'+q[0]+'</button>';}).join('')+'</div>':'')+
+    '<button type="button" class="sm ms-all" data-act="ms-all" data-ms="'+id+'">'+(all?'Deselect all':'Select all')+'</button>'+
+    options.map(function(o,i){return '<label class="ms-opt"><input type="checkbox" id="msc-'+id+'-'+i+'" data-msc="'+id+'" data-v="'+esc(o.k)+'"'+(!sel||sel[o.k]?' checked':'')+'>'+esc(o.n)+'</label>';}).join('');}
 function ms(scope,key,label,fy,disabled){
   var id=scope+'-'+key,options=optsFor(key,fy),sel=S[scope][key],open=S.openMs===id&&!disabled;MSOPTS[id]=options;
-  var on=options.filter(function(o){return !sel||sel[o.k];}),all=on.length===options.length;
-  var isM=/months$/.test(key),txt=key==='months'?monthsText(sel):all?'All':!on.length?'None':isM?monthsText(sel):on.length<=2?on.map(function(o){return o.s||o.n;}).join(', '):on.length+' selected';
+  var on=options.filter(function(o){return !sel||sel[o.k];}),all=on.length===options.length,txt=msText(key,options,sel,on,all);
   var h='<div class="fld"><span>'+label+'</span><div class="ms"><button type="button" class="ms-btn" id="msb-'+id+'" data-act="ms-toggle" data-ms="'+id+'" aria-expanded="'+open+'"'+(disabled?' disabled':'')+'><span>'+esc(disabled?'All dates':txt)+'</span><i class="caret"></i></button>';
-  if(open){h+='<div class="ms-pop">'+(isM?'<div class="ms-quick">'+QUICK.map(function(q){return '<button type="button" class="sm" data-act="ms-quick" data-ms="'+id+'" data-a="'+q[1]+'" data-b="'+q[2]+'">'+q[0]+'</button>';}).join('')+'</div>':'')+
-    '<button type="button" class="sm ms-all" data-act="ms-all" data-ms="'+id+'">'+(all?'Deselect all':'Select all')+'</button>'+
-    options.map(function(o,i){return '<label class="ms-opt"><input type="checkbox" id="msc-'+id+'-'+i+'" data-msc="'+id+'" data-v="'+esc(o.k)+'"'+(!sel||sel[o.k]?' checked':'')+'>'+esc(o.n)+'</label>';}).join('')+'</div>';}
+  if(open)h+='<div class="ms-pop">'+msBody(scope,key,'',fy)+'</div>';
   return h+'</div></div>';}
+var FILTER_ICON='<svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M1.5 2h13a.5.5 0 0 1 .4.8L10 9.2V14a.5.5 0 0 1-.8.4l-2-1.5a.5.5 0 0 1-.2-.4V9.2L1.1 2.8A.5.5 0 0 1 1.5 2z"/></svg>';
+/* A column header with an Excel-style filter button. keys: [[key, section title], ...] */
+function hf(scope,col,keys,label,cls,fy){var id='h:'+scope+'-'+col,open=S.openMs===id,active=keys.some(function(k){return S[scope][k[0]]!=null;});
+  var h='<th'+(cls?' class="'+cls+'"':'')+'><span class="th-f">'+label+'<button type="button" class="hf'+(active?' on':'')+'" id="msb-'+id+'" data-act="ms-toggle" data-ms="'+id+'" aria-expanded="'+open+'" aria-label="Filter '+esc(label)+(active?' (filtered)':'')+'" title="Filter '+esc(label)+'">'+FILTER_ICON+'</button></span>';
+  if(open)h+='<div class="ms-pop hpop" data-for="'+id+'">'+keys.map(function(k){return msBody(scope,k[0],keys.length>1||/months$/.test(k[0])?k[1]:'',fy);}).join('<hr>')+'</div>';
+  return h+'</th>';}
+function positionPop(){var pop=document.querySelector('.hpop');if(!pop)return;if(window.innerWidth<=560){pop.style.left='';pop.style.top='';return;}
+  var b=$('msb-'+pop.dataset.for);if(!b)return;var r=b.getBoundingClientRect(),w=pop.offsetWidth,h=pop.offsetHeight;
+  pop.style.left=Math.max(8,Math.min(r.left-8,window.innerWidth-w-8))+'px';var below=window.innerHeight-r.bottom-12,above=r.top-12;
+  if(below>=240||below>=above){pop.style.top=(r.bottom+4)+'px';pop.style.maxHeight=Math.max(160,Math.min(470,below))+'px';}
+  else{var mh=Math.min(470,above);pop.style.maxHeight=mh+'px';pop.style.top=Math.max(8,r.top-4-Math.min(h,mh))+'px';}}
+window.addEventListener('scroll',positionPop,true);window.addEventListener('resize',positionPop);
 function setMs(id,sel){var p=id.split('-');S[p[0]][p[1]]=sel;}
 function getMs(id){var p=id.split('-');return S[p[0]][p[1]];}
 function tip(t){return ' data-tip="'+esc(t)+'" tabindex="0"';}
@@ -428,7 +524,10 @@ function render(){
   var keep={},act=document.activeElement,actId=act&&main.contains(act)?act.id:null,selS=null;
   main.querySelectorAll('input[id],textarea[id]').forEach(function(el){if(el.type!=='checkbox')keep[el.id]=el.value;});
   if(actId&&act.selectionStart!=null){try{selS=act.selectionStart;}catch(e){}}
-  main.innerHTML=S.tab==='pipeline'?viewPipeline():S.tab==='actuals'?viewActuals():S.tab==='setup'?viewSetup():viewDashboard();
+  var sc=S.lastTab===S.tab?[].map.call(main.querySelectorAll('.scroll,.gantt'),function(e){return [e.scrollLeft,e.scrollTop];}):[];S.lastTab=S.tab;
+  main.innerHTML=S.tab==='pipeline'?viewPipeline():S.tab==='actuals'?viewActuals():S.tab==='calendar'?viewCalendar():S.tab==='setup'?viewSetup():viewDashboard();
+  [].forEach.call(main.querySelectorAll('.scroll,.gantt'),function(e,i){if(sc[i]){e.scrollLeft=sc[i][0];e.scrollTop=sc[i][1];}});
+  if(S.tab==='calendar')calScroll();positionPop();
   for(var id in keep){var el=$(id);if(el)el.value=keep[id];}
   if(actId&&$(actId)){$(actId).focus();if(selS!=null){try{$(actId).setSelectionRange(selS,selS);}catch(e){}}}
 }
@@ -446,7 +545,7 @@ function chartSVG(id,months,M,metric){
       if(last){var r=Math.min(4,hh,bw/2);g+='<path fill="'+s.c+'" d="M'+x+','+(y+hh)+' V'+(y+r)+' Q'+x+','+y+' '+(x+r)+','+y+' H'+(x+bw-r)+' Q'+(x+bw)+','+y+' '+(x+bw)+','+(y+r)+' V'+(y+hh)+' Z"/>';}
       else g+='<rect fill="'+s.c+'" x="'+x+'" y="'+y+'" width="'+bw+'" height="'+hh+'"/>';
       y0-=h;});
-    g+='<text class="'+(m===cur?'cur':'')+'" x="'+(L+i*band+band/2)+'" y="'+(H-10)+'" text-anchor="middle">'+MON[Number(m.slice(5))-1]+'</text>';
+    g+='<text class="'+(m===cur?'cur':'')+'" x="'+(L+i*band+band/2)+'" y="'+(H-10)+'" text-anchor="middle">'+(months.length>12?(i%3===0?MON[Number(m.slice(5))-1]+' '+m.slice(2,4):''):MON[Number(m.slice(5))-1])+'</text>';
     g+='<rect class="band" data-chart="'+id+'" data-i="'+i+'" x="'+(L+i*band)+'" y="'+T+'" width="'+band+'" height="'+ph+'"/>';});
   return '<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Stacked columns by month. The same figures are in the month table below.">'+g+'</svg>';
 }
@@ -463,28 +562,29 @@ function cellC(src,keys,met,cls){var tot=accum(),lines=[];keys.forEach(function(
   if(keys.length>1){if(lines.length)lines.push('');keys.forEach(function(k){lines.push(monthLabel(k)+': '+num(mval(src[k],met)));});}
   return '<td class="n'+(cls||'')+'"'+(lines.length?tip(lines.join('\n')):'')+'>'+num(mval(tot,met))+'</td>';}
 function monthRowC(label,keys,cls){return '<tr'+(cls?' class="'+cls+'"':'')+'><td class="nowrap">'+label+'</td>'+[['A',''],['Mu',''],['T',' tcol']].map(function(g){return METS.map(function(m,i){return cellC(DASHC[g[0]],keys,m[0],(i===0?' gs':'')+g[1]);}).join('');}).join('')+'</tr>';}
-function defaults(scope){var fy=fyOf(today());
-  if(scope==='f')return {fy:fy,months:null,gati:null,school:null,campus:null,mode:null,ptype:null,conf:null,by:S.f.by};
-  if(scope==='pf')return {fy:fy,smonths:null,emonths:null,gati:null,school:null,campus:null,mode:null,ptype:null,conf:null,q:'',view:'active'};
-  return {fy:fy,smonths:null,emonths:null,gati:null,school:null,campus:null,mode:null,ptype:null,q:''};}
-function isDefault(scope){var d=defaults(scope),f=S[scope];for(var k in d){if(k!=='by'&&norm(f[k])!==norm(d[k]))return false;}return !S.online;}
+function defaults(scope){
+  if(scope==='f')return {fys:curFY(),months:null,gati:null,school:null,campus:null,mode:null,ptype:null,conf:null,by:S.f.by};
+  if(scope==='pf')return {fys:curFY(),smonths:null,emonths:null,gati:null,school:null,campus:null,mode:null,ptype:null,conf:null,status:null,q:'',view:'active'};
+  if(scope==='kf')return {gati:null,school:null,campus:null,mode:null,ptype:null,kind:null};
+  return {fys:curFY(),smonths:null,emonths:null,gati:null,school:null,campus:null,mode:null,ptype:null,q:''};}
+function isDefault(scope){var d=defaults(scope),f=S[scope];for(var k in d){if(k!=='by'&&k!=='view'&&norm(f[k])!==norm(d[k]))return false;}return scope==='kf'||!S.online;}
 function resetBtn(scope){return '<button type="button" class="reset" data-act="reset" data-scope="'+scope+'"'+(isDefault(scope)?' disabled':'')+'><span aria-hidden="true">↺</span> Reset filters</button>';}
 function onlineCheck(){return '<div class="fld"><span>Throughput days</span><label class="check"><input type="checkbox" id="g-online" data-g="online"'+(S.online?' checked':'')+'>Count online courses</label></div>';}
 function commonFilters(scope){return ms(scope,'gati','GATI')+ms(scope,'school','School')+ms(scope,'campus','Campus')+ms(scope,'mode','Mode')+ms(scope,'ptype','Programme type');}
 function viewDashboard(){
-  var f=S.f,fys=fyOptions();if(f.fy==null||fys.indexOf(f.fy)<0)f.fy=fyOf(today());
-  var months=periodMonths(f.fy,f.months),all=fyMonths(f.fy),set=toSet(months),list=dashCourses(),M=aggregate(list,months);DASH={months:months,M:M};
-  var t=today(),cur=t.slice(0,7),tot=accum(),pl=periodLabel(f.fy,f.months);
+  var f=S.f,fyl=fyList(f),months=[];fyl.forEach(function(y){months=months.concat(periodMonths(y,f.months));});
+  var set=toSet(months),list=dashCourses(),M=aggregate(list,months);DASH={months:months,M:M};
+  var t=today(),cur=t.slice(0,7),tot=accum(),pl=multiLabel(fyl,f.months);
   months.forEach(function(m){accAdd(tot,M[m]);});
   var curAgg=aggregate(list,[cur])[cur];
   var running=list.filter(function(c){var e=eff(c);return e.start<=t&&t<=e.end;});
   var runN=running.reduce(function(s,c){return s+eff(c).batch;},0);
   var male=0,female=0;list.forEach(function(c){if(c.stage==='actual'&&set[c.actualEnd.slice(0,7)]){male+=Number(c.male)||0;female+=Number(c.female)||0;}});
   var h='<section class="panel"><div class="panel-b filters">'+
-    '<label class="fld"><span>Financial year</span><select id="f-fy" data-f="fy">'+fys.map(function(y){return '<option value="'+y+'"'+(y===f.fy?' selected':'')+'>'+fyLabel(y)+'</option>';}).join('')+'</select></label>'+
-    ms('f','months','Period',f.fy)+commonFilters('f')+ms('f','conf','Pipeline confidence')+onlineCheck()+resetBtn('f')+'</div></section>';
+    ms('f','fys','Financial year')+
+    ms('f','months','Period',oneFY(f))+commonFilters('f')+ms('f','conf','Pipeline confidence')+onlineCheck()+resetBtn('f')+'</div></section>';
   if(!S.courses.length)return h+'<div class="panel"><div class="empty"><h2>No courses yet</h2><p>Once GATI heads add courses to the pipeline, monthly throughput and throughput days appear here.</p>'+(canAdd()?'<button class="primary" data-act="add">Add the first pipeline course</button>':'')+'</div></div>';
-  if(!months.length)return h+'<div class="panel"><div class="empty"><h2>No months selected</h2><p>Pick at least one month in the Period filter.</p></div></div>';
+  if(!months.length)return h+'<div class="panel"><div class="empty"><h2>No months selected</h2><p>Pick at least one financial year and one month in the filters above.</p></div></div>';
   h+='<section class="kpis">'+
     '<div class="panel kpi"><span class="lab">Throughput · '+esc(pl)+'</span><span class="v">'+num(tot.tp.actual)+' <small>actual</small></span><span class="d">+ '+num(pipeOf(tot.tp))+' in pipeline · counted in the month the course ends</span><span class="d">Actual: '+num(male)+' male · '+num(female)+' female'+(tot.tp.actual-male-female>0?' · '+num(tot.tp.actual-male-female)+' not recorded':'')+'</span></div>'+
     '<div class="panel kpi"><span class="lab">Throughput days · '+esc(pl)+'</span><span class="v">'+num(tot.tpd.actual)+' <small>actual</small></span><span class="d">+ '+num(pipeOf(tot.tpd))+' in pipeline · learners × training days</span><span class="d">Online courses are '+(S.online?'counted':'not counted')+'</span></div>'+
@@ -496,13 +596,15 @@ function viewDashboard(){
     '<div><h3>Throughput</h3><p class="sub">Learners, counted once in the month their course ends</p><div class="chart" id="ch-tp"><div class="scroll">'+chartSVG('tp',months,M,'tp')+'</div></div></div>'+
     '</div></section>';
   DASHC={A:aggregate(list.filter(function(c){return c.campus==='Ahmedabad';}),months),Mu:aggregate(list.filter(function(c){return c.campus==='Mumbai';}),months),T:M};
-  var rows='',qk=[],hk=[];
-  all.forEach(function(m,i){if(set[m]){rows+=monthRowC(monthLabel(m)+(m===cur?' <span class="sub">this month</span>':''),[m],m===cur?'cur':'');qk.push(m);hk.push(m);}
-    if(i%3===2){if(qk.length===3)rows+=monthRowC('Q'+(Math.floor(i/3)+1)+' total',qk,'t1');qk=[];}
-    if(i%6===5){if(hk.length===6)rows+=monthRowC('H'+(Math.floor(i/6)+1)+' total',hk,'t2');hk=[];}});
+  var rows='';
+  fyl.forEach(function(fy){var all=fyMonths(fy),qk=[],hk=[],fk=[],yy=fyl.length>1?' '+fyLabel(fy).slice(3):'';
+    all.forEach(function(m,i){if(set[m]){rows+=monthRowC(monthLabel(m)+(m===cur?' <span class="sub">this month</span>':''),[m],m===cur?'cur':'');qk.push(m);hk.push(m);fk.push(m);}
+      if(i%3===2){if(qk.length===3)rows+=monthRowC('Q'+(Math.floor(i/3)+1)+yy+' total',qk,'t1');qk=[];}
+      if(i%6===5){if(hk.length===6)rows+=monthRowC('H'+(Math.floor(i/6)+1)+yy+' total',hk,'t2');hk=[];}});
+    if(fyl.length>1&&fk.length>1)rows+=monthRowC(esc(periodLabel(fy,f.months))+' total',fk,'t3');});
   var views=[['actual','Actual'],['both','Actual + Pipeline'],['pipe','Pipeline']];
   h+='<section class="panel"><div class="panel-h"><h2>Month and quarter table</h2><div class="seg" role="group" aria-label="Show">'+views.map(function(v){return '<button data-act="mview" data-v="'+v[0]+'" aria-pressed="'+(S.mview===v[0])+'">'+v[1]+'</button>';}).join('')+'</div></div>'+
-    '<div class="scroll"><table class="mq"><thead><tr><th rowspan="2">Month</th>'+['Ahmedabad','Mumbai','Total · both campuses'].map(function(g){return '<th colspan="4" class="grp gs">'+g+'</th>';}).join('')+'</tr><tr>'+[0,1,2].map(function(){return '<th class="n gs">Courses starting</th><th class="n">Courses ending</th><th class="n">Throughput</th><th class="n">TP days</th>';}).join('')+'</tr></thead><tbody>'+rows+(months.length>1?monthRowC(esc(pl)+' total',months,'t3'):'')+'</tbody></table></div>'+
+    '<div class="scroll"><table class="mq"><thead><tr><th rowspan="2">Month</th>'+['Ahmedabad','Mumbai','Total · both campuses'].map(function(g){return '<th colspan="4" class="grp gs">'+g+'</th>';}).join('')+'</tr><tr>'+[0,1,2].map(function(){return '<th class="n gs">Courses starting</th><th class="n">Courses ending</th><th class="n">Throughput</th><th class="n">TP days</th>';}).join('')+'</tr></thead><tbody>'+rows+(months.length>1?monthRowC(esc(pl)+' total',months,fyl.length>1?'t4':'t3'):'')+'</tbody></table></div>'+
     '<p class="sub tblnote">Hold the cursor on a number: '+(S.mview==='both'?'month rows show actual and pipeline separately, and ':'')+'quarter, half-year and year totals show the month-by-month split.</p></section>';
   /* breakdown */
   var dims={school:['School',function(c){return c.school||'Not set';}],gati:['GATI',function(c){return c.gati?c.gati+' · '+gatiName(c.gati):'Unassigned';}],campus:['Campus',function(c){return c.campus||'Not set';}],mode:['Mode',function(c){return modeName(c.mode);}],ptype:['Programme type',function(c){return c.programType||'Not set';}]};
@@ -537,10 +639,11 @@ function histRow(c,cols){var hs=(c.history||[]).slice().reverse();
     var chg=(h.changes||[]).map(function(x){return esc(LABELS[x.f]||x.f)+': <s>'+esc(fmtVal(x.f,x.from))+'</s> → '+esc(fmtVal(x.f,x.to));}).join(' · ');
     return '<li><time>'+esc(stamp(h.at))+'</time><span class="who">'+esc(nameOf(h.by))+'</span><span>'+esc(ACTIONS[h.action]||h.action)+'</span>'+(h.note?'<span class="chg">'+esc(h.note)+'</span>':'')+(chg?'<span class="chg">'+chg+'</span>':'')+'</li>';}).join('')+'</ol>':'<span class="muted">No changes recorded.</span>')+(c.notes?'<p class="sub" style="margin-top:8px">Notes: '+esc(c.notes)+'</p>':'')+'</td></tr>';}
 function histBtn(c){var n=(c.history||[]).length;return '<button class="sm" data-act="hist" data-id="'+esc(c.id)+'" aria-expanded="'+S.openHist.has(c.id)+'">History · '+n+'</button>';}
-function dateFilters(scope,fys){var f=S[scope],off=f.fy==='',fy=off?fyOf(today()):f.fy;return '<label class="fld"><span>Financial year</span><select id="'+scope+'-fy" data-'+scope+'="fy"><option value="">All years</option>'+fys.map(function(y){return '<option value="'+y+'"'+(y===f.fy?' selected':'')+'>'+fyLabel(y)+'</option>';}).join('')+'</select></label>'+ms(scope,'smonths','Start month',fy,off)+ms(scope,'emonths','End month',fy,off);}
-/* A course is listed when its start or end falls in the chosen year, its start month is one of the ticked start months, and its end month is one of the ticked end months. */
-function datePass(c,f){if(f.fy==='')return true;if(!valid(c))return false;var all=fyMonths(f.fy),e=eff(c),si=all.indexOf(e.start.slice(0,7)),ei=all.indexOf(e.end.slice(0,7));
-  if(si<0&&ei<0)return false;if(f.smonths&&!(si>=0&&f.smonths[si]))return false;if(f.emonths&&!(ei>=0&&f.emonths[ei]))return false;return true;}
+function fyFilter(scope){return ms(scope,'fys','Financial year');}
+/* Listed when its start or end falls in a chosen year; a start-month filter needs the start to be in a chosen year and month, and the same for the end. */
+function datePass(c,f){if(!valid(c))return !f.fys&&!f.smonths&&!f.emonths;var e=eff(c),sIn=!f.fys||!!f.fys[fyOf(e.start)],eIn=!f.fys||!!f.fys[fyOf(e.end)];
+  if(!sIn&&!eIn)return false;if(f.smonths&&!(sIn&&f.smonths[monIdx(e.start)]))return false;if(f.emonths&&!(eIn&&f.emonths[monIdx(e.end)]))return false;return true;}
+function hfHint(){return '<span class="sub hfhint">'+FILTER_ICON+' Filter any column from its header</span>';}
 function totalsBox(list,isActual){var n=0,learn=0,tpd=0,male=0,female=0;
   list.forEach(function(c){if(!valid(c))return;var e=eff(c),p=plan(c);n++;learn+=e.batch;male+=Number(c.male)||0;female+=Number(c.female)||0;if(counted(c))tpd+=p.days*e.batch;});
   var items=[['Courses',n],[isActual?'Throughput':'Batch size',learn]];
@@ -553,45 +656,45 @@ function exportBtn(){return true?'<button data-act="export">Export to Excel</but
 
 /* ----- pipeline ----- */
 function viewPipeline(){
-  var f=S.pf;if(f.fy==null)f.fy=fyOf(today());var q=f.q.trim().toLowerCase(),fys=fyOptions(),dropped=f.view==='dropped';
+  var f=S.pf,q=f.q.trim().toLowerCase(),fy1=oneFY(f),dropped=f.view==='dropped';
   var active=S.courses.filter(function(c){return c.stage==='pipeline';}),drops=S.courses.filter(function(c){return c.stage==='dropped';});
-  var list=(dropped?drops:active).filter(function(c){return pass(c,f,FKEYS.concat(['conf']))&&matchQ(c,q)&&datePass(c,f);})
+  var list=(dropped?drops:active).filter(function(c){return pass(c,f,FKEYS.concat(dropped?[]:['conf','status']))&&matchQ(c,q)&&datePass(c,f);})
     .sort(function(a,b){return (a.plannedStart||'')<(b.plannedStart||'')?-1:1;});
   VIEW={list:list,actual:false};
   var due=active.filter(function(c){return liveStatus(c)==='ended';}).length;
-  var h='<section class="panel"><div class="panel-b filters">'+dateFilters('pf',fys)+commonFilters('pf')+ms('pf','conf','Confidence')+
+  var h='<section class="panel"><div class="panel-b filters">'+fyFilter('pf')+
     '<label class="fld"><span>Search</span><input type="search" id="pf-q" data-pf="q" placeholder="Course, client, batch, school" value="'+esc(f.q)+'"></label>'+
     '<div class="fld"><span>Show</span><div class="seg"><button data-act="pview" data-v="active" aria-pressed="'+!dropped+'">Active · '+active.length+'</button><button data-act="pview" data-v="dropped" aria-pressed="'+dropped+'">Dropped · '+drops.length+'</button></div></div>'+
-    onlineCheck()+resetBtn('pf')+'<span class="spacer"></span>'+exportBtn()+(canAdd()?'<button class="primary" data-act="add">Add pipeline course</button>':'')+'</div></section>';
+    onlineCheck()+resetBtn('pf')+hfHint()+'<span class="spacer"></span>'+exportBtn()+(canAdd()?'<button class="primary" data-act="add">Add pipeline course</button>':'')+'</div></section>';
   if(due&&!dropped)h+='<div class="note warn"><span><b>'+due+' course'+(due>1?'s have':' has')+' passed the end date.</b> The GATI head confirms the actual dates, throughput and lab split to move '+(due>1?'them':'it')+' to Actuals.</span></div>';
   if(!active.length&&!drops.length)return h+'<div class="panel"><div class="empty"><h2>The pipeline is empty</h2><p>GATI heads add the courses they expect to bring, with dates, batch size and how likely each one is.</p></div></div>';
   h+=totalsBox(list,false);
-  h+='<section class="panel"><div class="scroll"><table><thead><tr><th>Course</th><th>GATI</th><th>School</th><th>Campus</th><th>Start</th><th>End</th><th class="n">Days</th><th class="n">Batch</th><th class="n">TP days</th><th>'+(dropped?'Reason':'Confidence')+'</th><th>Status</th><th></th></tr></thead><tbody>'+
+  h+='<section class="panel"><div class="scroll"><table><thead><tr>'+hf('pf','course',[['ptype','Programme type']],'Course')+hf('pf','gati',[['gati','GATI']],'GATI')+hf('pf','school',[['school','School']],'School')+hf('pf','campus',[['campus','Campus'],['mode','Mode']],'Campus')+hf('pf','start',[['smonths','Start month']],'Start','',fy1)+hf('pf','end',[['emonths','End month']],'End','',fy1)+'<th class="n">Days</th><th class="n">Batch</th><th class="n">TP days</th>'+(dropped?'<th>Reason</th><th>Status</th>':hf('pf','conf',[['conf','Confidence']],'Confidence')+hf('pf','status',[['status','Status']],'Status'))+'<th></th></tr></thead><tbody>'+
     (list.length?list.map(function(c){var st=liveStatus(c),can=canEditCourse(c),started=c.plannedStart<=today(),acts='';
       if(dropped){if(can)acts+='<button class="sm" data-act="restore" data-id="'+esc(c.id)+'">Restore</button>';acts+=histBtn(c);if(S.me.isOwner)acts+='<button class="sm danger'+(S.armed===c.id?' armed':'')+'" data-act="del" data-id="'+esc(c.id)+'">'+(S.armed===c.id?'Click again to delete':'Delete')+'</button>';}
       else{if(can&&started)acts+='<button class="sm'+(st==='ended'?' primary':'')+'" data-act="confirm" data-id="'+esc(c.id)+'">Move to actuals</button>';if(can)acts+='<button class="sm" data-act="edit" data-id="'+esc(c.id)+'">Edit</button>';acts+=histBtn(c);if(can)acts+='<button class="sm danger" data-act="drop" data-id="'+esc(c.id)+'">Drop</button>';}
       return '<tr><td class="c-main">'+courseCell(c)+'</td><td>'+gchip(c.gati)+'</td><td title="'+esc(c.school)+'">'+esc((c.school||'').replace(/^School of /,''))+'</td><td>'+esc(c.campus)+'<div class="sub nowrap">'+esc(modeName(c.mode))+'</div></td>'+
         '<td class="nowrap">'+nice(c.plannedStart)+'</td><td class="nowrap">'+nice(c.plannedEnd)+'</td><td class="n">'+daysCell(c)+'</td><td class="n">'+num(c.batchSize)+'</td><td class="n">'+tpdCell(c)+'</td><td>'+(dropped?esc(c.dropReason||'—'):confPill(c.confidence))+'</td><td>'+(dropped?'<span class="pill plain">Dropped</span>':statusPill(st))+'</td>'+
         '<td class="acts">'+acts+'</td></tr>'+(S.openHist.has(c.id)?histRow(c,12):'');}).join('')
-      :'<tr><td colspan="12" class="muted">No '+(dropped?'dropped':'pipeline')+' courses match these filters.</td></tr>')+
+      :'<tr><td colspan="12" class="muted">No '+(dropped?'dropped':'pipeline')+' courses match these filters. Use Reset filters above to clear them.</td></tr>')+
     (canAdd()&&!dropped?'<tr class="addrow"><td colspan="12"><button class="addnew" data-act="add"><b>+</b> Add new course</button></td></tr>':'')+'</tbody></table></div></section>';
   return h;
 }
 
 /* ----- actuals ----- */
 function viewActuals(){
-  var f=S.af,q=f.q.trim().toLowerCase(),fys=fyOptions();if(f.fy==null)f.fy=fyOf(today());
+  var f=S.af,q=f.q.trim().toLowerCase(),fy1=oneFY(f);
   var all=S.courses.filter(function(c){return c.stage==='actual';});
   var list=all.filter(function(c){return pass(c,f,FKEYS)&&matchQ(c,q)&&datePass(c,f);})
     .sort(function(a,b){return (a.actualEnd||'')>(b.actualEnd||'')?-1:1;});
   VIEW={list:list,actual:true};
-  var h='<section class="panel"><div class="panel-b filters">'+dateFilters('af',fys)+commonFilters('af')+
+  var h='<section class="panel"><div class="panel-b filters">'+fyFilter('af')+
     '<label class="fld"><span>Search</span><input type="search" id="af-q" data-af="q" placeholder="Course, client, batch, school" value="'+esc(f.q)+'"></label>'+
-    onlineCheck()+resetBtn('af')+'<span class="spacer"></span>'+exportBtn()+(S.me.isOwner?'<button class="primary" data-act="add-actual">Add actual course</button>':'')+'</div></section>';
+    onlineCheck()+resetBtn('af')+hfHint()+'<span class="spacer"></span>'+exportBtn()+(S.me.isOwner?'<button class="primary" data-act="add-actual">Add actual course</button>':'')+'</div></section>';
   if(!all.length)return h+'<div class="panel"><div class="empty"><h2>No actuals yet</h2><p>When a pipeline course has run, its GATI head confirms the real dates, throughput and lab split. The record then moves here and is locked.</p></div></div>';
   h+=totalsBox(list,true);
   var shown=list.slice(0,300);
-  h+='<section class="panel"><div class="panel-h"><span class="sub">Locked records. A GATI head requests an edit; the program team approves it. Only the program team can add a course here directly.</span></div><div class="scroll"><table><thead><tr><th>Course</th><th>GATI</th><th>School</th><th>Campus</th><th>Start</th><th>End</th><th class="n">Days</th><th class="n">Throughput</th><th class="n">TP days</th><th>Lab split</th><th>Confirmed</th><th></th></tr></thead><tbody>'+
+  h+='<section class="panel"><div class="panel-h"><span class="sub">Locked records. A GATI head requests an edit; the program team approves it. Only the program team can add a course here directly.</span></div><div class="scroll"><table><thead><tr>'+hf('af','course',[['ptype','Programme type']],'Course')+hf('af','gati',[['gati','GATI']],'GATI')+hf('af','school',[['school','School']],'School')+hf('af','campus',[['campus','Campus'],['mode','Mode']],'Campus')+hf('af','start',[['smonths','Start month']],'Start','',fy1)+hf('af','end',[['emonths','End month']],'End','',fy1)+'<th class="n">Days</th><th class="n">Throughput</th><th class="n">TP days</th><th>Lab split</th><th>Confirmed</th><th></th></tr></thead><tbody>'+
     (shown.length?shown.map(function(c){var b=Number(c.actualBatch)||0;
       var sv=(c.plannedStart&&c.actualStart!==c.plannedStart)?'<div class="var">Planned '+nice(c.plannedStart)+'</div>':'';
       var ev=(c.plannedEnd&&c.actualEnd!==c.plannedEnd)?'<div class="var">Planned '+nice(c.plannedEnd)+'</div>':'';
@@ -603,10 +706,92 @@ function viewActuals(){
       acts+=histBtn(c);
       return '<tr><td class="c-main">'+courseCell(c)+(req?'<div class="var">Edit requested by '+esc(nameOf(c.editRequest.by))+': '+esc(c.editRequest.reason||'')+'</div>':'')+(c.unlocked?'<div class="var">Unlocked for one edit</div>':'')+'</td><td>'+gchip(c.gati)+'</td><td title="'+esc(c.school)+'">'+esc((c.school||'').replace(/^School of /,''))+'</td><td>'+esc(c.campus)+'<div class="sub nowrap">'+esc(modeName(c.mode))+'</div></td>'+
         '<td class="nowrap">'+nice(c.actualStart)+sv+'</td><td class="nowrap">'+nice(c.actualEnd)+ev+'</td><td class="n">'+daysCell(c)+'</td><td class="n">'+num(b)+mf+bv+'</td><td class="n">'+tpdCell(c)+'</td><td class="labs">'+(labsText(c.labs,c.classPct)?esc(labsText(c.labs,c.classPct)).replace(/ · /g,'<br>'):'<span class="muted">—</span>')+'</td><td><span class="nowrap">'+(c.confirmedAt?esc(stamp(c.confirmedAt).split(',')[0]):'—')+'</span><div class="sub">'+(c.source==='master'?'Master sheet':esc(nameOf(c.confirmedBy)))+'</div></td><td class="acts">'+acts+'</td></tr>'+(S.openHist.has(c.id)?histRow(c,12):'');}).join('')
-      :'<tr><td colspan="12" class="muted">No actuals match these filters.</td></tr>')+(S.me.isOwner?'<tr class="addrow"><td colspan="12"><button class="addnew" data-act="add-actual"><b>+</b> Add actual course</button></td></tr>':'')+'</tbody></table></div></section>';
+      :'<tr><td colspan="12" class="muted">No actuals match these filters. Use Reset filters above to clear them.</td></tr>')+(S.me.isOwner?'<tr class="addrow"><td colspan="12"><button class="addnew" data-act="add-actual"><b>+</b> Add actual course</button></td></tr>':'')+'</tbody></table></div></section>';
   if(list.length>shown.length)h+='<p class="sub">Showing the latest 300 of '+list.length+'. The totals and the Excel export cover all '+list.length+'. Pick a financial year or month to narrow the list.</p>';
   return h;
 }
+
+/* ----- calendar (Gantt) ----- */
+var CALV=[['day','Day'],['week','Week'],['month','Month'],['year','Year']];
+var WD=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+function addDays(s,n){return fd(new Date(pd(s).getTime()+n*86400000));}
+function dayDiff(a,b){return Math.round((pd(b)-pd(a))/86400000);}
+function calRange(){var v=S.cal.view,a=S.cal.anchor,d=pd(a);
+  if(v==='day')return [a,a];
+  if(v==='week'){var s0=addDays(a,-((d.getUTCDay()+6)%7));return [s0,addDays(s0,6)];}
+  if(v==='month')return [a.slice(0,8)+'01',fd(new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth()+1,0)))];
+  var fy=fyOf(a);return [fy+'-04-01',(fy+1)+'-03-31'];}
+function calStep(dir){var v=S.cal.view,a=S.cal.anchor,d=pd(a);
+  if(v==='day')S.cal.anchor=addDays(a,dir);else if(v==='week')S.cal.anchor=addDays(a,7*dir);
+  else if(v==='month')S.cal.anchor=fd(new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth()+dir,1)));
+  else S.cal.anchor=(fyOf(a)+dir)+'-04-01';}
+function calLabel(r){var v=S.cal.view,d=pd(r[0]);
+  if(v==='day')return WD[d.getUTCDay()]+' '+nice(r[0]).replace(/ (\d\d)$/,' 20$1');
+  if(v==='week')return 'Week of '+nice(r[0]).replace(/ (\d\d)$/,' 20$1')+' to '+nice(r[1]).replace(/ (\d\d)$/,' 20$1');
+  if(v==='month')return monthLong(r[0].slice(0,7));return fyLabel(fyOf(r[0]))+' · April to March';}
+function trains(c,day){var w=pd(day).getUTCDay();return w!==0&&(w!==6||!!c.sat)&&!S.holSet.has(day);}
+function calCourses(r){return S.courses.filter(function(c){if((c.stage!=='actual'&&c.stage!=='pipeline')||!valid(c))return false;var e=eff(c);
+  return e.end>=r[0]&&e.start<=r[1]&&pass(c,S.kf,FKEYS.concat(['kind']));}).sort(function(a,b){var x=eff(a),y=eff(b);return x.start<y.start?-1:x.start>y.start?1:(x.end<y.end?-1:1);});}
+function kindName(c){return c.stage==='actual'?'Actual':'Pipeline · '+confName(c.confidence);}
+function barTip(c){var e=eff(c),p=plan(c);return [c.title,[c.batch,c.client].filter(Boolean).join(' · '),gatiName(c.gati)+' · '+(c.school||'No school'),(c.campus||'')+' · '+modeName(c.mode),nice(e.start)+' → '+nice(e.end)+' · '+Math.round(p.days*10)/10+' training days',(c.stage==='actual'?'Throughput: ':'Batch size: ')+num(e.batch),kindName(c)].filter(Boolean).join('\n');}
+function calGroupKey(c){var g=S.cal.group;if(g==='gati'){var x=GATI.filter(function(z){return z.k===c.gati;})[0];return x?gatiLong(x):'Unassigned';}
+  if(g==='campus')return c.campus||'No campus';if(g==='kind')return kindName(c);if(g==='school')return c.school||'No school';return '';}
+function viewCalendar(){
+  var r=calRange(),v=S.cal.view,list=calCourses(r),t=today();
+  var groups=[['school','School'],['gati','GATI source'],['campus','Campus'],['kind','Actual or pipeline'],['none','No grouping']];
+  var h='<section class="panel"><div class="panel-b filters">'+
+    '<div class="fld"><span>View</span><div class="seg" role="group" aria-label="Calendar view">'+CALV.map(function(x){return '<button data-act="calv" data-v="'+x[0]+'" aria-pressed="'+(v===x[0])+'">'+x[1]+'</button>';}).join('')+'</div></div>'+
+    '<div class="fld"><span>Go to</span><div class="calnav"><button data-act="calnav" data-v="-1" aria-label="Previous">‹</button><button data-act="calnav" data-v="0">Today</button><button data-act="calnav" data-v="1" aria-label="Next">›</button><input type="date" id="cal-date" data-cal="date" value="'+esc(S.cal.anchor)+'" aria-label="Pick a date"></div></div>'+
+    '<label class="fld"><span>Group by</span><select id="cal-group" data-cal="group">'+groups.map(function(g){return '<option value="'+g[0]+'"'+(S.cal.group===g[0]?' selected':'')+'>'+g[1]+'</option>';}).join('')+'</select></label>'+
+    ms('kf','kind','Show')+ms('kf','gati','GATI')+ms('kf','school','School')+ms('kf','campus','Campus')+ms('kf','mode','Mode')+ms('kf','ptype','Programme type')+resetBtn('kf')+'</div></section>';
+  var leg='<div class="legend">'+SER.map(function(x){return '<span><i class="sw" style="background:'+x.c+'"></i>'+esc(x.n)+'</span>';}).join('')+'<span><i class="sw sw-online"></i>Online</span></div>';
+  if(v==='day')return h+calDay(list,r[0],leg);
+  var days=dayDiff(r[0],r[1])+1,narrow=window.innerWidth<=700,avail=Math.min(window.innerWidth,1280)-36-(narrow?150:300);
+  var px=v==='year'?Math.max(2.4,avail/days):v==='month'?Math.max(28,Math.floor(avail/days)):Math.max(96,Math.floor(avail/7)),W=Math.round(days*px*100)/100,dl=[];for(var i=0;i<days;i++)dl.push(addDays(r[0],i));
+  /* courses running each day */
+  var load=dl.map(function(d){return list.filter(function(c){var e=eff(c);return e.start<=d&&d<=e.end&&trains(c,d);});}),mx=Math.max.apply(null,load.map(function(x){return x.length;}).concat([1]));
+  var busiest=0;load.forEach(function(x,i){if(x.length>load[busiest].length)busiest=i;});
+  var ti=dl.indexOf(t);
+  var sum='<div class="g-sum"><span><b>'+list.length+'</b> course'+(list.length===1?'':'s')+' in this '+(v==='year'?'year':v)+'</span>'+(ti>=0?'<span><b>'+load[ti].length+'</b> running today</span>':'')+(load[busiest].length?'<span>Busiest day: <b>'+nice(dl[busiest])+'</b> with '+load[busiest].length+' courses</span>':'')+'</div>';
+  /* header */
+  var top='',bottom='';
+  if(v==='year'){var cur0=null,startI=0;dl.forEach(function(d,i){var m=d.slice(0,7);if(m!==cur0){if(cur0!==null)top+='<div class="g-cell g-mon" style="width:'+((i-startI)*px)+'px">'+monthLabel(cur0)+'</div>';cur0=m;startI=i;}});top+='<div class="g-cell g-mon" style="width:'+((days-startI)*px)+'px">'+monthLabel(cur0)+'</div>';}
+  else dl.forEach(function(d){var w=pd(d).getUTCDay(),cls=(w===0||w===6?' we':'')+(d===t?' td':'')+(S.holSet.has(d)?' hol':'');
+    top+='<div class="g-cell'+cls+'" style="width:'+px+'px">'+(v==='month'?'<span class="wd">'+WD[w].charAt(0)+'</span><b>'+pd(d).getUTCDate()+'</b>':'<b>'+WD[w]+' '+pd(d).getUTCDate()+' '+MON[pd(d).getUTCMonth()]+'</b>')+'</div>';});
+  dl.forEach(function(d,i){var n=load[i].length,w=pd(d).getUTCDay(),cls=(v!=='year'&&(w===0||w===6)?' we':'')+(d===t?' td':'');
+    var tipT=WD[w]+' '+nice(d)+': '+n+' course'+(n===1?'':'s')+' running'+(n?'\n'+load[i].slice(0,12).map(function(c){return '• '+c.title;}).join('\n')+(n>12?'\n… and '+(n-12)+' more':''):'');
+    bottom+='<div class="g-cell g-ld'+cls+'" style="width:'+px+'px"'+tip(tipT)+'>'+(v==='year'?'<i style="height:'+Math.round(n/mx*100)+'%"></i>':(n?'<b>'+n+'</b>':'<span class="muted">·</span>'))+'</div>';});
+  var head='<div class="g-head"><div class="g-hrow"><div class="g-corner">'+(v==='year'?'Month':'Day')+'</div><div class="g-cells" style="width:'+W+'px">'+top+'</div></div>'+
+    '<div class="g-hrow"><div class="g-corner">Courses running</div><div class="g-cells" style="width:'+W+'px">'+bottom+'</div></div></div>';
+  /* background: weekends, holidays, month lines, today */
+  var grid='';dl.forEach(function(d,i){var w=pd(d).getUTCDay();
+    if(S.holSet.has(d))grid+='<i class="hol" style="left:'+(i*px)+'px;width:'+px+'px"></i>';else if(v!=='year'&&(w===0||w===6))grid+='<i class="we" style="left:'+(i*px)+'px;width:'+px+'px"></i>';
+    if(v==='year'&&d.slice(8)==='01'&&i)grid+='<i class="ml" style="left:'+(i*px)+'px"></i>';});
+  if(ti>=0)grid+='<i class="now" style="left:'+(ti*px+Math.floor(px/2))+'px"></i>';
+  /* rows */
+  var rows='',byG={},order=[];list.forEach(function(c){var k=calGroupKey(c);if(!byG[k]){byG[k]=[];order.push(k);}byG[k].push(c);});
+  if(S.cal.group==='school'){var so=cfg().schools;order.sort(function(a,b){var x=so.indexOf(a),y=so.indexOf(b);return (x<0?99:x)-(y<0?99:y);});}else order.sort();
+  order.forEach(function(k){if(k)rows+='<div class="g-grp"><div class="g-left">'+esc(k)+' <span class="sub">· '+byG[k].length+'</span></div><div class="g-track g-trk-grp" style="width:'+W+'px"></div></div>';
+    byG[k].forEach(function(c){var e=eff(c),s0=e.start<r[0]?r[0]:e.start,e0=e.end>r[1]?r[1]:e.end,x=dayDiff(r[0],s0)*px,w=(dayDiff(s0,e0)+1)*px-2;
+      var cls='g-bar k-'+bucket(c)+(e.start<r[0]?' cl':'')+(e.end>r[1]?' cr':'')+(c.mode==='Online'?' online':'');
+      rows+='<div class="g-row"><div class="g-left"><div class="t" title="'+esc(c.title)+'">'+esc(c.title)+'</div><div class="sub">'+esc([c.campus,c.batch||c.client].filter(Boolean).join(' · '))+'</div></div>'+
+        '<div class="g-track" style="width:'+W+'px"><div class="'+cls+'" style="left:'+(x+1)+'px;width:'+Math.max(w,3)+'px"'+tip(barTip(c))+'>'+(w>=70?esc(c.title):'')+'</div></div></div>';});});
+  if(!list.length)rows='<div class="g-empty">No courses run in this '+(v==='year'?'year':v)+' with these filters.</div>';
+  return h+'<section class="panel"><div class="panel-h"><div class="cal-head"><h2>'+esc(calLabel(r))+'</h2>'+sum+'</div>'+leg+'</div>'+
+    '<div class="gantt g-'+v+'" id="gantt">'+head+'<div class="g-body"><div class="g-grid" style="width:'+W+'px">'+grid+'</div>'+rows+'</div></div>'+
+    '<p class="sub tblnote">Hold the cursor on a bar for the course details, or on the "Courses running" row for that day\'s list. Courses are counted on their training days only. A bar with a square end carries on before or after this '+(v==='year'?'year':v)+'.</p></section>';}
+function calScroll(){var g=$('gantt');if(!g)return;var key=S.cal.view+S.cal.anchor;if(S.cal.scrollKey===key)return;S.cal.scrollKey=key;
+  var now=g.querySelector('.g-grid .now'),lw=parseFloat(getComputedStyle(g).getPropertyValue('--lw'))||300;
+  if(now&&g.scrollWidth>g.clientWidth+4)g.scrollLeft=Math.max(0,parseFloat(now.style.left)-(g.clientWidth-lw)/3);else g.scrollLeft=0;g.scrollTop=0;}
+function calDay(list,d,leg){var w=pd(d).getUTCDay(),run=list.filter(function(c){return trains(c,d);}),off=list.filter(function(c){return !trains(c,d);});
+  var starting=list.filter(function(c){return eff(c).start===d;}).length,ending=list.filter(function(c){return eff(c).end===d;}).length,learners=run.reduce(function(a,c){return a+eff(c).batch;},0);
+  function row(c,isRun){var e=eff(c),p=plan(c),di=0;for(var x=e.start;x<=d;x=addDays(x,1))if(trains(c,x))di++;var pct=Math.round((dayDiff(e.start,d)+1)/(dayDiff(e.start,e.end)+1)*100);
+    return '<tr><td class="c-main">'+courseCell(c)+'</td><td>'+gchip(c.gati)+'</td><td title="'+esc(c.school)+'">'+esc((c.school||'').replace(/^School of /,''))+'</td><td>'+esc(c.campus)+'<div class="sub nowrap">'+esc(modeName(c.mode))+'</div></td><td class="nowrap">'+nice(e.start)+' → '+nice(e.end)+'</td>'+
+      '<td class="prog"><div class="pbar"><i class="k-'+bucket(c)+'" style="width:'+pct+'%"></i></div><span class="sub">'+(isRun?'Training day '+di+' of '+Math.round(p.days):'No training today')+'</span></td><td class="n">'+num(e.batch)+'</td><td><span class="pill '+(c.stage==='actual'?'live':(c.confidence||'yellow'))+'"><i></i>'+esc(kindName(c))+'</span></td></tr>';}
+  var head='<thead><tr><th>Course</th><th>GATI</th><th>School</th><th>Campus</th><th>Dates</th><th>Progress</th><th class="n">Learners</th><th>Type</th></tr></thead>';
+  return '<section class="panel"><div class="panel-h"><div class="cal-head"><h2>'+esc(calLabel([d,d]))+'</h2><div class="g-sum"><span><b>'+run.length+'</b> course'+(run.length===1?'':'s')+' training</span><span><b>'+num(learners)+'</b> learners</span><span><b>'+starting+'</b> starting · <b>'+ending+'</b> ending</span>'+(S.holSet.has(d)?'<span class="pill due">Holiday</span>':w===0?'<span class="pill plain">Sunday</span>':'')+'</div></div>'+leg+'</div>'+
+    '<div class="scroll"><table>'+head+'<tbody>'+(run.length?run.map(function(c){return row(c,true);}).join(''):'<tr><td colspan="8" class="muted">No courses are training on this day.</td></tr>')+
+    (off.length?'<tr class="subhead"><td colspan="8">Running but not training today (weekend or holiday) · '+off.length+'</td></tr>'+off.map(function(c){return row(c,false);}).join(''):'')+'</tbody></table></div></section>';}
 
 /* ----- export ----- */
 function download(o){return new Promise(function(res){var u=URL.createObjectURL(o.data),a=document.createElement('a');a.href=u;a.download=o.filename;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u);},5000);res({status:'saved'});});}
@@ -786,14 +971,16 @@ function arm(key){if(S.armed===key){S.armed=null;return true;}S.armed=key;clearT
 
 /* ---------- events ---------- */
 document.addEventListener('click',function(ev){
-  var b=ev.target.closest('[data-act]'),inMs=ev.target.closest('.ms');
+  var b=ev.target.closest('[data-act]'),inMs=ev.target.closest('.ms,.hpop,.hf');
   if(!inMs&&S.openMs){S.openMs=null;render();}
   if(!b)return;var a=b.dataset.act,id=b.dataset.id,c=id?byId(id):null,mid=b.dataset.ms;
   if(a==='ms-toggle'){S.openMs=S.openMs===mid?null:mid;return render();}
   if(a==='ms-all'){var cur=getMs(mid),op=MSOPTS[mid]||[],isAll=!cur||op.every(function(o){return cur[o.k];});setMs(mid,isAll?{}:null);return render();}
   if(a==='ms-quick'){var qa=Number(b.dataset.a),qb=Number(b.dataset.b),qs=null;if(qb-qa<12){qs={};for(var qi=qa;qi<qb;qi++)qs[qi]=1;}setMs(mid,qs);return render();}
   if(a==='mview'){S.mview=b.dataset.v;return render();}
-  if(a==='reset'){var sc=b.dataset.scope,qi=$(sc+'-q');S[sc]=defaults(sc);S.online=false;S.openMs=null;if(qi)qi.value='';return render();}
+  if(a==='calv'){S.cal.view=b.dataset.v;return render();}
+  if(a==='calnav'){var dv=Number(b.dataset.v);if(dv===0)S.cal.anchor=today();else calStep(dv);S.cal.scrollKey='';return render();}
+  if(a==='reset'){var sc=b.dataset.scope,qi=$(sc+'-q'),vw=S[sc].view;S[sc]=defaults(sc);if(vw)S[sc].view=vw;if(sc!=='kf')S.online=false;S.openMs=null;if(qi)qi.value='';return render();}
   if(a==='export')return exportList();
   if(a==='dlg-close')return closeDlg();
   if(a==='add')return courseForm(null);
@@ -828,6 +1015,8 @@ document.addEventListener('submit',function(ev){ev.preventDefault();var f=ev.tar
 function setF(obj,k,el){obj[k]=el.type==='checkbox'?el.checked:(k==='fy'?(el.value===''?'':Number(el.value)):el.value);}
 document.addEventListener('change',function(ev){var el=ev.target,d=el.dataset;
   if(d.g==='online'){S.online=el.checked;return render();}
+  if(d.cal==='group'){S.cal.group=el.value;return render();}
+  if(d.cal==='date'){if(el.value){S.cal.anchor=el.value;S.cal.scrollKey='';}return render();}
   if(d.msc){var op=MSOPTS[d.msc]||[],cur=getMs(d.msc),ns={},cnt=0;op.forEach(function(o){var on=o.k===d.v?el.checked:(!cur||!!cur[o.k]);if(on){ns[o.k]=1;cnt++;}});setMs(d.msc,cnt===op.length?null:ns);return render();}
   if(d.f){setF(S.f,d.f,el);return render();}
   if(d.pf&&el.tagName==='SELECT'){setF(S.pf,d.pf,el);return render();}
