@@ -36,4 +36,4 @@ jobs:
           node-version: 22
 
       - name: Publish site and database rules
-        run: npx --yes firebase-tools@13.29.1 deploy --only hosting,firestore:rules --project gati-course-tracker --non-interactive --debug
+        run: npx --yes firebase-tools@13.29.1 deploy --only hosting,firestore:rules --project gati-course-tracker --non-interactive
