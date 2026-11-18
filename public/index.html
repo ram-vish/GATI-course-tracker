@@ -216,8 +216,8 @@ tr.t3 > td{background:var(--tier3);font-weight:700}
 .tot-items > div{display:flex;flex-direction:column;gap:2px}
 .tot-items b{font-family:var(--font-head);font-size:22px;line-height:1.1}
 .hov{border-bottom:1px dotted var(--ink-3);cursor:help}
-td[data-tip]{cursor:help}
-.ftip{position:fixed;z-index:60;pointer-events:none;background:var(--ink);color:var(--bg);border-radius:6px;padding:7px 10px;font-size:12px;line-height:1.5;white-space:pre-line;max-width:300px;font-variant-numeric:tabular-nums}
+td[data-tip]{cursor:pointer}
+.ftip{position:fixed;z-index:60;pointer-events:none;background:var(--surface);color:var(--ink);border:1px solid var(--line-2);box-shadow:0 6px 18px rgba(0,0,0,.16);border-radius:6px;padding:7px 10px;font-size:12px;line-height:1.5;white-space:pre-line;max-width:300px;font-variant-numeric:tabular-nums}
 
 table.mq th.grp{text-align:center}
 table.mq .gs{border-left:1px solid var(--line-2)}
@@ -381,6 +381,16 @@ tr.subhead > td{background:var(--surface-2);font-weight:600;font-size:12px;color
 .lg-act{display:flex;flex-direction:column;gap:6px;border-top:1px solid var(--line);padding-top:10px}
 .lg-act textarea{min-height:60px;width:100%;box-sizing:border-box}
 .lg-act.sub{border-top:0;padding-top:0}
+.lg-act select{max-width:100%}
+.lg-list li.tome{border-color:var(--accent);box-shadow:inset 3px 0 0 var(--accent)}
+.mention{color:var(--accent);font-weight:600}
+.lg-allfiles{border:1px solid var(--line);border-radius:8px;padding:8px 10px;display:flex;flex-direction:column;gap:6px;max-height:40vh;overflow:auto}
+.lg-allfiles .fchip{border-bottom:1px solid var(--line);padding-bottom:6px}
+.lg-allfiles .fchip:last-child{border-bottom:0;padding-bottom:0}
+.lg-hbtns{display:flex;gap:6px;align-items:center;flex:none}
+.pm-msg{display:block;width:100%;text-align:left;font-size:12px;padding:6px 8px;border-radius:6px}
+.pm-msg b{display:block;font-size:12px}
+.pm-msgs{max-height:260px;overflow:auto;margin-bottom:6px}
 .pmenu{position:relative}
 .avatar{width:38px;height:38px;min-height:0;padding:0;border-radius:50%;display:grid;place-items:center;background:var(--surface-2);color:var(--ink-3);border:1px solid var(--line-2);position:relative}
 .avatar svg{width:24px;height:24px;margin-top:4px}
@@ -444,7 +454,7 @@ function ptLabel(cat,code,other){var g=ptCatOf(cat);if(!g)return '';if(!code)ret
 var DEFAULT_SCHOOLS=['School of Precision Manufacturing','School of Metal Joining','School of Intelligent Automation & Robotics','School of Future Mobility','School of Energy','School of Services Economy','LDP/FDP','Other'];
 var DEFAULT_LABS=['CNC Machining Lab','Metrology Lab','3D Printing Lab','Welding Lab (Manual & Robotics)','Industrial Robotics Lab','Cobot / AMR Lab','Mechatronics Lab','Industrial Automation Lab','Electrical Switchgear Lab','CAD/CAM/CAE Lab','Digital Manufacturing Lab','Cybersecurity Lab','Manufacturing Analytics Lab (AI/ML)','EV 2/3-Wheeler Tech Lab','EV 4-Wheeler Tech Lab','Battery Systems Lab','Green Hydrogen Lab','Human Intelligence Lab','Retail','Culinary'];
 var LABELS={expectedEnd:'Expected end',startBatch:'Learners started',title:'Course name',batch:'Batch / code',client:'Client / source',programType:'Programme type',gati:'Source',courseReady:'Course outline available',tpEligible:'Eligible for throughput',review:'Stage',school:'School',campus:'Campus',mode:'Mode',plannedStart:'Planned start',plannedEnd:'Planned end',batchSize:'Planned batch size',confidence:'Confidence',notes:'Notes',sat:'Saturday included',sun:'Sunday included',trainingDays:'Training days',actualStart:'Actual start',actualEnd:'Actual end',actualBatch:'Actual throughput',male:'Male',female:'Female',labs:'Lab split',classPct:'Classroom %'};
-var ACTIONS={acknowledged:'Acknowledged: course available','batch-confirmed':'Batch confirmed: sent to leadership for approval','leader-approved':'Leadership approved: moved to Upcoming batches','leader-back':'Leadership sent it back to the GATI head',started:'Batch started: moved to Running batches',completed:'Batch completed: moved to Throughput',created:'Added to pipeline','created-actual':'Added directly to Throughput by the program team',imported:'Imported',edited:'Edited',confirmed:'Moved to actuals and locked',dropped:'Marked as dropped',restored:'Restored to pipeline','edit-requested':'Requested an edit',unlocked:'Unlocked for one edit','request-declined':'Declined the edit request','edited-locked':'Edited a locked record',golive:'Moved before go-live on 1 December 2026'};
+var ACTIONS={acknowledged:'Acknowledged: course available','batch-confirmed':'Batch confirmed: sent to leadership for approval','leader-approved':'Leadership approved: moved to Upcoming batches','leader-back':'Leadership sent it back to the GATI head',started:'Batch started: moved to Running batches',completed:'Batch completed: moved to Throughput',created:'Added to pipeline','created-actual':'Added directly to Throughput by the program team',imported:'Imported',edited:'Edited',confirmed:'Moved to actuals and locked',dropped:'Marked as dropped',restored:'Restored to pipeline','edit-requested':'Requested an edit',unlocked:'Unlocked for one edit','request-declined':'Declined the edit request','edited-locked':'Edited a locked record','created-standby':'Added directly to Upcoming batches by the program team',golive:'Moved before go-live on 1 December 2026'};
 var MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 var MONL=['January','February','March','April','May','June','July','August','September','October','November','December'];
 var TABS=[['dashboard','Dashboard'],['actuals','Throughput'],['batches','Batches'],['pipeline','Pipeline'],['calendar','Calendar'],['setup','Setup']];
@@ -456,7 +466,7 @@ var S={db:null,auth:null,authState:'loading',me:{id:null,name:'',email:'',role:'
   cal:{view:'month',anchor:today(),group:'school',scrollKey:'',jump:today().slice(0,8)+'01',keepDate:null},
   kf:{gati:null,school:null,campus:null,mode:null,ptype:null,kind:null},
   bf:{fys:null,smonths:null,emonths:null,gati:null,school:null,campus:null,mode:null,ptype:null,q:'',view:'running'},logId:null,logKey:'',
-  f:{fys:curFY(),months:null,gati:null,school:null,campus:null,mode:null,ptype:null,elig:{yes:1},mcats:null,by:'school'},
+  f:{fys:curFY(),months:null,gati:null,school:null,campus:null,mode:null,ptype:null,elig:{yes:1},mcats:{done:1},tcats:{done:1},by:'school'},
   pf:{fys:curFY(),smonths:null,emonths:null,gati:null,school:null,campus:null,mode:null,ptype:null,conf:null,status:null,q:'',view:'active'},
   af:{fys:curFY(),smonths:null,emonths:null,gati:null,school:null,campus:null,mode:null,ptype:null,elig:{yes:1},q:'',view:'completed'}};
 
@@ -510,19 +520,26 @@ function liveStatus(c){return c.stage==='running'?runStatus(c):c.stage==='standb
 
 /* ---------- permissions (app level) ---------- */
 function myGatis(){return (S.me.gatis||[]).slice();}
+/* A person can hold several kinds of access. Older profiles have a single "role". */
+function rolesOf(u){return Array.isArray(u.roles)?u.roles:(u.role&&u.role!=='viewer'&&u.role!=='head'?[u.role]:[]);}
+function hasRole(r){return (S.me.roles||[]).indexOf(r)>=0;}
+var ACCESS=[['program','Program team · operations'],['lead','Leadership · approves batches'],['cp','Course production · uploads courses']];
+function accessList(id,roles,gatis){if(id===ADMIN)return ['Admin · full access'];var out=ACCESS.filter(function(x){return roles.indexOf(x[0])>=0;}).map(function(x){return x[1];});
+  if((gatis||[]).length)out.push('GATI head · '+gatis.map(function(k){return k==='N'?'NST':gatiName(k);}).join(', '));return out.length?out:['View only'];}
 function canAdd(){return S.me.isAdmin||myGatis().length>0;}
 function ownsGati(c){return S.me.isAdmin||myGatis().indexOf(c.gati)>=0;}
 function canEditCourse(c){if(S.me.isAdmin)return true;
   if(c.stage==='pipeline'||c.stage==='dropped')return ownsGati(c)&&(c.stage==='pipeline'||pipeStatus(c)!=='approved');
   if(c.stage==='standby'||c.stage==='running')return S.me.isOwner;
   if(c.stage==='actual')return S.me.isOwner||(ownsGati(c)&&!!c.unlocked);return false;}
-function isCPUser(){return S.me.role==='cp'||S.me.isAdmin;}
+function isCPUser(){return hasRole('cp')||S.me.isAdmin;}
 function canUpload(c){return c.stage==='pipeline'&&isCPUser()&&(pipeStatus(c)==='awaiting'||pipeStatus(c)==='changes');}
 function canReview(c){return c.stage==='pipeline'&&ownsGati(c)&&pipeStatus(c)==='review';}
 function canConfirmBatch(c){return c.stage==='pipeline'&&ownsGati(c)&&pipeStatus(c)==='approved';}
-function isLead(){return S.me.role==='lead'||S.me.isAdmin;}
+function isLead(){return hasRole('lead')||S.me.isAdmin;}
 function canLead(c){return c.stage==='pipeline'&&isLead()&&pipeStatus(c)==='leadership';}
-function canNote(c){if(c.stage==='pipeline')return ownsGati(c)||isCPUser()||isLead();return S.me.isOwner||S.me.isAdmin;}
+/* Anyone involved (program team, leadership, course production, GATI heads) can add messages to any course's log. */
+function canNote(c){return S.me.isAdmin||S.me.isOwner||hasRole('lead')||hasRole('cp')||myGatis().length>0;}
 function myTurn(c){return canUpload(c)||canReview(c)||canConfirmBatch(c)||canLead(c)||(c.stage==='standby'&&S.me.isOwner&&sbStatus(c)==='due')||(c.stage==='running'&&S.me.isOwner&&runStatus(c)==='due');}
 function canDrop(c){return S.me.isAdmin||(c.stage==='pipeline'&&ownsGati(c)&&pipeStatus(c)!=='approved'&&pipeStatus(c)!=='leadership')||(c.stage==='standby'&&S.me.isOwner);}
 
@@ -559,7 +576,7 @@ function optsFor(key,fy){
   if(key==='conf')return CONF.map(function(c){return {k:c.k,n:c.n};});
   if(key==='status')return [{k:'awaiting',n:'With course production · upload'},{k:'review',n:'With GATI head · review'},{k:'changes',n:'Changes asked'},{k:'approved',n:'Course confirmed · confirm batch'},{k:'leadership',n:'With leadership · approval'}];
   if(key==='elig')return [{k:'yes',n:'Eligible for throughput',s:'Eligible'},{k:'no',n:'Non-eligible for throughput',s:'Non-eligible'}];
-  if(key==='mcats')return MCATS.map(function(x){return {k:x[0],n:x[1]};});
+  if(key==='mcats'||key==='tcats')return MCATS.map(function(x){return {k:x[0],n:x[1]};});
   if(key==='kind')return CATSER.map(function(x){return {k:x.k,n:x.n};});
   if(key==='fys')return fyOptions().map(function(y){return {k:String(y),n:fyLabel(y)};});
   if(/months$/.test(key)){var fm=fy!=null?fyMonths(fy):null;return [9,10,11,0,1,2,3,4,5,6,7,8].map(function(i){return {k:String(i),n:fm?monthLong(fm[i]):MONL[(3+i)%12]};});}
@@ -569,7 +586,7 @@ function optsFor(key,fy){
   S.courses.forEach(function(c){var v=key==='school'?c.school:c.programType;if(!v)blankv=true;else if(!seen[v]){seen[v]=1;extra.push(v);}});
   extra.sort().forEach(function(x){out.push({k:x,n:x});});if(blankv)out.push({k:'-',n:'Not set'});
   return out;}
-function msText(key,options,sel,on,all){if(key==='mcats')return all?'All four':!on.length?'None':on.length<=2?on.map(function(o){return o.n;}).join(', '):on.length+' selected';if(key==='fys')return all&&options.length>1?'All years':!on.length?'None':on.length<=2?on.map(function(o){return o.n;}).join(', '):on.length+' years';
+function msText(key,options,sel,on,all){if(key==='mcats'||key==='tcats')return all?'All four':!on.length?'None':on.length<=2?on.map(function(o){return o.n;}).join(', '):on.length+' selected';if(key==='fys')return all&&options.length>1?'All years':!on.length?'None':on.length<=2?on.map(function(o){return o.n;}).join(', '):on.length+' years';
   if(/months$/.test(key))return monthsText(sel);return all?'All':!on.length?'None':on.length<=2?on.map(function(o){return o.s||o.n;}).join(', '):on.length+' selected';}
 function msBody(scope,key,title,fy){var id=scope+'-'+key,options=optsFor(key,fy),sel=S[scope][key];MSOPTS[id]=options;
   var on=options.filter(function(o){return !sel||sel[o.k];}),all=on.length===options.length;
@@ -601,7 +618,7 @@ function tip(t){return ' data-tip="'+esc(t)+'" tabindex="0"';}
 /* ---------- aggregation ---------- */
 function blank(){return {actual:0,green:0,yellow:0,red:0};}
 function bucket(c){return catOf(c);}
-function dashCourses(){var f=S.f;return S.courses.filter(function(c){return (isDone(c)||c.stage==='pipeline'||c.stage==='standby')&&valid(c)&&pass(c,f,FKEYS)&&(!f.mcats||f.mcats[catOf(c)]);});}
+function dashCourses(all){var f=S.f;return S.courses.filter(function(c){return (isDone(c)||c.stage==='pipeline'||c.stage==='standby')&&valid(c)&&pass(c,f,FKEYS)&&(all||!f.mcats||f.mcats[catOf(c)]);});}
 function accum(){return {tp:blank(),tpd:blank(),starts:{a:0,p:0},ends:{a:0,p:0}};}
 function aggregate(list,months){var M={};months.forEach(function(m){M[m]=accum();});
   list.forEach(function(c){var e=eff(c),p=plan(c),b=bucket(c),cnt=counted(c),sk=isDone(c)?'a':'p';
@@ -631,15 +648,12 @@ function tpdCell(c,set,label){if(!counted(c))return '<span class="hov muted"'+ti
 
 function renderChrome(){
   var r=$('role'),g=myGatis(),html;
-  if(S.me.isAdmin)html='<span class="role owner"><i></i>Admin · full access</span>';
-  else if(S.me.isOwner)html='<span class="role owner"><i></i>Program team · operations'+(g.length?' · GATI head '+esc(g.map(function(k){return k==='N'?'NST':k;}).join(', ')):'')+'</span>';
-  else if(g.length)html='<span class="role head"><i></i>GATI head · '+esc(g.map(gatiName).join(', '))+'</span>';
-  else if(S.me.role==='cp')html='<span class="role head"><i></i>Course production · uploads courses</span>';
-  else if(S.me.role==='lead')html='<span class="role owner"><i></i>Leadership · approves batches</span>';
-  else html='<span class="role"><i></i>View only</span>';
+  html=accessList(S.me.id,S.me.roles||[],g).map(function(t){return '<span class="role'+(/^GATI|^Course/.test(t)?' head':/^View/.test(t)?'':' owner')+'"><i></i>'+esc(t)+'</span>';}).join(' ');
+  var mm=S.authState==='in'?myMentions():[];
   var face='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="9" r="4.2" fill="currentColor"/><path d="M3.5 21c.9-4.2 4.3-6.6 8.5-6.6s7.6 2.4 8.5 6.6" fill="currentColor"/></svg>';
-  r.innerHTML=S.authState==='in'?'<div class="who"><span class="me" title="'+esc(S.me.email)+'">'+esc(S.me.name||S.me.email)+'</span><div class="pmenu"><button type="button" class="avatar" data-act="pmenu" aria-haspopup="true" aria-expanded="'+!!S.pmenu+'" aria-label="Account: '+esc(S.me.name||S.me.email)+(S.me.defaultPw?' · action needed':'')+'" title="'+esc(S.me.name||S.me.email)+'">'+face+(S.me.defaultPw?'<i class="alertdot" aria-hidden="true">!</i>':'')+'</button>'+
+  r.innerHTML=S.authState==='in'?'<div class="who"><span class="me" title="'+esc(S.me.email)+'">'+esc(S.me.name||S.me.email)+'</span><div class="pmenu"><button type="button" class="avatar" data-act="pmenu" aria-haspopup="true" aria-expanded="'+!!S.pmenu+'" aria-label="Account: '+esc(S.me.name||S.me.email)+(S.me.defaultPw?' · action needed':'')+(mm.length?' · '+mm.length+' message'+(mm.length>1?'s':'')+' for you':'')+'" title="'+esc(S.me.name||S.me.email)+'">'+face+(mm.length?'<i class="alertdot" aria-hidden="true">'+(mm.length>9?'9+':mm.length)+'</i>':S.me.defaultPw?'<i class="alertdot" aria-hidden="true">!</i>':'')+'</button>'+
     (S.pmenu?'<div class="pm-pop" role="menu"><div class="pm-who"><b>'+esc(S.me.name||'')+'</b><span>'+esc(S.me.email)+'</span><div class="pm-role">'+html+'</div></div>'+(S.me.defaultPw?'<div class="pm-alert"><i>!</i><span>You are still using the starting password. Change it to one only you know.</span></div>':'')+
+      (mm.length?'<div class="pm-alert"><i>'+mm.length+'</i><span>'+(mm.length>1?'messages mention':'message mentions')+' you</span></div><div class="pm-msgs">'+mm.slice(0,10).map(function(x){return '<button type="button" class="pm-msg" role="menuitem" data-act="log" data-id="'+esc(x.c.id)+'"><b>'+esc(x.c.title)+'</b>'+esc(nameOf(x.e.by))+': '+esc(String(x.e.text||'').slice(0,90))+'</button>';}).join('')+'</div>':'')+
       '<button type="button" role="menuitem" data-act="chpw">Change password</button><button type="button" role="menuitem" data-act="signout">Sign out</button></div>':'')+'</div></div>':'';
   $('tabs').hidden=S.authState!=='in';if(S.authState!=='in'){$('notes').innerHTML='';return;}
   var cnt=function(fn){return S.courses.filter(fn).length;};
@@ -707,19 +721,19 @@ function cAggregate(list,months){var M={};months.forEach(function(m){M[m]=cAccum
   list.forEach(function(c){var e=eff(c),p=plan(c),k=catOf(c);if(counted(c))for(var mm in p.months)if(M[mm])M[mm].tpd[k]+=p.months[mm]*e.batch;
     var em=e.end.slice(0,7),sm=e.start.slice(0,7);if(M[em]){if(elig(c))M[em].tp[k]+=e.batch;M[em].ends[k]++;}if(M[sm])M[sm].starts[k]++;});return M;}
 function cAdd(t,a){for(var m in t)for(var k in t[m])t[m][k]+=a[m][k];}
-function catSel(){return MCATS.map(function(x){return x[0];}).filter(function(k){return !S.f.mcats||S.f.mcats[k];});}
+function catSel(key){var s=S.f[key||'mcats'];return MCATS.map(function(x){return x[0];}).filter(function(k){return !s||s[k];});}
 var METS=[['starts','Courses starting'],['ends','Courses ending'],['tp','Throughput'],['tpd','Throughput days']];
 var DASHC={A:{},Mu:{},T:{}};
 function mval(a,met){var o=a[met];return (met==='starts'||met==='ends')?pickSE(o):pick(o);}
 function msplit(a,met){var o=a[met];return (met==='starts'||met==='ends')?[o.a,o.p]:[o.actual,pipeOf(o)];}
-function cellC(src,keys,met,cls){var sel=catSel(),tot=cAccum(),lines=[];keys.forEach(function(k){cAdd(tot,src[k]);});
+function cellC(src,keys,met,cls){var sel=catSel('tcats'),tot=cAccum(),lines=[];keys.forEach(function(k){cAdd(tot,src[k]);});
   function v(a){return sel.reduce(function(t,k){return t+a[met][k];},0);}
   if(sel.length>1)MCATS.forEach(function(x){if(sel.indexOf(x[0])>=0)lines.push(x[1]+': '+num(tot[met][x[0]]));});
   if(keys.length>1){if(lines.length)lines.push('');keys.forEach(function(k){lines.push(monthLabel(k)+': '+num(v(src[k])));});}
   return '<td class="n'+(cls||'')+'"'+(lines.length?tip(lines.join('\n')):'')+'>'+num(v(tot))+'</td>';}
 function monthRowC(label,keys,cls){return '<tr'+(cls?' class="'+cls+'"':'')+'><td class="nowrap">'+label+'</td>'+[['A',''],['Mu',''],['T',' tcol']].map(function(g){return METS.map(function(m,i){return cellC(DASHC[g[0]],keys,m[0],(i===0?' gs':'')+g[1]);}).join('');}).join('')+'</tr>';}
 function defaults(scope){
-  if(scope==='f')return {fys:curFY(),months:null,gati:null,school:null,campus:null,mode:null,ptype:null,elig:{yes:1},mcats:null,by:S.f.by};
+  if(scope==='f')return {fys:curFY(),months:null,gati:null,school:null,campus:null,mode:null,ptype:null,elig:{yes:1},mcats:{done:1},tcats:{done:1},by:S.f.by};
   if(scope==='pf')return {fys:curFY(),smonths:null,emonths:null,gati:null,school:null,campus:null,mode:null,ptype:null,conf:null,status:null,q:'',view:'active'};
   if(scope==='kf')return {gati:null,school:null,campus:null,mode:null,ptype:null,kind:null};
   if(scope==='bf')return {fys:null,smonths:null,emonths:null,gati:null,school:null,campus:null,mode:null,ptype:null,q:'',view:S.bf.view};
@@ -754,16 +768,16 @@ function viewDashboard(){
     '<div><h3>Throughput days</h3><p class="sub">Learners × training days, placed in the month the days fall in</p><div class="chart" id="ch-tpd"><div class="scroll">'+chartSVG('tpd',months,M,'tpd')+'</div></div></div>'+
     '<div><h3>Throughput</h3><p class="sub">Learners, counted once in the month their course ends</p><div class="chart" id="ch-tp"><div class="scroll">'+chartSVG('tp',months,M,'tp')+'</div></div></div>'+
     '</div></section>';
-  DASHC={A:cAggregate(list.filter(function(c){return c.campus==='Ahmedabad';}),months),Mu:cAggregate(list.filter(function(c){return c.campus==='Mumbai';}),months),T:cAggregate(list,months)};
+  var tl=dashCourses(true);DASHC={A:cAggregate(tl.filter(function(c){return c.campus==='Ahmedabad';}),months),Mu:cAggregate(tl.filter(function(c){return c.campus==='Mumbai';}),months),T:cAggregate(tl,months)};
   var rows='';
   fyl.forEach(function(fy){var all=fyMonths(fy),qk=[],hk=[],fk=[],yy=fyl.length>1?' '+fyLabel(fy).slice(3):'';
     all.forEach(function(m,i){if(set[m]){rows+=monthRowC(monthLabel(m)+(m===cur?' <span class="sub">this month</span>':''),[m],m===cur?'cur':'');qk.push(m);hk.push(m);fk.push(m);}
       if(i%3===2){if(qk.length===3)rows+=monthRowC('Q'+(Math.floor(i/3)+1)+yy+' total',qk,'t1');qk=[];}
       if(i%6===5){if(hk.length===6)rows+=monthRowC('H'+(Math.floor(i/6)+1)+yy+' total',hk,'t2');hk=[];}});
     if(fyl.length>1&&fk.length>1)rows+=monthRowC(esc(periodLabel(fy,f.months))+' total',fk,'t3');});
-  h+='<section class="panel"><div class="panel-h"><h2>Month and quarter table</h2>'+legend()+'</div>'+
+  h+='<section class="panel"><div class="panel-h"><h2>Month and quarter table</h2>'+ms('f','tcats','Category')+'</div>'+
     '<div class="scroll"><table class="mq"><thead><tr><th rowspan="2">Month</th>'+['Ahmedabad','Mumbai','Total · both campuses'].map(function(g){return '<th colspan="4" class="grp gs">'+g+'</th>';}).join('')+'</tr><tr>'+[0,1,2].map(function(){return '<th class="n gs">Courses starting</th><th class="n">Courses ending</th><th class="n">Throughput</th><th class="n">TP days</th>';}).join('')+'</tr></thead><tbody>'+rows+(months.length>1?monthRowC(esc(pl)+' total',months,fyl.length>1?'t4':'t3'):'')+'</tbody></table></div>'+
-    '<p class="sub tblnote">Showing '+esc(catSel().map(function(k){return MCATS.filter(function(x){return x[0]===k;})[0][1];}).join(', ')||'nothing')+'. Hold the cursor on a number to see each part separately and, on totals, the month-by-month split.</p></section>';
+    '<p class="sub tblnote">Showing '+esc(catSel('tcats').map(function(k){return MCATS.filter(function(x){return x[0]===k;})[0][1];}).join(', ')||'nothing')+'. Point at or click a number to see each part separately and, on totals, the month-by-month split.</p></section>';
   /* breakdown */
   var dims={school:['School',function(c){return c.school||'Not set';}],gati:['Source',function(c){return c.gati?c.gati+' · '+gatiName(c.gati):'Unassigned';}],campus:['Campus',function(c){return c.campus||'Not set';}],mode:['Mode',function(c){return modeName(c.mode);}],ptype:['Programme type',function(c){return c.programType||'Not set';}]};
   dims.gati[1]=function(c){var g=GATI.filter(function(x){return x.k===c.gati;})[0];return g?gatiLong(g):'Unassigned';};var dim=dims[f.by]||dims.school,groups={};
@@ -775,7 +789,7 @@ function viewDashboard(){
   var keys=Object.keys(groups).filter(function(k){return groups[k].n;}).sort(function(a,b){return sum(groups[b].tpd)-sum(groups[a].tpd);});
   var mx=Math.max.apply(null,keys.map(function(k){return sum(groups[k].tpd);}).concat([1]));
   function splitTip(o){return tip(CATSER.filter(function(x){return sel.indexOf(x.k)>=0;}).map(function(x){return x.n+': '+num(o[x.k]);}).join('\n'));}
-  h+='<section class="panel"><div class="panel-h"><h2>Breakdown · '+esc(pl)+'</h2><div class="seg" role="group" aria-label="Break down by">'+Object.keys(dims).map(function(k){return '<button data-act="by" data-v="'+k+'" aria-pressed="'+(f.by===k)+'">'+dims[k][0]+'</button>';}).join('')+'</div></div><div class="scroll"><table><thead><tr><th>'+dim[0]+'</th><th class="n">Courses</th><th class="n">Throughput</th><th class="n">TP days</th><th>TP days by category</th></tr></thead><tbody>'+
+  h+='<section class="panel"><div class="panel-h"><h2>Breakdown · '+esc(pl)+'</h2>'+legend()+'<div class="seg" role="group" aria-label="Break down by">'+Object.keys(dims).map(function(k){return '<button data-act="by" data-v="'+k+'" aria-pressed="'+(f.by===k)+'">'+dims[k][0]+'</button>';}).join('')+'</div></div><div class="scroll"><table><thead><tr><th>'+dim[0]+'</th><th class="n">Courses</th><th class="n">Throughput</th><th class="n">TP days</th><th>TP days by category</th></tr></thead><tbody>'+
     (keys.length?keys.map(function(k){var g=groups[k];return '<tr><td>'+esc(k)+'</td><td class="n">'+g.n+'</td><td class="n"><span class="hov"'+splitTip(g.tp)+'>'+num(sum(g.tp))+'</span></td><td class="n"><span class="hov"'+splitTip(g.tpd)+'>'+num(sum(g.tpd))+'</span></td><td><div class="bar"'+splitTip(g.tpd)+'>'+CATSER.filter(function(x){return g.tpd[x.k]>0;}).map(function(x){return '<i style="width:'+(g.tpd[x.k]/mx*100)+'%;background:'+x.c+'"></i>';}).join('')+'</div></td></tr>';}).join(''):'<tr><td colspan="5" class="muted">Nothing falls in this period with these filters.</td></tr>')+
     '</tbody></table></div></section>';
   /* lab utilisation: on-campus courses in the categories shown, split by the lab percentages entered in the pipeline */
@@ -860,11 +874,11 @@ function viewActuals(){
   VIEW={list:list,kind:'completed'};
   var h='<section class="panel"><div class="panel-b filters">'+fyFilter('af')+ms('af','campus','Campus')+ms('af','mode','Mode')+ms('af','elig','Throughput')+
     '<label class="fld"><span>Search</span><input type="search" id="af-q" data-af="q" placeholder="Course, client, batch, school" value="'+esc(f.q)+'"></label>'+seg+
-    onlineCheck()+resetBtn('af')+hfHint()+'<span class="spacer"></span>'+exportBtn()+(S.me.isOwner?'<button class="primary" data-act="add-actual">Add completed course</button>':'')+'</div></section>';
+    onlineCheck()+resetBtn('af')+hfHint()+'<span class="spacer"></span>'+exportBtn()+(S.me.isAdmin?'<button class="primary" data-act="add-actual">Add completed course</button>':'')+'</div></section>';
   if(!all.length)return h+'<div class="panel"><div class="empty"><h2>No completed courses yet</h2><p>When operations complete a running batch, it moves here and is locked.</p></div></div>';
   h+=totalsBox(list,'completed');
   var shown=list.slice(0,300);
-  h+='<section class="panel"><div class="panel-h"><span class="sub">Completed courses are locked. A GATI head requests an edit; the program team approves it. Only the program team can add a course here directly, and only the admin can delete one.</span></div><div class="scroll"><table><thead><tr>'+hf('af','course',[['ptype','Programme type']],'Course')+hf('af','gati',[['gati','Source']],'Source')+hf('af','school',[['school','School']],'School')+hf('af','campus',[['campus','Campus']],'Campus')+hf('af','start',[['smonths','Start month']],'Start','',fy1)+hf('af','end',[['emonths','End month']],'End','',fy1)+'<th class="n">Days</th><th class="n">Throughput</th><th class="n">TP days</th><th>Lab split</th><th>Confirmed</th><th></th></tr></thead><tbody>'+
+  h+='<section class="panel"><div class="panel-h"><span class="sub">Completed courses are locked. A GATI head requests an edit; the program team approves it. Courses arrive here when operations click Batch completed. Only the admin can add or delete one directly.</span></div><div class="scroll"><table><thead><tr>'+hf('af','course',[['ptype','Programme type']],'Course')+hf('af','gati',[['gati','Source']],'Source')+hf('af','school',[['school','School']],'School')+hf('af','campus',[['campus','Campus']],'Campus')+hf('af','start',[['smonths','Start month']],'Start','',fy1)+hf('af','end',[['emonths','End month']],'End','',fy1)+'<th class="n">Days</th><th class="n">Throughput</th><th class="n">TP days</th><th>Lab split</th><th>Confirmed</th><th></th></tr></thead><tbody>'+
     (shown.length?shown.map(function(c){var b=Number(c.actualBatch)||0;
       var sv=(c.plannedStart&&c.actualStart!==c.plannedStart)?'<div class="var">Planned '+nice(c.plannedStart)+'</div>':'';
       var ev=(c.plannedEnd&&c.actualEnd!==c.plannedEnd)?'<div class="var">Planned '+nice(c.plannedEnd)+'</div>':'';
@@ -877,7 +891,7 @@ function viewActuals(){
       var fm=c.completedVia==='batches'&&!(c.files||[]).some(function(x){return x.kind==='feedback';})?'<div class="var">Feedback missing</div>':'';
       return '<tr><td class="c-main">'+courseCell(c)+fm+(req?'<div class="var">Edit requested by '+esc(nameOf(c.editRequest.by))+': '+esc(c.editRequest.reason||'')+'</div>':'')+(c.unlocked?'<div class="var">Unlocked for one edit</div>':'')+'</td><td>'+gchip(c.gati)+'</td><td title="'+esc(c.school)+'">'+esc((c.school||'').replace(/^School of /,''))+'</td><td>'+esc(c.campus)+'<div class="sub nowrap">'+esc(modeName(c.mode))+'</div></td>'+
         '<td class="nowrap">'+nice(c.actualStart)+sv+'</td><td class="nowrap">'+nice(c.actualEnd)+ev+'</td><td class="n">'+daysCell(c)+'</td><td class="n">'+num(b)+mf+bv+'</td><td class="n">'+tpdCell(c)+'</td><td class="labs">'+(labsText(c.labs,c.classPct)?esc(labsText(c.labs,c.classPct)).replace(/ · /g,'<br>'):'<span class="muted">—</span>')+'</td><td><span class="nowrap">'+(c.confirmedAt?esc(stamp(c.confirmedAt).split(',')[0]):'—')+'</span><div class="sub">'+(c.source==='master'?'Master sheet':esc(nameOf(c.confirmedBy)))+'</div></td><td class="acts">'+acts+'</td></tr>'+(S.openHist.has(c.id)?histRow(c,12):'');}).join('')
-      :'<tr><td colspan="12" class="muted">No completed courses match these filters. Use Reset filters above to clear them.</td></tr>')+(S.me.isOwner?'<tr class="addrow"><td colspan="12"><button class="addnew" data-act="add-actual"><b>+</b> Add completed course</button></td></tr>':'')+'</tbody></table></div></section>';
+      :'<tr><td colspan="12" class="muted">No completed courses match these filters. Use Reset filters above to clear them.</td></tr>')+(S.me.isAdmin?'<tr class="addrow"><td colspan="12"><button class="addnew" data-act="add-actual"><b>+</b> Add completed course</button></td></tr>':'')+'</tbody></table></div></section>';
   if(list.length>shown.length)h+='<p class="sub">Showing the latest 300 of '+list.length+'. The totals and the Excel export cover all '+list.length+'. Pick a financial year or month to narrow the list.</p>';
   return h;
 }
@@ -895,9 +909,9 @@ function viewBatches(){
   var h='<div class="bswitch" role="group" aria-label="Batches"><button data-act="bview" data-v="running" aria-pressed="'+isRun+'"><b>Running batches</b><span>'+running.length+' running'+(dueR?' · '+dueR+' due to complete':'')+'</span></button><button data-act="bview" data-v="standby" aria-pressed="'+!isRun+'"><b>Upcoming batches</b><span>'+standby.length+' approved'+(dueS?' · '+dueS+' to start':'')+'</span></button></div>';
   h+='<section class="panel"><div class="panel-b filters">'+ms('bf','fys','Financial year')+ms('bf','campus','Campus')+ms('bf','mode','Mode')+
     '<label class="fld"><span>Search</span><input type="search" id="bf-q" data-bf="q" placeholder="Course, client, batch, school" value="'+esc(f.q)+'"></label>'+
-    onlineCheck()+resetBtn('bf')+hfHint()+'<span class="spacer"></span>'+exportBtn()+'</div></section>';
+    onlineCheck()+resetBtn('bf')+hfHint()+'<span class="spacer"></span>'+exportBtn()+(S.me.isOwner&&!isRun?'<button class="primary" data-act="add-upcoming">Add upcoming batch</button>':'')+'</div></section>';
   if(isRun&&dueR&&S.me.isOwner)h+='<div class="note warn"><span><b>'+dueR+' running batch'+(dueR>1?'es have':' has')+' reached the end day.</b> Click Batch completed to confirm the final numbers and move '+(dueR>1?'them':'it')+' to Throughput.</span></div>';
-  if(!isRun&&dueS&&S.me.isOwner)h+='<div class="note warn"><span><b>'+dueS+' upcoming batch'+(dueS>1?'es have':' has')+' reached the start day.</b> Click Batch started, upload the student list and confirm who turned up, to move '+(dueS>1?'them':'it')+' to Running batches.</span></div>';
+  if(!isRun&&dueS&&S.me.isOwner)h+='<div class="note warn"><span><b>'+dueS+' upcoming batch'+(dueS>1?'es have':' has')+' reached the start day.</b> Click Batch started and confirm who turned up, to move '+(dueS>1?'them':'it')+' to Running batches.</span></div>';
   if(!all.length)return h+'<div class="panel"><div class="empty"><h2>'+(isRun?'No batches are running':'No upcoming batches')+'</h2><p>'+(isRun?'When operations click Batch started on an upcoming batch, it shows here until it is completed.':'When leadership approves a confirmed batch, it waits here until its start day.')+'</p></div></div>';
   h+=totalsBox(list,isRun?'running':'pipeline');
   var cols=10;
@@ -910,7 +924,7 @@ function viewBatches(){
       var sv=isRun&&c.plannedStart&&e.start!==c.plannedStart?'<div class="var">Planned '+nice(c.plannedStart)+'</div>':'',ev=isRun&&c.plannedEnd&&e.end!==c.plannedEnd?'<div class="var">Planned '+nice(c.plannedEnd)+'</div>':'';
       var bv=isRun&&c.batchSize!=null&&Number(c.batchSize)!==e.batch?'<div class="var">Planned '+num(c.batchSize)+'</div>':'';
       var who=isRun?(c.startedBy?esc(nameOf(c.startedBy)):'—'):(c.batchConfirmedBy?esc(nameOf(c.batchConfirmedBy))+' · '+esc(stamp(c.batchConfirmedAt).split(',')[0]):'—');
-      return '<tr><td class="c-main">'+courseCell(c)+'</td><td>'+gchip(c.gati)+'</td><td title="'+esc(c.school)+'">'+esc((c.school||'').replace(/^School of /,''))+'</td><td>'+esc(c.campus)+'<div class="sub nowrap">'+esc(modeName(c.mode))+'</div></td>'+
+      return '<tr><td class="c-main">'+courseCell(c)+(isRun&&!hasList(c)?'<div class="var">Student list missing</div>':'')+'</td><td>'+gchip(c.gati)+'</td><td title="'+esc(c.school)+'">'+esc((c.school||'').replace(/^School of /,''))+'</td><td>'+esc(c.campus)+'<div class="sub nowrap">'+esc(modeName(c.mode))+'</div></td>'+
         '<td class="nowrap">'+nice(e.start)+sv+(isRun?'<div class="sub">by '+who+'</div>':'')+'</td><td class="nowrap">'+nice(e.end)+ev+'<div class="sub">'+daysCell(c)+' training days</div></td><td class="n">'+num(e.batch)+bv+'</td><td class="n">'+tpdCell(c)+'</td><td class="prog">'+(isRun?progressCell(c)+'<div>'+statusPill(runStatus(c),c)+'</div>':statusPill(sbStatus(c),c)+'<div class="sub">Confirmed by '+who+'</div>')+'</td><td class="acts">'+acts+'</td></tr>';}).join('')
       :'<tr><td colspan="'+cols+'" class="muted">No batches match these filters. Use Reset filters above to clear them.</td></tr>')+'</tbody></table></div></section>';
   return h;}
@@ -1079,8 +1093,19 @@ function storeFile(f,courseId,kind){return (/^image\//.test(f.type)&&f.size>700*
   return ref.set(meta).then(function(){var p=Promise.resolve();for(var i=0;i<n;i++)(function(i){p=p.then(function(){return toB64(g.slice(i*CHUNK,(i+1)*CHUNK)).then(function(d){return ref.collection('chunks').doc(String(i).padStart(3,'0')).set({d:d});});});})(i);return p;})
     .then(function(){return {id:ref.id,name:meta.name,size:meta.size,type:meta.type,kind:meta.kind};});});}
 function fetchFile(id){var ref=S.db.collection('files').doc(id);return ref.get().then(function(m){var meta=m.data();return ref.collection('chunks').get().then(function(sn){var parts=sn.docs.map(function(d){var bin=atob(d.data().d),a=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i);return a;});return {meta:meta,blob:new Blob(parts,{type:meta.type})};});});}
+function hasList(c){return (c.files||[]).some(function(x){return x.kind==='students';});}
 function sizeTxt(n){return n>=1048576?(Math.round(n/104857.6)/10)+' MB':Math.max(1,Math.round(n/1024))+' KB';}
 var KINDLBL={course:'Course file',feedback:'Feedback',photo:'Group photo',students:'Student list'};
+function mentionSel(){var us=S.users.filter(function(u){return u.id!==S.me.id;}).sort(function(a,b){return String(a.name||a.id).localeCompare(String(b.name||b.id));});
+  return '<select id="lg-mention" aria-label="Mention someone"><option value="">@ Mention someone</option>'+us.map(function(u){return '<option value="'+esc(u.id)+'">'+esc(u.name||u.id)+'</option>';}).join('')+'</select>';}
+function mentionsIn(text){return S.users.filter(function(u){return u.id!==S.me.id&&text.indexOf('@'+(u.name||u.id))>=0;}).map(function(u){return u.id;});}
+function mentionHi(t,to){var h=esc(t);(to||[]).forEach(function(id){var n=esc('@'+(S.names[id]||id));h=h.split(n).join('<span class="mention">'+n+'</span>');});return h;}
+/* Messages that mention me and that I have not opened yet. Read state is kept in this browser. */
+function seenMap(){try{return JSON.parse(localStorage.getItem('seen:'+S.me.id)||'{}')||{};}catch(e){return {};}}
+function markSeen(id){try{var m=seenMap();m[id]=new Date().toISOString();localStorage.setItem('seen:'+S.me.id,JSON.stringify(m));}catch(e){}}
+function myMentions(){var m=seenMap(),out=[];S.courses.forEach(function(c){(c.log||[]).forEach(function(e){if(e.to&&e.to.indexOf(S.me.id)>=0&&e.by!==S.me.id&&e.at>(m[c.id]||''))out.push({c:c,e:e});});});return out.sort(function(a,b){return a.e.at<b.e.at?1:-1;});}
+function fileRows(c){var who={};(c.log||[]).forEach(function(e){(e.files||[]).forEach(function(f){who[f.id]=e;});});
+  return (c.files||[]).slice().reverse().map(function(f){var e=who[f.id];return '<div class="fchip"><button type="button" class="linkish" data-act="dl-file" data-f="'+esc(f.id)+'" data-n="'+esc(f.name)+'">'+esc(f.name)+'</button><span class="sub">'+esc(KINDLBL[f.kind]||'Other')+' · '+sizeTxt(f.size||0)+(e?' · '+esc(nameOf(e.by))+', '+esc(stamp(e.at).split(',')[0]):'')+'</span></div>';}).join('');}
 function fileChip(f){return '<span class="fchip"><button type="button" class="linkish" data-act="dl-file" data-f="'+esc(f.id)+'" data-n="'+esc(f.name)+'">'+esc(f.name)+'</button><span class="sub">'+(KINDLBL[f.kind]?esc(KINDLBL[f.kind])+' · ':'')+sizeTxt(f.size||0)+'</span></span>';}
 
 /* ----- conversation log ----- */
@@ -1090,23 +1115,25 @@ function logNext(c){var st=pipeStatus(c);
   if(c.stage==='standby')return 'Upcoming. Operations click Batch started on '+nice(c.plannedStart)+' and upload the student list.';
   if(c.stage==='running')return 'Running. Operations click Batch completed on '+nice(eff(c).end)+'.';
   if(c.stage==='actual')return 'Completed.';return '';}
-function openLog(id){S.logId=id;S.logKey='';renderLog();}
+function openLog(id){S.logId=id;S.logKey='';markSeen(id);renderLog();renderChrome();}
 function closeLog(){S.logId=null;S.logKey='';var d=$('logdrawer');if(d)d.remove();}
 function renderLog(){var c=S.logId&&byId(S.logId);if(!c){if(S.logId)closeLog();return;}
-  var key=JSON.stringify([c.log,c.history,c.stage,c.review,S.me.id]);if(key===S.logKey&&$('logdrawer'))return;S.logKey=key;
+  var key=JSON.stringify([c.log,c.history,c.stage,c.review,S.me.id,!!S.logFiles,c.files]);if(key===S.logKey&&$('logdrawer'))return;S.logKey=key;markSeen(c.id);
   var keep={};[].forEach.call(document.querySelectorAll('#logdrawer textarea[id],#logdrawer select[id],#logdrawer input[id]:not([type=file])'),function(el){keep[el.id]=el.value;});
-  var items=(c.log||[]).map(function(e){return {at:e.at,by:e.by,kind:e.kind,text:e.text,files:e.files,log:true};}).concat((c.history||[]).filter(function(hh){var dup=['acknowledged','batch-confirmed','started','completed','leader-approved','leader-back'];if(hh.action==='created'&&(c.log||[]).some(function(e){return e.kind==='added';}))return false;return dup.indexOf(hh.action)<0;}).map(function(hh){return {at:hh.at,by:hh.by,kind:'hist',text:(ACTIONS[hh.action]||hh.action)+(hh.note?': '+hh.note:''),changes:hh.changes};}));
+  var items=(c.log||[]).map(function(e){return {at:e.at,by:e.by,kind:e.kind,text:e.text,files:e.files,to:e.to,log:true};}).concat((c.history||[]).filter(function(hh){var dup=['acknowledged','batch-confirmed','started','completed','leader-approved','leader-back'];if(hh.action==='created'&&(c.log||[]).some(function(e){return e.kind==='added';}))return false;return dup.indexOf(hh.action)<0;}).map(function(hh){return {at:hh.at,by:hh.by,kind:'hist',text:(ACTIONS[hh.action]||hh.action)+(hh.note?': '+hh.note:''),changes:hh.changes};}));
   items.forEach(function(x,i){x.i=i;});items.sort(function(a,b){return a.at<b.at?-1:a.at>b.at?1:a.i-b.i;});
   var st=pipeStatus(c),form='';
-  if(canUpload(c))form+='<div class="lg-act"><span class="lab">'+(st==='changes'?'Upload the revised course':'Upload the course')+'</span><input type="file" id="lg-files" multiple><textarea id="lg-note" maxlength="600" placeholder="What is attached, or a link if the file is larger than 5 MB"></textarea>'+labsHTML('lg',c,false)+'<div class="row"><button class="primary" data-act="lg-upload">Send to GATI head for review</button></div></div>';
-  else if(canReview(c))form+='<div class="lg-act"><span class="lab">Your review</span><textarea id="lg-note" maxlength="600" placeholder="Comments for course production (needed when asking for changes)"></textarea><div class="row"><button class="primary" data-act="lg-approve">Confirm course</button><button data-act="lg-changes">Ask for changes</button></div></div>';
-  else if(canLead(c))form+='<div class="lg-act"><span class="lab">Leadership approval</span><textarea id="lg-note" maxlength="600" placeholder="Comments (needed when sending it back)"></textarea><div class="row"><button class="primary" data-act="lg-lead">Approve · move to Upcoming batches</button><button data-act="lg-leadback">Send back to GATI head</button></div></div>';
+  if(canUpload(c))form+='<div class="lg-act"><span class="lab">'+(st==='changes'?'Upload the revised course':'Upload the course')+'</span><input type="file" id="lg-files" multiple><textarea id="lg-note" maxlength="600" placeholder="What is attached, or a link if the file is larger than 5 MB"></textarea>'+mentionSel()+labsHTML('lg',c,false)+'<div class="row"><button class="primary" data-act="lg-upload">Send to GATI head for review</button></div></div>';
+  else if(canReview(c))form+='<div class="lg-act"><span class="lab">Your review</span><textarea id="lg-note" maxlength="600" placeholder="Comments for course production (needed when asking for changes)"></textarea>'+mentionSel()+'<div class="row"><button class="primary" data-act="lg-approve">Confirm course</button><button data-act="lg-changes">Ask for changes</button></div></div>';
+  else if(canLead(c))form+='<div class="lg-act"><span class="lab">Leadership approval</span><textarea id="lg-note" maxlength="600" placeholder="Comments (needed when sending it back)"></textarea>'+mentionSel()+'<div class="row"><button class="primary" data-act="lg-lead">Approve · move to Upcoming batches</button><button data-act="lg-leadback">Send back to GATI head</button></div></div>';
   else if(canConfirmBatch(c))form+='<div class="lg-act"><span class="lab">Next step</span><div class="row"><button class="primary" data-act="confirm-batch" data-id="'+esc(c.id)+'">Confirm batch</button></div></div>';
-  if(!form&&canNote(c))form+='<div class="lg-act"><span class="lab">'+(c.stage==='actual'?'Add feedback, photos or a note':'Add a note')+'</span>'+(c.stage!=='pipeline'||isCPUser()?'<input type="file" id="lg-files" multiple>':'')+'<textarea id="lg-note" maxlength="600" placeholder="Write a note"></textarea><div class="row"><button data-act="lg-note">Add to log</button></div></div>';
+  var fileOK=c.stage==='pipeline'?isCPUser():S.me.isOwner;
+  if(!form&&canNote(c))form+='<div class="lg-act"><span class="lab">'+(fileOK?'Add files or a message':'Add a message')+'</span>'+(fileOK?(c.stage==='pipeline'?'<input type="file" id="lg-files" multiple>':'<div class="row"><select id="lg-kind" aria-label="What the files are">'+opts([{k:'students',n:'Student list'},{k:'feedback',n:'Feedback'},{k:'photo',n:'Group photo'},{k:'',n:'Other'}],hasList(c)||c.stage==='standby'?(c.stage==='actual'?'feedback':'students'):'students',null)+'</select><input type="file" id="lg-files" multiple></div>'):'')+'<textarea id="lg-note" maxlength="600" placeholder="Write a message. Use Mention to direct it to someone."></textarea>'+mentionSel()+'<div class="row"><button data-act="lg-note">Add to log</button></div></div>';
   else if(form&&canNote(c)&&!canUpload(c))form+='<div class="lg-act sub"><button class="linkish" data-act="lg-note-only">Add a note without confirming</button></div>';
-  var html='<div class="lg-h"><div><b>'+esc(c.title)+'</b><div class="sub">'+esc([gatiName(c.gati),c.school,c.campus].filter(Boolean).join(' · '))+'</div></div><button class="sm" data-act="log-close" aria-label="Close">✕</button></div>'+
+  var html='<div class="lg-h"><div><b>'+esc(c.title)+'</b><div class="sub">'+esc([gatiName(c.gati),c.school,c.campus].filter(Boolean).join(' · '))+'</div></div><div class="lg-hbtns"><button class="sm" data-act="lg-allfiles" aria-pressed="'+!!S.logFiles+'">Uploaded files · '+(c.files||[]).length+'</button><button class="sm" data-act="log-close" aria-label="Close">✕</button></div></div>'+
+    (S.logFiles?'<div class="lg-allfiles">'+((c.files||[]).length?fileRows(c):'<span class="muted">No files uploaded yet.</span>')+'</div>':'')+
     '<div class="lg-next">'+esc(logNext(c))+'</div>'+
-    '<ol class="lg-list">'+(items.length?items.map(function(e){return '<li class="lg-'+esc(e.kind)+'"><div class="lg-meta"><b>'+esc(nameOf(e.by))+'</b> <span>'+esc(e.log?(LOGKIND[e.kind]||e.kind):'')+'</span><time>'+esc(stamp(e.at))+'</time></div>'+(e.text?'<p>'+esc(e.text)+'</p>':'')+(e.files&&e.files.length?'<div class="lg-files">'+e.files.map(fileChip).join('')+'</div>':'')+
+    '<ol class="lg-list">'+(items.length?items.map(function(e){return '<li class="lg-'+esc(e.kind)+(e.to&&e.to.indexOf(S.me.id)>=0?' tome':'')+'"><div class="lg-meta"><b>'+esc(nameOf(e.by))+'</b> <span>'+esc(e.log?(LOGKIND[e.kind]||e.kind):'')+'</span><time>'+esc(stamp(e.at))+'</time></div>'+(e.text?'<p>'+mentionHi(e.text,e.to)+'</p>':'')+(e.files&&e.files.length?'<div class="lg-files">'+e.files.map(fileChip).join('')+'</div>':'')+
       (e.changes&&e.changes.length?'<p class="sub">'+e.changes.map(function(x){return esc(LABELS[x.f]||x.f)+': '+esc(fmtVal(x.f,x.from))+' → '+esc(fmtVal(x.f,x.to));}).join(' · ')+'</p>':'')+'</li>';}).join(''):'<li class="muted">Nothing yet.</li>')+'</ol>'+form+'<p class="err" id="lg-err" hidden></p>';
   var d=$('logdrawer');if(!d){d=document.createElement('aside');d.id='logdrawer';d.className='logdrawer';d.setAttribute('aria-label','Course log');document.body.appendChild(d);}
   d.innerHTML=html;for(var kid in keep){if($(kid))$(kid).value=keep[kid];}labSum('lg');var l=d.querySelector('.lg-list');if(l)l.scrollTop=l.scrollHeight;}
@@ -1117,9 +1144,10 @@ function lgSend(kind){var c=byId(S.logId);if(!c)return;var note=($('lg-note')||{
   if((kind==='note')&&!note&&!files.length)return lgErr('Write a note or choose a file.');
   if(kind==='upload'&&!files.length&&!note)return lgErr('Attach the course files, or paste a link to them in the note.');
   var lx=null;if(kind==='upload'&&$('lg-labbox')){lx=readLabs('lg',needsLabs(c.mode));if(lx.err)return lgErr(lx.err);}
+  var fk=$('lg-kind')?$('lg-kind').value:null,to=mentionsIn(note);
   var up=[],btns=document.querySelectorAll('#logdrawer .lg-act button');[].forEach.call(btns,function(b){b.disabled=true;});
-  var p=Promise.resolve();files.forEach(function(f){p=p.then(function(){return storeFile(f,c.id,kind==='upload'?'course':(c.stage==='actual'?(/^image\//.test(f.type)?'photo':'feedback'):'')).then(function(r){up.push(r);});});});
-  guard(function(){return p.then(function(){var now=new Date().toISOString(),patch={updatedAt:now,updatedBy:S.me.id,log:(c.log||[]).concat([logEntry(files.length&&kind==='note'?'files':kind,note,up)])};
+  var p=Promise.resolve();files.forEach(function(f){p=p.then(function(){return storeFile(f,c.id,kind==='upload'?'course':fk!=null?fk:(c.stage==='actual'?(/^image\//.test(f.type)?'photo':'feedback'):'')).then(function(r){up.push(r);});});});
+  guard(function(){return p.then(function(){var now=new Date().toISOString(),patch={updatedAt:now,updatedBy:S.me.id,log:(c.log||[]).concat([logEntry(files.length&&kind==='note'?'files':kind,note,up,to.length?{to:to}:null)])};
       if(up.length)patch.files=(c.files||[]).concat(up);
       if(kind==='upload'){patch.review='review';if(lx){patch.labs=lx.labs;patch.classPct=lx.classPct;var lt=labsText(lx.labs,lx.classPct);if(lt)patch.log[patch.log.length-1].text=(note?note+'\n':'')+'Lab utilisation: '+lt;}}if(kind==='approve')patch.review='approved';if(kind==='changes')patch.review='changes';
       if(kind==='lead-approve'){patch.stage='standby';patch.leaderApprovedBy=S.me.id;patch.leaderApprovedAt=now;patch.history=hist(c,{action:'leader-approved'});}if(kind==='lead-back'){patch.review='approved';patch.history=hist(c,{action:'leader-back',note:note});}
@@ -1157,12 +1185,12 @@ function exportList(){
 /* ----- setup ----- */
 function viewSetup(){
   var c=cfg(),own=S.me.isOwner,g=myGatis();
-  var access='<p>'+(own?'You are in the program team. You can edit everything, add and remove people, unlock actuals and manage the lists on this page.':g.length?'You are a GATI head for <b>'+esc(g.map(gatiName).join(', '))+'</b>. You can add, edit and confirm courses for '+(g.length>1?'those sources':'that source')+'.':'You can see everything. Only GATI heads and the program team can change courses.')+'</p><p class="sub">Signed in as '+esc(S.me.email)+'</p><div class="row"><button data-act="chpw">Change password</button></div>';
+  var access='<p>'+(own?(S.me.isAdmin?'You are the admin. You can edit everything, and only you can add people, change their access and delete records.':'You are in the program team. You run the batches, unlock completed records and manage the lists on this page.'):g.length?'You are a GATI head for <b>'+esc(g.map(gatiName).join(', '))+'</b>. You can add, edit and confirm courses for '+(g.length>1?'those sources':'that source')+'.':'You can see everything. Only GATI heads and the program team can change courses.')+'</p><p class="sub">Signed in as '+esc(S.me.email)+'</p><div class="row"><button data-act="chpw">Change password</button></div>';
   var users=S.users.slice().sort(function(a,b){var o={lead:0,program:1,cp:2,head:3,viewer:4};return (o[a.role]-o[b.role])||String(a.name||a.id).localeCompare(String(b.name||b.id));});
-  var people='<ul class="list">'+users.map(function(u){var rl=u.id===ADMIN?'Admin · full access':u.role==='program'?'Program team · operations'+((u.gatis||[]).length?' · GATI head '+(u.gatis||[]).map(gatiName).join(', '):''):u.role==='cp'?'Course production':u.role==='lead'?'Leadership · approves batches':u.role==='head'?'GATI head · '+(u.gatis||[]).map(gatiName).join(', '):'Viewer';
-    return '<li><span><b>'+esc(u.name||u.id)+'</b> <span class="sub">'+esc(u.id)+'</span><br><span class="sub">'+esc(rl)+(u.defaultPassword?' · still on the starting password':'')+'</span></span>'+(own?'<span class="nowrap"><button class="sm" data-act="edit-person" data-id="'+esc(u.id)+'">Edit</button>'+(u.id!==S.me.id?' <button class="sm danger'+(S.armed==='u:'+u.id?' armed':'')+'" data-act="rm-person" data-id="'+esc(u.id)+'">'+(S.armed==='u:'+u.id?'Click again to remove':'Remove')+'</button>':'')+'</span>':'')+'</li>';}).join('')+'</ul>'+
-    (own?'<div class="row"><button class="primary" data-act="add-person">Add a person</button></div>':'');
-  var heads='<ul class="list">'+GATI.map(function(x){var nm=c.headNames[x.k],acc=users.filter(function(u){return u.role==='head'&&(u.gatis||[]).indexOf(x.k)>=0;});return '<li><span>'+gchip(x.k)+'</span><span>'+(nm?'<b>'+esc(nm)+'</b>':'<span class="muted">No head named</span>')+(acc.length?' · can edit: '+acc.map(function(u){return esc(u.name||u.id);}).join(', '):' <span class="sub">· no login with edit rights yet</span>')+'</span></li>';}).join('')+'</ul>';
+  var people='<ul class="list">'+users.map(function(u){var rl=accessList(u.id,rolesOf(u),u.gatis).join(' · ');
+    return '<li><span><b>'+esc(u.name||u.id)+'</b> <span class="sub">'+esc(u.id)+'</span><br><span class="sub">'+esc(rl)+(u.defaultPassword?' · still on the starting password':'')+'</span></span>'+(S.me.isAdmin?'<span class="nowrap"><button class="sm" data-act="edit-person" data-id="'+esc(u.id)+'">Edit</button>'+(u.id!==S.me.id?' <button class="sm danger'+(S.armed==='u:'+u.id?' armed':'')+'" data-act="rm-person" data-id="'+esc(u.id)+'">'+(S.armed==='u:'+u.id?'Click again to remove':'Remove')+'</button>':'')+'</span>':'')+'</li>';}).join('')+'</ul>'+
+    (S.me.isAdmin?'<div class="row"><button class="primary" data-act="add-person">Add a person</button></div>':'<p class="sub">Only the admin adds people and changes their access.</p>');
+  var heads='<ul class="list">'+GATI.map(function(x){var nm=c.headNames[x.k],acc=users.filter(function(u){return (u.gatis||[]).indexOf(x.k)>=0;});return '<li><span>'+gchip(x.k)+'</span><span>'+(nm?'<b>'+esc(nm)+'</b>':'<span class="muted">No head named</span>')+(acc.length?' · can edit: '+acc.map(function(u){return esc(u.name||u.id);}).join(', '):' <span class="sub">· no login with edit rights yet</span>')+'</span></li>';}).join('')+'</ul>';
   var hol='<p class="sub">Saturdays and Sundays are left out unless a course includes them. Dates listed here are left out as well.</p><ul class="list">'+(c.holidays.length?c.holidays.slice().sort(function(a,b){return a.d<b.d?-1:1;}).map(function(x){return '<li><span><b>'+nice(x.d)+'</b> '+esc(x.n||'')+'</span>'+(own?'<button class="sm" data-act="rm-hol" data-d="'+esc(x.d)+'">Remove</button>':'')+'</li>';}).join(''):'<li class="muted">No holidays listed yet.</li>')+'</ul>'+
     (own?'<div class="row"><label class="fld"><span>Date</span><input type="date" id="hol-d"></label><label class="fld"><span>Holiday</span><input type="text" id="hol-n" placeholder="e.g. Diwali"></label><button data-act="add-hol">Add holiday</button></div>':'');
   function listPanel(items,key,ph){return '<ul class="list">'+items.map(function(s){return '<li><span>'+esc(s)+'</span>'+(own?'<button class="sm" data-act="rm-item" data-k="'+key+'" data-v="'+esc(s)+'">Remove</button>':'')+'</li>';}).join('')+'</ul>'+(own?'<div class="row"><label class="fld"><span>'+ph+'</span><input type="text" id="new-'+key+'" placeholder="Name"></label><button data-act="add-item" data-k="'+key+'">Add</button></div>':'');}
@@ -1212,12 +1240,12 @@ function readExtras(p,batch){var o={labs:[],classPct:null,male:null,female:null}
   return o;}
 function labSum(p){var el=$(p+'-labsum');if(!el)return;var t=0;for(var i=1;i<=3;i++)t+=Number($(p+'-pct'+i).value)||0;t+=Number($(p+'-class').value)||0;el.textContent=t?('Total '+t+'%'+(Math.abs(t-100)>0.5?' · should be 100%':'')):'Leave empty for onsite and online courses.';}
 function courseForm(c,newActual){
-  var isA=!!newActual||(c&&c.stage==='actual'),isR=c&&c.stage==='running',e=c?eff(c):{start:'',end:'',batch:''},fix=c&&c.stage==='pipeline'&&pipeStatus(c)!=='awaiting'&&!(c.courseReady&&pipeStatus(c)==='approved')&&!S.me.isAdmin?' disabled':'',showReady=!newActual&&(!c||(c.stage==='pipeline'&&(pipeStatus(c)==='awaiting'||(c.courseReady&&pipeStatus(c)==='approved'))));
+  var isU=newActual==='standby',isA=newActual===true||(c&&c.stage==='actual'),isR=c&&c.stage==='running',e=c?eff(c):{start:'',end:'',batch:''},fix=c&&c.stage==='pipeline'&&pipeStatus(c)!=='awaiting'&&!(c.courseReady&&pipeStatus(c)==='approved')&&!S.me.isAdmin?' disabled':'',showReady=!newActual&&(!c||(c.stage==='pipeline'&&(pipeStatus(c)==='awaiting'||(c.courseReady&&pipeStatus(c)==='approved'))));
   var gl=S.me.isOwner?GATI.map(function(g){return g.k;}):myGatis();
   var gsel=c?(c.gati||''):(gl.length===1?gl[0]:'');
   var ptc=c&&c.ptCat||'',ptk=c&&c.ptCode||'',ptSel=ptc&&ptk?ptc+'|'+ptk:'',ptOther=ptk==='Other'||ptk==='C';
   var showLabs=!isA&&!isR&&!(showReady&&!(c&&c.courseReady));
-  openDlg('<form class="dlg" id="cf" novalidate data-id="'+esc(c?c.id:'')+'" data-na="'+(newActual?1:0)+'"><h2>'+(c?(isA?'Edit locked record':isR?'Edit running batch':'Edit pipeline course'):(newActual?'Add a completed course to Throughput':'Add pipeline course'))+'</h2>'+(fix?'<p class="sub">Course production has started on this course, so its name, GATI source and school are fixed. Dates, numbers and other details can still change.</p>':'')+(newActual?'<p class="sub">For a course that has already run and was never in the pipeline. It is saved as a locked actual record.</p>':'')+'<div class="fgrid">'+
+  openDlg('<form class="dlg" id="cf" novalidate data-id="'+esc(c?c.id:'')+'" data-na="'+(isU?'u':newActual?1:0)+'"><h2>'+(c?(isA?'Edit locked record':isR?'Edit running batch':c.stage==='standby'?'Edit upcoming batch':'Edit pipeline course'):(isU?'Add upcoming batch':newActual?'Add a completed course to Throughput':'Add pipeline course'))+'</h2>'+(fix?'<p class="sub">Course production has started on this course, so its name, GATI source and school are fixed. Dates, numbers and other details can still change.</p>':'')+(isU?'<p class="sub">For a confirmed batch that does not go through the pipeline. It goes straight to Upcoming batches, and operations start it with Batch started on the day.</p>':'')+(newActual===true?'<p class="sub">For a course that has already run and was never in the pipeline. It is saved as a locked actual record.</p>':'')+'<div class="fgrid">'+
     '<label class="fld wide"><span>Course name</span><input type="text" id="cf-title" value="'+esc(c?c.title:'')+'" maxlength="200"'+fix+'></label>'+
     '<label class="fld"><span>Client / source organisation</span><input type="text" id="cf-client" value="'+esc(c?c.client:'')+'" maxlength="160" placeholder="Who is sending the learners"></label>'+
     '<label class="fld"><span>Batch / code</span><input type="text" id="cf-batchcode" value="'+esc(c?c.batch:'')+'" maxlength="80" placeholder="e.g. Batch 6, FDP Batch 14"></label>'+
@@ -1226,7 +1254,7 @@ function courseForm(c,newActual){
     '<label class="fld"><span>School</span><select id="cf-school"'+fix+'>'+opts(cfg().schools.concat(c&&c.school&&cfg().schools.indexOf(c.school)<0?[c.school]:[]),c?c.school:'','Choose')+'</select></label>'+
     '<label class="fld"><span>Campus</span><select id="cf-campus">'+opts(CAMPUSES,c?c.campus:'','Choose')+'</select></label>'+
     '<label class="fld"><span>Mode</span><select id="cf-mode">'+opts(MODES,c?c.mode:'Campus',null)+'</select></label>'+
-    (isA||isR?'':'<label class="fld"><span>Confidence</span><select id="cf-conf">'+opts(CONF.map(function(x){return {k:x.k,n:x.k.charAt(0).toUpperCase()+x.k.slice(1)+' · '+x.n};}),c?(c.confidence||'yellow'):'yellow',null)+'</select></label>')+
+    (isA||isR||isU||(c&&c.stage==='standby')?'':'<label class="fld"><span>Confidence</span><select id="cf-conf">'+opts(CONF.map(function(x){return {k:x.k,n:x.k.charAt(0).toUpperCase()+x.k.slice(1)+' · '+x.n};}),c?(c.confidence||'yellow'):'yellow',null)+'</select></label>')+
     '<label class="fld"><span>'+(isA||isR?'Actual start':'Planned start')+'</span><input type="date" id="cf-start" value="'+esc(e.start||'')+'"></label>'+
     '<label class="fld"><span>'+(isA?'Actual end':isR?'Expected end':'Planned end')+'</span><input type="date" id="cf-end" value="'+esc(e.end||'')+'"></label>'+
     '<label class="fld"><span>'+(isA?'Actual throughput (learners)':isR?'Learners who started':'Batch size (learners)')+'</span><input type="number" id="cf-batch" min="1" step="1" value="'+esc(e.batch||'')+'"></label>'+
@@ -1237,7 +1265,7 @@ function courseForm(c,newActual){
     (isA?extrasHTML('cf',c):isR?'':labsHTML('cf',c,!showLabs))+
     '<label class="fld wide"><span>Notes</span><textarea id="cf-notes" maxlength="600">'+esc(c?c.notes:'')+'</textarea></label></div>'+
     '<div class="calc" id="cf-calc"></div><p class="err" id="cf-err" hidden></p>'+
-    '<div class="dlg-actions"><button type="button" data-act="dlg-close">Cancel</button><button type="submit" class="primary">'+(c?'Save changes':(newActual?'Add to Throughput':'Add to pipeline'))+'</button></div></form>');
+    '<div class="dlg-actions"><button type="button" data-act="dlg-close">Cancel</button><button type="submit" class="primary">'+(c?'Save changes':isU?'Add to Upcoming batches':newActual?'Add to Throughput':'Add to pipeline')+'</button></div></form>');
   calcPreview('cf');labSum('cf');
 }
 function calcPreview(p){var form=$(p),s=$(p+'-start').value,e=$(p+'-end').value,b=Number($(p+'-batch').value)||0,el=$(p+'-calc');
@@ -1264,7 +1292,7 @@ function startForm(c){var t=today();
     '<span class="lab">Actual</span><div class="fgrid">'+
     '<label class="fld"><span>Actual start date</span><input type="date" id="sf-start" value="'+esc(c.plannedStart>t?t:c.plannedStart)+'" max="'+t+'"></label>'+
     '<label class="fld"><span>Expected end date</span><input type="date" id="sf-end" value="'+esc(c.plannedEnd)+'"></label>'+
-    '<label class="fld wide"><span>Student list (Excel) · required</span><input type="file" id="sf-list" accept=".xlsx,.xls,.csv"></label>'+
+    '<label class="fld wide"><span>Student list (Excel) · optional now, needed before Batch completed</span><input type="file" id="sf-list" accept=".xlsx,.xls,.csv"></label>'+
     '<div class="wide row"><button type="button" class="sm" data-act="student-template">Download the student list template</button><span class="sub" id="sf-listinfo">Fill one row per learner and upload it. The learner count below fills in from the list.</span></div>'+
     '<label class="fld wide"><span>Learners present</span><input type="number" id="sf-batch" min="1" step="1" value="'+esc(c.batchSize)+'"></label></div>'+
     '<div class="calc" id="sf-calc"></div><p class="err" id="sf-err" hidden></p>'+
@@ -1279,6 +1307,7 @@ function confirmForm(c){
     '<label class="fld"><span>Actual end</span><input type="date" id="mf-end" value="'+esc(e.end>t?t:e.end)+'" max="'+t+'"></label>'+
     '<label class="fld wide"><span>Final throughput: learners who completed</span><input type="number" id="mf-batch" min="1" step="1" value="'+esc(e.batch)+'"></label>'+
     genderHTML('mf',c)+
+    (hasList(c)?'<p class="wide sub">Student list: '+esc((c.files||[]).filter(function(x){return x.kind==='students';}).map(function(x){return x.name;}).join(', '))+' ✓</p>':'<label class="fld wide"><span>Student list (Excel) · required</span><input type="file" id="mf-list" accept=".xlsx,.xls,.csv"></label><div class="wide row"><button type="button" class="sm" data-act="student-template">Download the student list template</button></div>')+
     '<label class="fld"><span>Feedback (Excel) · optional</span><input type="file" id="mf-fb" accept=".xlsx,.xls,.csv,.pdf"></label>'+
     '<label class="fld"><span>Group photo · optional</span><input type="file" id="mf-ph" accept="image/*"></label></div>'+
     '<div class="calc" id="mf-calc"></div><p class="sub">Files up to 5 MB each; photos are shrunk automatically. They can also be added later from the log. Once completed, this record is locked.</p><p class="err" id="mf-err" hidden></p>'+
@@ -1302,7 +1331,7 @@ function guard(fn){if(busy)return;busy=true;Promise.resolve().then(fn).catch(fai
 function norm(v){return v==null||v===''||v===false||(Array.isArray(v)&&!v.length)?'':JSON.stringify(v);}
 
 function submitCourse(form){
-  var id=form.dataset.id,c=id?byId(id):null,na=form.dataset.na==='1'&&S.me.isOwner,isA=na||(c&&c.stage==='actual'),isR=c&&c.stage==='running';
+  var id=form.dataset.id,c=id?byId(id):null,na=form.dataset.na==='1'&&S.me.isAdmin,nu=form.dataset.na==='u'&&S.me.isOwner,isA=na||(c&&c.stage==='actual'),isR=c&&c.stage==='running';
   var td=$('cf-td').value;
   var v={title:$('cf-title').value.trim(),client:$('cf-client').value.trim(),batch:$('cf-batchcode').value.trim(),gati:$('cf-gati').value,school:$('cf-school').value,campus:$('cf-campus').value,mode:$('cf-mode').value,notes:$('cf-notes').value.trim(),sat:$('cf-sat').checked,sun:$('cf-sun').checked,tpEligible:$('cf-elig').checked,trainingDays:td!==''&&Number(td)>0?Number(td):null};
   var s=$('cf-start').value,e=$('cf-end').value,b=Math.round(Number($('cf-batch').value));
@@ -1318,12 +1347,12 @@ function submitCourse(form){
   if(isA&&e>today())return showErr('cf','An actual end date cannot be in the future.');
   if(isA){var x=readExtras('cf',b);if(x.err)return showErr('cf',x.err);v.actualStart=s;v.actualEnd=e;v.actualBatch=b;v.labs=x.labs;v.classPct=x.classPct;v.male=x.male;v.female=x.female;}
   else if(isR){v.actualStart=s;v.expectedEnd=e;v.startBatch=b;}
-  else{v.plannedStart=s;v.plannedEnd=e;v.batchSize=b;v.confidence=$('cf-conf').value;}
+  else{v.plannedStart=s;v.plannedEnd=e;v.batchSize=b;v.confidence=$('cf-conf')?$('cf-conf').value:(c&&c.confidence||'green');}
   var rdy=$('cf-ready-yes');if(rdy){v.courseReady=rdy.checked;if(!c||pipeStatus(c)==='awaiting'||pipeStatus(c)==='approved')v.review=rdy.checked?'approved':'awaiting';}
   guard(function(){var now=new Date().toISOString();
-    if(!c){v.stage=na?'actual':'pipeline';v.createdBy=S.me.id;v.createdAt=now;v.updatedAt=now;v.history=[{at:now,by:S.me.id,action:na?'created-actual':'created'}];if(!na){v.review=v.courseReady?'approved':'awaiting';v.log=[{at:now,by:S.me.id,kind:'added',text:'Added '+v.title+' · '+nice(v.plannedStart)+' → '+nice(v.plannedEnd)+', '+v.batchSize+' learners'+(v.courseReady?' · already have course outline, course production skipped':'')+(v.tpEligible?'':' · non-eligible for throughput')}];}
+    if(!c){v.stage=na?'actual':nu?'standby':'pipeline';v.createdBy=S.me.id;v.createdAt=now;v.updatedAt=now;v.history=[{at:now,by:S.me.id,action:na?'created-actual':nu?'created-standby':'created'}];if(!na){v.review=nu?'leadership':v.courseReady?'approved':'awaiting';v.log=[{at:now,by:S.me.id,kind:'added',text:'Added '+v.title+' · '+nice(v.plannedStart)+' → '+nice(v.plannedEnd)+', '+v.batchSize+' learners'+(nu?' · added directly to Upcoming batches by the program team':'')+(v.courseReady?' · already have course outline, course production skipped':'')+(v.tpEligible?'':' · non-eligible for throughput')}];}
       if(na){v.plannedStart=v.actualStart;v.plannedEnd=v.actualEnd;v.batchSize=v.actualBatch;v.confidence='green';v.confirmedBy=S.me.id;v.confirmedAt=now;v.unlocked=false;v.editRequest=null;}
-      return S.db.collection('courses').doc().set(v).then(function(){closeDlg();toast(na?'Added to Throughput and locked':'Added to the pipeline');});}
+      return S.db.collection('courses').doc().set(v).then(function(){closeDlg();toast(na?'Added to Throughput and locked':nu?'Added to Upcoming batches':'Added to the pipeline');});}
     if(c.stage==='pipeline'&&pipeStatus(c)!=='awaiting'&&!(c.courseReady&&pipeStatus(c)==='approved')&&!S.me.isAdmin){delete v.title;delete v.gati;delete v.school;}
     var changes=[];Object.keys(v).forEach(function(k){if(norm(c[k])!==norm(v[k]))changes.push({f:k,from:c[k]==null?null:c[k],to:v[k]});});
     if(!changes.length){closeDlg();return;}
@@ -1346,15 +1375,15 @@ function submitStart(form){
   if(s>today())return showErr('sf','The batch has not started yet. Use a start date of today or earlier.');
   if(e<s)return showErr('sf','The expected end is before the start date.');
   if(!(b>=1))return showErr('sf','Enter the number of learners present.');
-  var lf=$('sf-list').files[0];if(!lf)return showErr('sf','Upload the student list before starting the batch. Use the template if you need one.');
-  var go=$('sf-go');go.disabled=true;go.textContent='Saving the student list…';
-  guard(function(){return storeFile(lf,c.id,'students').then(function(up){var now=new Date().toISOString(),ch=[];
+  var lf=$('sf-list').files[0];
+  var go=$('sf-go');go.disabled=true;go.textContent=lf?'Saving the student list…':'Saving…';
+  guard(function(){return (lf?storeFile(lf,c.id,'students'):Promise.resolve(null)).then(function(up){var ups=up?[up]:[],now=new Date().toISOString(),ch=[];
     if(s!==c.plannedStart)ch.push({f:'actualStart',from:c.plannedStart,to:s});if(e!==c.plannedEnd)ch.push({f:'expectedEnd',from:c.plannedEnd,to:e});if(b!==Number(c.batchSize))ch.push({f:'startBatch',from:c.batchSize,to:b});
-    return courseRef(c.id).update({stage:'running',actualStart:s,expectedEnd:e,startBatch:b,startedBy:S.me.id,startedAt:now,updatedAt:now,updatedBy:S.me.id,files:(c.files||[]).concat([up]),log:(c.log||[]).concat([logEntry('started','Batch started '+nice(s)+' with '+b+' learners (planned '+num(c.batchSize)+')',[up])]),history:hist(c,{action:'started',changes:ch})});})
+    return courseRef(c.id).update({stage:'running',actualStart:s,expectedEnd:e,startBatch:b,startedBy:S.me.id,startedAt:now,updatedAt:now,updatedBy:S.me.id,files:(c.files||[]).concat(ups),log:(c.log||[]).concat([logEntry('started','Batch started '+nice(s)+' with '+b+' learners (planned '+num(c.batchSize)+')'+(up?'':' · student list to follow'),ups)]),history:hist(c,{action:'started',changes:ch})});})
       .then(function(){closeDlg();toast('Batch started. It is now in Running batches.');})
       .catch(function(err){go.disabled=false;go.textContent='Confirm · move to Running batches';if(err&&err.code==='too-big')return showErr('sf',err.name+' is larger than 5 MB.');throw err;});});}
 var STUDENT_COLS=['Sr No','Full name','Gender (Male/Female)','Mobile','Email','Organisation / college','Designation / branch','City','Remarks'];
-function studentTemplate(){if(typeof XLSX==='undefined')return toast('Excel could not load. Reload the page and try again.');var c=byId(($('sf')||{dataset:{}}).dataset.id)||{};
+function studentTemplate(){if(typeof XLSX==='undefined')return toast('Excel could not load. Reload the page and try again.');var c=byId(($('sf')||$('mf')||{dataset:{}}).dataset.id)||{};
   var ws=XLSX.utils.aoa_to_sheet([STUDENT_COLS,[1,'','','','','','','','']]);ws['!cols']=STUDENT_COLS.map(function(h,i){return {wch:i===0?6:i===1?28:18};});
   var wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Students');var buf=XLSX.write(wb,{bookType:'xlsx',type:'array'});
   download({filename:'Student list - '+(c.title||'batch').replace(/[\\/:*?"<>|]/g,'').slice(0,60)+'.xlsx',data:new Blob([buf])});}
@@ -1372,9 +1401,10 @@ function submitConfirm(form){
   if(e>today())return showErr('mf','The batch has not ended yet. Use an end date of today or earlier.');
   if(!(b>=1))return showErr('mf','Enter the number of learners who completed.');
   var x=readGender('mf',b);if(x.err)return showErr('mf',x.err);
-  var fb=$('mf-fb').files[0],ph=$('mf-ph').files[0],go=$('mf-go');
+  var fb=$('mf-fb').files[0],ph=$('mf-ph').files[0],go=$('mf-go'),sl=$('mf-list')?$('mf-list').files[0]:null;
+  if($('mf-list')&&!sl)return showErr('mf','Upload the student list before completing the batch. Use the template if you need one.');
   guard(function(){var up=[];go.disabled=true;go.textContent='Saving files…';
-    var p=Promise.resolve();[[fb,'feedback'],[ph,'photo']].forEach(function(z){if(z[0])p=p.then(function(){return storeFile(z[0],c.id,z[1]).then(function(r){up.push(r);});});});
+    var p=Promise.resolve();[[sl,'students'],[fb,'feedback'],[ph,'photo']].forEach(function(z){if(z[0])p=p.then(function(){return storeFile(z[0],c.id,z[1]).then(function(r){up.push(r);});});});
     return p.then(function(){var now=new Date().toISOString(),ch=[];
       if(s!==ef.start)ch.push({f:'actualStart',from:ef.start,to:s});if(e!==ef.end)ch.push({f:'actualEnd',from:ef.end,to:e});if(b!==ef.batch)ch.push({f:'actualBatch',from:ef.batch,to:b});
       return courseRef(c.id).update({stage:'actual',actualStart:s,actualEnd:e,actualBatch:b,male:x.male,female:x.female,confirmedBy:S.me.id,confirmedAt:now,completedVia:'batches',unlocked:false,editRequest:null,updatedAt:now,updatedBy:S.me.id,
@@ -1400,7 +1430,7 @@ document.addEventListener('click',function(ev){
   var b=ev.target.closest('[data-act]'),inMs=ev.target.closest('.ms,.hpop,.hf');
   if(S.pmenu&&!ev.target.closest('.pmenu')){S.pmenu=false;renderChrome();}
   if(b&&b.dataset.act==='pmenu'){S.pmenu=!S.pmenu;renderChrome();return;}
-  if(b&&(b.dataset.act==='chpw'||b.dataset.act==='signout')&&S.pmenu){S.pmenu=false;renderChrome();}
+  if(b&&(b.dataset.act==='chpw'||b.dataset.act==='signout'||b.dataset.act==='log')&&S.pmenu){S.pmenu=false;renderChrome();}
   if($('daypop')&&!ev.target.closest('#daypop')&&!ev.target.closest('[data-act=yday]'))closeDayPop();
   if(!inMs&&S.openMs){S.openMs=null;render();}
   if(!b)return;var a=b.dataset.act,id=b.dataset.id,c=id?byId(id):null,mid=b.dataset.ms;
@@ -1417,7 +1447,8 @@ document.addEventListener('click',function(ev){
   if(a==='export')return exportList();
   if(a==='dlg-close')return closeDlg();
   if(a==='add')return courseForm(null);
-  if(a==='add-actual'&&S.me.isOwner)return courseForm(null,true);
+  if(a==='add-actual'&&S.me.isAdmin)return courseForm(null,true);
+  if(a==='add-upcoming'&&S.me.isOwner)return courseForm(null,'standby');
   if(a==='edit'&&c&&canEditCourse(c))return courseForm(c);
   if(a==='log'&&c)return openLog(id);
   if(a==='log-close')return closeLog();
@@ -1427,8 +1458,9 @@ document.addEventListener('click',function(ev){
   if(a==='lg-lead')return lgSend('lead-approve');
   if(a==='lg-leadback')return lgSend('lead-back');
   if(a==='lg-note')return lgSend('note');
-  if(a==='lg-note-only'){S.logKey='';var cc=byId(S.logId);if(cc){var saveRev=cc.review;}var d0=$('logdrawer');var act=d0&&d0.querySelector('.lg-act');if(act)act.outerHTML='<div class="lg-act"><span class="lab">Add a note</span><textarea id="lg-note" maxlength="600" placeholder="Write a note"></textarea><div class="row"><button data-act="lg-note">Add to log</button></div></div>';var lo=d0&&d0.querySelector('.lg-act.sub');if(lo)lo.remove();return;}
+  if(a==='lg-note-only'){S.logKey='';var cc=byId(S.logId);if(cc){var saveRev=cc.review;}var d0=$('logdrawer');var act=d0&&d0.querySelector('.lg-act');if(act)act.outerHTML='<div class="lg-act"><span class="lab">Add a message</span><textarea id="lg-note" maxlength="600" placeholder="Write a message"></textarea>'+mentionSel()+'<div class="row"><button data-act="lg-note">Add to log</button></div></div>';var lo=d0&&d0.querySelector('.lg-act.sub');if(lo)lo.remove();return;}
   if(a==='dl-file')return downloadFile(b.dataset.f,b.dataset.n);
+  if(a==='lg-allfiles'){S.logFiles=!S.logFiles;S.logKey='';return renderLog();}
   if(a==='confirm-batch'&&c&&canConfirmBatch(c))return confirmBatchForm(c);
   if(a==='bstart'&&c&&S.me.isOwner&&c.stage==='standby')return startForm(c);
   if(a==='bdone'&&c&&S.me.isOwner&&c.stage==='running')return confirmForm(c);
@@ -1447,9 +1479,9 @@ document.addEventListener('click',function(ev){
   if(a==='signout'){S.auth.signOut();return;}
   if(a==='chpw')return pwForm(false);
   if(a==='forgot')return forgotPw();
-  if(a==='add-person'&&S.me.isOwner)return personForm(null);
-  if(a==='edit-person'&&S.me.isOwner)return personForm(S.users.filter(function(u){return u.id===id;})[0]);
-  if(a==='rm-person'&&S.me.isOwner&&id!==S.me.id){if(!arm('u:'+id))return;return guard(function(){return S.db.collection('users').doc(id).delete().then(function(){toast('Access removed');});});}
+  if(a==='add-person'&&S.me.isAdmin)return personForm(null);
+  if(a==='edit-person'&&S.me.isAdmin)return personForm(S.users.filter(function(u){return u.id===id;})[0]);
+  if(a==='rm-person'&&S.me.isAdmin&&id!==S.me.id){if(!arm('u:'+id))return;return guard(function(){return S.db.collection('users').doc(id).delete().then(function(){toast('Access removed');});});}
   if(a==='add-hol'){var d=$('hol-d').value,n=$('hol-n').value.trim();if(!d)return toast('Choose the holiday date');
     return guard(function(){var h=cfg().holidays.filter(function(x){return x.d!==d;}).concat([{d:d,n:n}]);return saveCfg({holidays:h}).then(function(){$('hol-d').value='';$('hol-n').value='';render();});});}
   if(a==='rm-hol')return guard(function(){return saveCfg({holidays:cfg().holidays.filter(function(x){return x.d!==b.dataset.d;})});});
@@ -1461,6 +1493,7 @@ document.addEventListener('submit',function(ev){ev.preventDefault();var f=ev.tar
 function setF(obj,k,el){obj[k]=el.type==='checkbox'?el.checked:(k==='fy'?(el.value===''?'':Number(el.value)):el.value);}
 document.addEventListener('change',function(ev){var el=ev.target,d=el.dataset;
   if(el.id==='sf-list'){readStudentList(el.files[0]);return;}
+  if(el.id==='lg-mention'&&el.value){var ta=$('lg-note'),nm=S.names[el.value]||el.value;if(ta){ta.value=ta.value+(ta.value&&!/\s$/.test(ta.value)?' ':'')+'@'+nm+' ';ta.focus();}el.value='';return;}
   if(d.g==='online'){S.online=el.checked;return render();}
   if(d.cal==='group'){S.cal.group=el.value;return render();}
   if(d.cal==='date'){if(el.value){if(S.cal.view==='month')return calMonthGo(monthStart(el.value));if(S.cal.view==='week')return calMonthGo(weekStart(el.value));S.cal.anchor=el.value;S.cal.scrollKey='';}return render();}
@@ -1495,14 +1528,16 @@ document.addEventListener('mousemove',function(ev){var t=ev.target;
   tip.style.left=x+'px';tip.style.top=Math.max(0,ev.clientY-r.top-20)+'px';});
 /* hover details */
 var tipEl=null;
-function tipHide(){if(tipEl)tipEl.hidden=true;}
+var tipPin=null;
+function tipHide(){tipPin=null;if(tipEl)tipEl.hidden=true;}
 function tipShow(t,x,y){if(!tipEl){tipEl=document.createElement('div');tipEl.className='ftip';document.body.appendChild(tipEl);}
   if(tipEl.textContent!==t.dataset.tip)tipEl.textContent=t.dataset.tip;tipEl.hidden=false;var w=tipEl.offsetWidth,hh=tipEl.offsetHeight;
   tipEl.style.left=Math.max(8,Math.min(x+14,window.innerWidth-w-8))+'px';tipEl.style.top=(y+18+hh>window.innerHeight?Math.max(8,y-hh-10):y+18)+'px';}
-document.addEventListener('mouseover',function(ev){var t=ev.target.closest&&ev.target.closest('[data-tip]');if(t)tipShow(t,ev.clientX,ev.clientY);else tipHide();});
-document.addEventListener('mousemove',function(ev){if(!tipEl||tipEl.hidden)return;var t=ev.target.closest&&ev.target.closest('[data-tip]');if(t)tipShow(t,ev.clientX,ev.clientY);});
+document.addEventListener('mouseover',function(ev){if(tipPin)return;var t=ev.target.closest&&ev.target.closest('[data-tip]');if(t)tipShow(t,ev.clientX,ev.clientY);else tipHide();});
+document.addEventListener('mousemove',function(ev){if(tipPin||!tipEl||tipEl.hidden)return;var t=ev.target.closest&&ev.target.closest('[data-tip]');if(t)tipShow(t,ev.clientX,ev.clientY);});
 document.addEventListener('focusin',function(ev){var t=ev.target.closest&&ev.target.closest('[data-tip]');if(t){var r=t.getBoundingClientRect();tipShow(t,r.left,r.bottom-10);}});
-document.addEventListener('focusout',tipHide);
+document.addEventListener('focusout',function(){if(!tipPin&&tipEl)tipEl.hidden=true;});
+document.addEventListener('click',function(ev){var t=ev.target.closest&&ev.target.closest('[data-tip]');if(t&&!ev.target.closest('[data-act]')){if(tipPin===t){tipHide();return;}tipPin=null;tipShow(t,ev.clientX,ev.clientY);tipPin=t;}else if(tipPin)tipHide();});
 document.addEventListener('keydown',function(ev){if(ev.key==='Escape'&&S.pmenu){S.pmenu=false;renderChrome();var av=document.querySelector('.avatar');if(av)av.focus();return;}if(ev.key==='Escape'&&$('daypop')){closeDayPop();return;}if(ev.key==='Escape'&&$('logdrawer')&&!$('dlg').open){closeLog();return;}if(ev.key==='Escape'&&S.openMs){var id=S.openMs;S.openMs=null;render();var bb=$('msb-'+id);if(bb)bb.focus();}});
 function route(){var h=(location.hash||'').replace('#','');S.tab=TABS.some(function(t){return t[0]===h;})?h:'dashboard';render();}
 window.addEventListener('hashchange',route);
@@ -1546,19 +1581,18 @@ function personForm(u){
   openDlg('<form class="dlg" id="pf-person" novalidate data-id="'+esc(u?u.id:'')+'"><h2>'+(u?'Edit access':'Add a person')+'</h2><div class="fgrid">'+
     '<label class="fld"><span>Name</span><input type="text" id="pp-name" value="'+esc(u?u.name:'')+'" maxlength="80"></label>'+
     '<label class="fld"><span>Work email</span><input type="email" id="pp-email" value="'+esc(u?u.id:'')+'"'+(u?' disabled':'')+' placeholder="name@'+esc(DOMAIN)+'"></label>'+
-    '<label class="fld"><span>Access</span><select id="pp-role">'+opts([{k:'viewer',n:'Viewer · can see everything'},{k:'head',n:'GATI head · edits own source'},{k:'cp',n:'Course production · uploads courses'},{k:'lead',n:'Leadership · approves batches'},{k:'program',n:'Program team · operations: batches and actuals'}],u?u.role:'viewer',null)+'</select></label>'+
-    '<div class="fld"><span>GATI sources · for GATI heads (a program team member can also head a source)</span><div class="checks">'+GATI.map(function(g){return '<label class="check"><input type="checkbox" id="pp-g-'+g.k+'" data-g2="'+g.k+'"'+(u&&(u.gatis||[]).indexOf(g.k)>=0?' checked':'')+'>'+esc(g.k==='N'?'NST':g.k)+'</label>';}).join('')+'</div></div>'+
+    '<div class="fld wide"><span>Access · tick all that apply; with nothing ticked they can only view</span><div class="checks">'+ACCESS.map(function(x){return '<label class="check"><input type="checkbox" id="pp-r-'+x[0]+'"'+(u&&rolesOf(u).indexOf(x[0])>=0?' checked':'')+'>'+esc(x[1])+'</label>';}).join('')+'</div></div>'+
+    '<div class="fld wide"><span>GATI head for · tick the sources they head</span><div class="checks">'+GATI.map(function(g){return '<label class="check"><input type="checkbox" id="pp-g-'+g.k+'" data-g2="'+g.k+'"'+(u&&(u.gatis||[]).indexOf(g.k)>=0?' checked':'')+'>'+esc(g.k==='N'?'NST':g.k)+'</label>';}).join('')+'</div></div>'+
     (u?'':'<label class="fld wide"><span>Starting password · they can change it any time</span><input type="text" id="pp-pw" value="'+esc(START_PW)+'" autocomplete="off"></label>')+
     '</div><p class="err" id="pp-err" hidden></p><div class="dlg-actions"><button type="button" data-act="dlg-close">Cancel</button><button type="submit" class="primary">'+(u?'Save':'Add person')+'</button></div></form>');}
-function submitPerson(form){var id=form.dataset.id,isNew=!id,name=$('pp-name').value.trim(),email=(isNew?$('pp-email').value:id).trim().toLowerCase(),role=$('pp-role').value;
+function submitPerson(form){var id=form.dataset.id,isNew=!id,name=$('pp-name').value.trim(),email=(isNew?$('pp-email').value:id).trim().toLowerCase(),roles=ACCESS.map(function(x){return x[0];}).filter(function(k){return $('pp-r-'+k).checked;});
   var gatis=GATI.map(function(g){return g.k;}).filter(function(k){return $('pp-g-'+k).checked;});
   function err(m){var e=$('pp-err');e.textContent=m;e.hidden=false;}
   if(!name)return err('Enter the person\'s name.');
   if(!/^[^@\s]+@[^@\s]+$/.test(email))return err('Enter a valid email address.');
   if(email.slice(-DOMAIN.length-1)!=='@'+DOMAIN)return err('Only '+DOMAIN+' email addresses can be added.');
-  if(role==='head'&&!gatis.length)return err('Tick at least one GATI source for a GATI head.');
-  if(role!=='head'&&role!=='program')gatis=[];
-  var data={name:name,role:role,gatis:gatis,updatedAt:new Date().toISOString(),updatedBy:S.me.id};
+  var role=roles[0]||(gatis.length?'head':'viewer');
+  var data={name:name,role:role,roles:roles,gatis:gatis,updatedAt:new Date().toISOString(),updatedBy:S.me.id};
   if(!isNew)return guard(function(){return S.db.collection('users').doc(email).update(data).then(function(){closeDlg();toast('Access saved');});});
   if(S.users.some(function(u){return u.id===email;}))return err('This person is already on the list. Use Edit instead.');
   var pw=$('pp-pw').value;if(pw.length<6)return err('The starting password needs at least 6 characters.');
@@ -1590,7 +1624,7 @@ function boot(){
     var email=(u.email||'').toLowerCase();S.me={id:email,email:email,name:'',role:'',gatis:[],isOwner:false};S.authState='loading';render();AUTHMSG='';
     profUnsub=S.db.collection('users').doc(email).onSnapshot(function(snap){
       if(!snap.exists){var was=S.authState;S.authState='noprofile';stopData();return render();}
-      var p=snap.data();S.me={id:email,email:email,name:p.name||'',role:p.role||'viewer',gatis:p.gatis||[],isOwner:p.role==='program'||email===ADMIN,isAdmin:email===ADMIN,defaultPw:!!p.defaultPassword};
+      var p=snap.data(),rl=rolesOf(p);S.me={id:email,email:email,name:p.name||'',role:p.role||'viewer',roles:rl,gatis:p.gatis||[],isOwner:rl.indexOf('program')>=0||email===ADMIN,isAdmin:email===ADMIN,defaultPw:!!p.defaultPassword};
       var start=S.authState!=='in';S.authState='in';if(start)startData();render();
     },function(){S.authState='noprofile';render();});});
 }

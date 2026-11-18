@@ -2,8 +2,9 @@ rules_version = '2';
 
 // Who can do what in the Tata IIS Course Tracker.
 // Everyone must be signed in with a @tataiis.org email AND be listed in the "users" collection.
-// Roles: "program" (program team / operations), "cp" (course production), "lead" (leadership),
-//        "head" (GATI head), "viewer" (read only). Anyone may also head GATI sources listed in "gatis".
+// Access: "roles" lists any of "program" (program team / operations), "cp" (course production) and
+//         "lead" (leadership); "gatis" lists the sources a person heads. Nothing listed means view only.
+//         Older profiles have a single "role" instead of "roles".
 // The admin (ram.viswanath@tataiis.org) can do everything, and is the only one who can delete.
 //
 // Course stages:
@@ -28,20 +29,24 @@ service cloud.firestore {
     function hasProfile() { return signedIn() && exists(profilePath()); }
     function me() { return get(profilePath()).data; }
     function isAdmin() { return hasProfile() && email() == 'ram.viswanath@tataiis.org'; }
-    function isProgram() { return hasProfile() && me().role == 'program'; }
-    function isCP() { return hasProfile() && me().role == 'cp'; }
-    function isLead() { return hasProfile() && me().role == 'lead'; }
+    function roles() { return me().get('roles', [me().get('role', '')]); }
+    function isProgram() { return hasProfile() && 'program' in roles(); }
+    function isCP() { return hasProfile() && 'cp' in roles(); }
+    function isLead() { return hasProfile() && 'lead' in roles(); }
+    // Anyone who takes part in the flow (not view-only).
+    function involved() { return isProgram() || isCP() || isLead() || (hasProfile() && me().get('gatis', []).size() > 0); }
     function isHeadFor(g) { return hasProfile() && g in me().get('gatis', []); }
     function changed() { return request.resource.data.diff(resource.data).affectedKeys(); }
     function rv(d) { return d.get('review', 'awaiting'); }
 
-    // People and their access. Only the program team adds, edits or removes people.
+    // People and their access. Only the admin adds, edits or removes people.
     // A person may only clear their own "still on the starting password" flag.
     match /users/{id} {
       allow read: if hasProfile();
-      allow create, update: if isProgram() || isAdmin()
+      allow create: if isAdmin();
+      allow update: if isAdmin()
         || (hasProfile() && id == email() && changed().hasOnly(['defaultPassword']));
-      allow delete: if isProgram() || isAdmin();
+      allow delete: if isAdmin();
     }
 
     // Lists of schools, labs, holidays and named heads.
@@ -85,11 +90,15 @@ service cloud.firestore {
     match /courses/{id} {
       allow read: if hasProfile();
       allow create: if isAdmin()
-        || (isProgram() && request.resource.data.stage == 'actual')
+        // Operations add confirmed batches straight to Upcoming batches; only the admin adds completed courses.
+        || (isProgram() && request.resource.data.stage == 'standby')
         || (isHeadFor(request.resource.data.gati) && request.resource.data.stage == 'pipeline'
             && (rv(request.resource.data) == 'awaiting'
                 || (rv(request.resource.data) == 'approved' && request.resource.data.get('courseReady', false) == true)));
       allow update: if isAdmin()
+        // Anyone involved: add one message to the log, at any stage.
+        || (involved() && changed().hasOnly(['log', 'updatedAt', 'updatedBy'])
+            && request.resource.data.get('log', []).size() == resource.data.get('log', []).size() + 1)
         // Operations: standby, running and completed batches; may cancel a standby batch.
         || (isProgram() && resource.data.stage in ['standby', 'running', 'actual']
             && request.resource.data.stage in ['standby', 'running', 'actual', 'dropped']

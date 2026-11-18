@@ -15,25 +15,25 @@ Tracks the courses brought in by the four GATI sources (Government, Academics, T
 
 ### How a course moves
 
-1. **Pipeline:** a GATI head adds the course and answers "Do we have course outline?". With **Request from course production**, course production uploads the course files with the lab utilisation, and the GATI head confirms it or asks for changes (back to course production). With **Already have course outline**, the GATI head fills in the lab utilisation and course production is skipped. Every step, file and note is kept in the course log. Once approved, the GATI head confirms the batch, and leadership approves it (or sends it back to the GATI head).
-2. **Batches · Upcoming batches:** approved batches wait for their start day. Operations click **Batch started**, upload the student list (required; a template is offered) and enter the actual start date and learners present.
-3. **Batches · Running:** shows progress and days left. On the end day operations click **Batch completed** with the final throughput, gender split, and optionally the feedback Excel and group photo.
+1. **Pipeline:** a GATI head adds the course and answers "Do we have course outline?". With **Request from course production**, course production uploads the course files with the lab utilisation, and the GATI head confirms it or asks for changes (back to course production). With **Already have course outline**, the GATI head fills in the lab utilisation and course production is skipped. Every step, file and message is kept in the course log. Anyone involved can add a message at any stage and mention a person, who then sees it under their profile picture. The log's **Uploaded files** button lists every file on the course with its category. Once approved, the GATI head confirms the batch, and leadership approves it (or sends it back to the GATI head).
+2. **Batches · Upcoming batches:** approved batches wait for their start day. The program team can also add a confirmed batch here directly. Operations click **Batch started** and enter the actual start date and learners present; the student list can be uploaded now or later.
+3. **Batches · Running:** shows progress and days left, and flags a missing student list. On the end day operations click **Batch completed** with the final throughput and gender split; the student list is required by then. Feedback and the group photo are optional and can be added from the log at any time, even after completion.
 4. **Throughput** (the completed list): locked. GATI heads can request an edit; the program team unlocks it.
 
 ### Who can do what
 
-- **Admin** (ram.viswanath@tataiis.org): everything, and the only one who can delete records.
+- **Admin** (ram.viswanath@tataiis.org): everything, and the only one who can add people, change their access, add completed courses directly and delete records.
 - **GATI head:** adds and edits pipeline courses for their own sources, confirms uploaded courses, confirms batches. A program team member can also head a source.
 - **Course production:** uploads courses for review and adds notes in the pipeline.
 - **Leadership:** approves confirmed batches into Upcoming batches, or sends them back to the GATI head.
-- **Program team (operations):** starts and completes batches, edits standby/running/completed records, manages people and lists. View only in the pipeline.
+- **Program team (operations):** adds upcoming batches, starts and completes batches, edits upcoming/running/completed records, manages schools, labs and holidays. View only in the pipeline.
 - **Viewer:** sees everything, changes nothing.
 
 ### Data in Firestore
 
 - `courses/{id}`: one document per course. `stage` is `pipeline`, `standby`, `running`, `actual` or `dropped`; `review` tracks the pipeline review; `log` is the conversation log; `files` lists attached files.
 - `files/{id}` and `files/{id}/chunks/{n}`: attached files (up to 5 MB), stored in pieces because the project has no file storage.
-- `users/{email}`: one document per person with access. `role` is `program`, `cp`, `lead`, `head` or `viewer`; `gatis` lists the sources they head.
+- `users/{email}`: one document per person with access. `roles` lists any of `program`, `cp` and `lead` (a person can have several); `gatis` lists the sources they head; nothing listed means view only. Older entries have a single `role`.
 - `config/main`: schools, labs, holidays and the named GATI heads.
 
 ## How the numbers are worked out
