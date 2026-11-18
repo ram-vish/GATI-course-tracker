@@ -13,16 +13,26 @@ Tracks the courses brought in by the four GATI sources (Government, Academics, T
 | Sign-in | Firebase Authentication, email and password | Only `@tataiis.org` addresses that the program team has added can see data |
 | Access rules | `firestore.rules` | Enforced by Firebase itself, not by the page |
 
+### How a course moves
+
+1. **Pipeline:** a GATI head adds the course. Course production uploads the course files; the GATI head approves or asks for changes (back to course production). Every step, file and note is kept in the course log. Once approved, the GATI head confirms the batch.
+2. **Batches · Standby:** confirmed batches wait for their start day. Operations click **Batch started** with the actual start date and learners present.
+3. **Batches · Running:** shows progress and days left. On the end day operations click **Batch completed** with the final throughput, gender split, labs, and optionally the feedback Excel and group photo.
+4. **Actuals:** completed and locked. GATI heads can request an edit; the program team unlocks it.
+
 ### Who can do what
 
-- **Program team:** everything, including adding people, unlocking actuals and adding actuals directly.
-- **GATI head:** adds and edits courses for their own sources, moves them to actuals, requests edits on locked actuals.
+- **Admin** (ram.viswanath@tataiis.org): everything, and the only one who can delete records.
+- **GATI head:** adds and edits pipeline courses for their own sources, reviews uploads, confirms batches. A program team member can also head a source.
+- **Course production:** uploads courses for review and adds notes in the pipeline.
+- **Program team (operations):** starts and completes batches, edits standby/running/completed records, manages people and lists. View only in the pipeline.
 - **Viewer:** sees everything, changes nothing.
 
 ### Data in Firestore
 
-- `courses/{id}`: one document per course. `stage` is `pipeline`, `actual` or `dropped`.
-- `users/{email}`: one document per person with access. `role` is `program`, `head` or `viewer`; `gatis` lists a head's sources.
+- `courses/{id}`: one document per course. `stage` is `pipeline`, `standby`, `running`, `actual` or `dropped`; `review` tracks the pipeline review; `log` is the conversation log; `files` lists attached files.
+- `files/{id}` and `files/{id}/chunks/{n}`: attached files (up to 5 MB), stored in pieces because the project has no file storage.
+- `users/{email}`: one document per person with access. `role` is `program`, `cp`, `head` or `viewer`; `gatis` lists the sources they head.
 - `config/main`: schools, labs, holidays and the named GATI heads.
 
 ## How the numbers are worked out

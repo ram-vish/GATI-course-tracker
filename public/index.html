@@ -340,6 +340,35 @@ tr.subhead > td{background:var(--surface-2);font-weight:600;font-size:12px;color
 .flow{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;font-size:13px;color:var(--ink-2);padding:2px 2px}
 .flow b{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font-size:11px;margin-right:4px}
 .flow i{font-style:normal;color:var(--ink-3)}
+.bswitch{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,1fr);gap:0;border:1px solid var(--line-2);border-radius:10px;overflow:hidden;background:var(--surface)}
+.bswitch button{border:0;border-radius:0;min-height:58px;padding:10px 16px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:2px;background:var(--surface);text-align:left}
+.bswitch button + button{border-left:1px solid var(--line-2)}
+.bswitch button b{font-family:var(--font-head);font-size:16px}
+.bswitch button span{font-size:12px;color:var(--ink-3);font-weight:400}
+.bswitch button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.bswitch button[aria-pressed="true"] span{color:var(--accent-ink);opacity:.85}
+.planbox{display:flex;flex-wrap:wrap;gap:8px 22px;padding:10px 12px;border-radius:8px;background:var(--surface-2);color:var(--ink-3)}
+.planbox > div{display:flex;flex-direction:column;gap:2px}
+.planbox b{font-weight:500;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.logdrawer{position:fixed;top:0;right:0;bottom:0;width:min(460px,100vw);z-index:35;background:var(--surface);border-left:1px solid var(--line-2);box-shadow:-10px 0 30px rgba(0,0,0,.14);display:flex;flex-direction:column;padding:calc(14px + env(safe-area-inset-top,0px)) 16px calc(14px + env(safe-area-inset-bottom,0px));gap:10px;box-sizing:border-box}
+.lg-h{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.lg-h b{font-family:var(--font-head);font-size:16px}
+.lg-next{padding:8px 10px;border-radius:6px;background:var(--accent-soft);font-size:13px}
+.lg-list{list-style:none;margin:0;padding:0 2px 0 0;overflow:auto;flex:1;display:flex;flex-direction:column;gap:10px;min-height:80px}
+.lg-list li{padding:8px 10px;border-radius:8px;border:1px solid var(--line);display:flex;flex-direction:column;gap:4px}
+.lg-list li.lg-hist{border-style:dashed;background:transparent;font-size:12px}
+.lg-list li.lg-upload,.lg-list li.lg-files{border-left:3px solid var(--s-actual)}
+.lg-list li.lg-approve,.lg-list li.lg-confirm,.lg-list li.lg-started,.lg-list li.lg-completed{border-left:3px solid var(--s-green)}
+.lg-list li.lg-changes{border-left:3px solid var(--s-red)}
+.lg-list p{margin:0;font-size:13px;white-space:pre-wrap;overflow-wrap:anywhere}
+.lg-meta{display:flex;flex-wrap:wrap;gap:2px 8px;font-size:12px;color:var(--ink-2)}
+.lg-meta time{color:var(--ink-3);margin-left:auto;font-variant-numeric:tabular-nums}
+.lg-files{display:flex;flex-direction:column;gap:4px}
+.fchip{display:flex;flex-wrap:wrap;gap:2px 8px;align-items:baseline;font-size:13px}
+.fchip .linkish{padding:0;min-height:0;text-align:left;overflow-wrap:anywhere}
+.lg-act{display:flex;flex-direction:column;gap:6px;border-top:1px solid var(--line);padding-top:10px}
+.lg-act textarea{min-height:60px;width:100%;box-sizing:border-box}
+.lg-act.sub{border-top:0;padding-top:0}
 #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:9px 14px;border-radius:8px;font-size:13px;z-index:50;max-width:calc(100vw - 32px)}
 @media (prefers-reduced-motion:no-preference){ button,nav.tabs a{transition:border-color .12s,color .12s,background .12s} }
 </style>
@@ -377,10 +406,10 @@ var SER=[{k:'actual',n:'Actual',c:'var(--s-actual)'},{k:'green',n:'Pipeline · C
 var DEFAULT_SCHOOLS=['School of Precision Manufacturing','School of Metal Joining','School of Intelligent Automation & Robotics','School of Future Mobility','School of Energy','School of Services Economy','LDP/FDP','Other'];
 var DEFAULT_LABS=['CNC Machining Lab','Metrology Lab','3D Printing Lab','Welding Lab (Manual & Robotics)','Industrial Robotics Lab','Cobot / AMR Lab','Mechatronics Lab','Industrial Automation Lab','Electrical Switchgear Lab','CAD/CAM/CAE Lab','Digital Manufacturing Lab','Cybersecurity Lab','Manufacturing Analytics Lab (AI/ML)','EV 2/3-Wheeler Tech Lab','EV 4-Wheeler Tech Lab','Battery Systems Lab','Green Hydrogen Lab','Human Intelligence Lab','Retail','Culinary'];
 var LABELS={expectedEnd:'Expected end',startBatch:'Learners started',title:'Course name',batch:'Batch / code',client:'Client / source',programType:'Programme type',gati:'GATI',school:'School',campus:'Campus',mode:'Mode',plannedStart:'Planned start',plannedEnd:'Planned end',batchSize:'Planned batch size',confidence:'Confidence',notes:'Notes',sat:'Saturdays count',trainingDays:'Training days',actualStart:'Actual start',actualEnd:'Actual end',actualBatch:'Actual throughput',male:'Male',female:'Female',labs:'Lab split',classPct:'Classroom %'};
-var ACTIONS={acknowledged:'Acknowledged: course available',started:'Confirmed start: moved to Running',completed:'Marked completed: moved to Completed',created:'Added to pipeline','created-actual':'Added directly to actuals by the program team',imported:'Imported',edited:'Edited',confirmed:'Moved to actuals and locked',dropped:'Marked as dropped',restored:'Restored to pipeline','edit-requested':'Requested an edit',unlocked:'Unlocked for one edit','request-declined':'Declined the edit request','edited-locked':'Edited a locked record'};
+var ACTIONS={acknowledged:'Acknowledged: course available','batch-confirmed':'Batch confirmed: moved to Batches · Standby',started:'Batch started: moved to Running batches',completed:'Batch completed: moved to Actuals',created:'Added to pipeline','created-actual':'Added directly to actuals by the program team',imported:'Imported',edited:'Edited',confirmed:'Moved to actuals and locked',dropped:'Marked as dropped',restored:'Restored to pipeline','edit-requested':'Requested an edit',unlocked:'Unlocked for one edit','request-declined':'Declined the edit request','edited-locked':'Edited a locked record'};
 var MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 var MONL=['January','February','March','April','May','June','July','August','September','October','November','December'];
-var TABS=[['dashboard','Dashboard'],['actuals','Actuals'],['pipeline','GATI pipeline'],['calendar','Calendar'],['setup','Setup']];
+var TABS=[['dashboard','Dashboard'],['actuals','Actuals'],['batches','Batches'],['pipeline','Pipeline'],['calendar','Calendar'],['setup','Setup']];
 var QUICK=[['Full year',0,12],['H1',0,6],['H2',6,12],['Q1',0,3],['Q2',3,6],['Q3',6,9],['Q4',9,12]];
 
 var S={db:null,auth:null,authState:'loading',me:{id:null,name:'',email:'',role:'',gatis:[],isOwner:false},users:[],courses:[],config:null,names:{},
@@ -388,6 +417,7 @@ var S={db:null,auth:null,authState:'loading',me:{id:null,name:'',email:'',role:'
   openMs:null,mview:'both',dl:null,
   cal:{view:'month',anchor:today(),group:'school',scrollKey:'',jump:today().slice(0,8)+'01',keepDate:null},
   kf:{gati:null,school:null,campus:null,mode:null,ptype:null,kind:null},
+  bf:{fys:null,smonths:null,emonths:null,gati:null,school:null,campus:null,mode:null,ptype:null,q:'',view:'running'},logId:null,logKey:'',
   f:{fys:curFY(),months:null,gati:null,school:null,campus:null,mode:null,ptype:null,conf:null,by:'school'},
   pf:{fys:curFY(),smonths:null,emonths:null,gati:null,school:null,campus:null,mode:null,ptype:null,conf:null,status:null,q:'',view:'active'},
   af:{fys:curFY(),smonths:null,emonths:null,gati:null,school:null,campus:null,mode:null,ptype:null,q:'',view:'completed'}};
@@ -424,7 +454,10 @@ function eff(c){if(c.stage==='actual')return {start:c.actualStart,end:c.actualEn
   return {start:c.plannedStart,end:c.plannedEnd,batch:Number(c.batchSize)||0};}
 function isDone(c){return c.stage==='actual'||c.stage==='running';}
 /* GATI pipeline: awaiting course production → acknowledged (upcoming) → start date reached (ready). Running: running → end date reached (due). */
-function pipeStatus(c){if(!c.cpAck)return 'awaiting';return today()<c.plannedStart?'upcoming':'ready';}
+var ADMIN='ram.viswanath@tataiis.org';
+/* Pipeline review: awaiting (course production to upload) → review (GATI head to review) → changes (back to course production) → approved (GATI head to confirm the batch). */
+function pipeStatus(c){return c.review||'awaiting';}
+function sbStatus(c){var t=today();return t>=c.plannedStart?'due':'waiting';}
 function runStatus(c){return today()>=eff(c).end?'due':'running';}
 /* Training days per month. A "training days" figure on the course overrides the count and is spread across the months in proportion. */
 function planOf(start,end,sat,td){var m=wdays(start,end,sat),wd=sum(m);td=Number(td)||0;
@@ -434,15 +467,23 @@ function plan(c){var e=eff(c);return planOf(e.start,e.end,!!c.sat,c.trainingDays
 function counted(c){return c.mode!=='Online'||S.online;}
 function tpdOf(c){return counted(c)?plan(c).days*eff(c).batch:0;}
 function valid(c){var e=eff(c);return !!(e.start&&e.end&&e.end>=e.start);}
-function liveStatus(c){return c.stage==='running'?runStatus(c):pipeStatus(c);}
+function liveStatus(c){return c.stage==='running'?runStatus(c):c.stage==='standby'?sbStatus(c):pipeStatus(c);}
 
 /* ---------- permissions (app level) ---------- */
-function myGatis(){return S.me.role==='head'?(S.me.gatis||[]).slice():[];}
-function canAdd(){return S.me.isOwner||myGatis().length>0;}
-function ownsGati(c){return S.me.isOwner||myGatis().indexOf(c.gati)>=0;}
-function canEditCourse(c){if(S.me.isOwner)return true;if(!ownsGati(c))return false;if(c.stage==='running')return false;if(c.stage==='actual')return !!c.unlocked;if(c.stage==='dropped')return !c.cpAck;return true;}
-function canAck(){return S.me.role==='cp'||S.me.isOwner;}
-function canDrop(c){return S.me.isOwner||(ownsGati(c)&&c.stage==='pipeline'&&!c.cpAck);}
+function myGatis(){return (S.me.gatis||[]).slice();}
+function canAdd(){return S.me.isAdmin||myGatis().length>0;}
+function ownsGati(c){return S.me.isAdmin||myGatis().indexOf(c.gati)>=0;}
+function canEditCourse(c){if(S.me.isAdmin)return true;
+  if(c.stage==='pipeline'||c.stage==='dropped')return ownsGati(c)&&(c.stage==='pipeline'||pipeStatus(c)!=='approved');
+  if(c.stage==='standby'||c.stage==='running')return S.me.isOwner;
+  if(c.stage==='actual')return S.me.isOwner||(ownsGati(c)&&!!c.unlocked);return false;}
+function isCPUser(){return S.me.role==='cp'||S.me.isAdmin;}
+function canUpload(c){return c.stage==='pipeline'&&isCPUser()&&(pipeStatus(c)==='awaiting'||pipeStatus(c)==='changes');}
+function canReview(c){return c.stage==='pipeline'&&ownsGati(c)&&pipeStatus(c)==='review';}
+function canConfirmBatch(c){return c.stage==='pipeline'&&ownsGati(c)&&pipeStatus(c)==='approved';}
+function canNote(c){if(c.stage==='pipeline')return ownsGati(c)||isCPUser();return S.me.isOwner||S.me.isAdmin;}
+function myTurn(c){return canUpload(c)||canReview(c)||canConfirmBatch(c)||(c.stage==='standby'&&S.me.isOwner&&sbStatus(c)==='due')||(c.stage==='running'&&S.me.isOwner&&runStatus(c)==='due');}
+function canDrop(c){return S.me.isAdmin||(c.stage==='pipeline'&&ownsGati(c)&&pipeStatus(c)!=='approved')||(c.stage==='standby'&&S.me.isOwner);}
 
 /* ---------- periods ---------- */
 function fyOf(dateStr){var y=Number(dateStr.slice(0,4)),m=Number(dateStr.slice(5,7));return m>=4?y:y-1;}
@@ -475,7 +516,7 @@ function optsFor(key,fy){
   if(key==='campus')return CAMPUSES.map(function(x){return {k:x,n:x};});
   if(key==='mode')return MODES.map(function(m){return {k:m.k,n:m.n,s:m.k};});
   if(key==='conf')return CONF.map(function(c){return {k:c.k,n:c.n};});
-  if(key==='status')return [{k:'awaiting',n:'Awaiting course production'},{k:'upcoming',n:'Acknowledged · not started'},{k:'ready',n:'Ready to start'}];
+  if(key==='status')return [{k:'awaiting',n:'With course production · upload'},{k:'review',n:'With GATI head · review'},{k:'changes',n:'Changes asked'},{k:'approved',n:'Course approved · confirm batch'}];
   if(key==='kind')return SER.map(function(x){return {k:x.k,n:x.n,s:x.k==='actual'?'Actual':confName(x.k)};});
   if(key==='fys')return fyOptions().map(function(y){return {k:String(y),n:fyLabel(y)};});
   if(/months$/.test(key)){var fm=fy!=null?fyMonths(fy):null;return [9,10,11,0,1,2,3,4,5,6,7,8].map(function(i){return {k:String(i),n:fm?monthLong(fm[i]):MONL[(3+i)%12]};});}
@@ -515,8 +556,8 @@ function tip(t){return ' data-tip="'+esc(t)+'" tabindex="0"';}
 
 /* ---------- aggregation ---------- */
 function blank(){return {actual:0,green:0,yellow:0,red:0};}
-function bucket(c){return isDone(c)?'actual':(c.confidence||'yellow');}
-function dashCourses(){var f=S.f;return S.courses.filter(function(c){return (isDone(c)||c.stage==='pipeline')&&valid(c)&&pass(c,f,FKEYS)&&(isDone(c)||!f.conf||f.conf[c.confidence||'yellow']);});}
+function bucket(c){return isDone(c)?'actual':c.stage==='standby'?'green':(c.confidence||'yellow');}
+function dashCourses(){var f=S.f;return S.courses.filter(function(c){return (isDone(c)||c.stage==='pipeline'||c.stage==='standby')&&valid(c)&&pass(c,f,FKEYS)&&(isDone(c)||!f.conf||f.conf[bucket(c)||c.confidence||'yellow']);});}
 function accum(){return {tp:blank(),tpd:blank(),starts:{a:0,p:0},ends:{a:0,p:0}};}
 function aggregate(list,months){var M={};months.forEach(function(m){M[m]=accum();});
   list.forEach(function(c){var e=eff(c),p=plan(c),b=bucket(c),cnt=counted(c),sk=isDone(c)?'a':'p';
@@ -531,11 +572,11 @@ function accAdd(t,a){addInto(t.tp,a.tp);addInto(t.tpd,a.tpd);addInto(t.starts,a.
 function gchip(k){return '<span class="gchip"><b>'+esc(k||'–')+'</b>'+esc(gatiName(k))+'</span>';}
 function confPill(k){k=k||'yellow';return '<span class="pill '+k+'"><i></i>'+esc(confName(k))+'</span>';}
 function statusPill(st,c){
-  if(st==='awaiting')return '<span class="pill yellow"><i></i>Awaiting course production</span>';
-  if(st==='upcoming'&&c)return '<span class="pill green"><i></i>Acknowledged</span>';
-  if(st==='ready')return '<span class="pill due">Ready to start</span>';
+  if(c&&c.stage==='pipeline'){if(st==='awaiting')return '<span class="pill yellow"><i></i>With course production · upload</span>';if(st==='review')return '<span class="pill live"><i></i>With GATI head · review</span>';if(st==='changes')return '<span class="pill red"><i></i>Changes asked · with course production</span>';if(st==='approved')return '<span class="pill green"><i></i>Course approved · confirm batch</span>';}
+  if(c&&c.stage==='standby'){if(st==='due')return '<span class="pill due">Start day reached</span>';var dd=dayDiff(today(),c.plannedStart);return '<span class="pill plain">Starts in '+dd+' day'+(dd===1?'':'s')+'</span>';}
   if(st==='due')return '<span class="pill due">Due to complete</span>';
-  if(st==='running'&&c)return '<span class="pill live"><i></i>Running</span>';if(st==='running')return '<span class="pill live"><i></i>In progress</span>';if(st==='ended')return '<span class="pill due">Ended · confirm</span>';return '<span class="pill plain">Upcoming</span>';}
+  if(st==='running'&&c)return '<span class="pill live"><i></i>Running</span>';
+if(st==='running')return '<span class="pill live"><i></i>In progress</span>';if(st==='ended')return '<span class="pill due">Ended · confirm</span>';return '<span class="pill plain">Upcoming</span>';}
 function opts(list,sel,all){return (all?'<option value="">'+esc(all)+'</option>':'')+list.map(function(o){var v=typeof o==='string'?o:o.k,n=typeof o==='string'?o:o.n;return '<option value="'+esc(v)+'"'+(v===sel?' selected':'')+'>'+esc(n)+'</option>';}).join('');}
 function courseCell(c){var bits=[c.batch,c.client,c.programType].filter(Boolean).map(esc).join(' · ');return '<div class="t" title="'+esc(c.title)+'">'+esc(c.title)+(c.sample?'<span class="tag">Sample</span>':'')+'</div>'+(bits?'<div class="sub" title="'+bits+'">'+bits+'</div>':'');}
 function daysCell(c){var p=plan(c),d=Math.round(p.days*10)/10,notes=[];if(c.sat)notes.push('Saturdays are counted');if(p.over)notes.push('Training days set by hand; '+p.range+' working days in the date range');return notes.length?'<span class="hov"'+tip(notes.join('\n'))+'>'+d+'</span>':String(d);}
@@ -546,19 +587,22 @@ function tpdCell(c,set,label){if(!counted(c))return '<span class="hov muted"'+ti
 
 function renderChrome(){
   var r=$('role'),g=myGatis(),html;
-  if(S.me.isOwner)html='<span class="role owner"><i></i>Program team · full edit rights</span>';
+  if(S.me.isAdmin)html='<span class="role owner"><i></i>Admin · full access</span>';
+  else if(S.me.isOwner)html='<span class="role owner"><i></i>Program team · operations'+(g.length?' · GATI head '+esc(g.map(function(k){return k==='N'?'NST':k;}).join(', ')):'')+'</span>';
   else if(g.length)html='<span class="role head"><i></i>GATI head · '+esc(g.map(gatiName).join(', '))+'</span>';
   else if(S.me.role==='cp')html='<span class="role head"><i></i>Course production · acknowledges courses</span>';
   else html='<span class="role"><i></i>View only</span>';
   r.innerHTML=S.authState==='in'?'<div class="who">'+html+'<span class="me" title="'+esc(S.me.email)+'">'+esc(S.me.name||S.me.email)+'</span><button class="sm" data-act="chpw">Change password</button><button class="sm" data-act="signout">Sign out</button></div>':'';
   $('tabs').hidden=S.authState!=='in';if(S.authState!=='in'){$('notes').innerHTML='';return;}
-  var pipeN=S.courses.filter(function(c){return c.stage==='pipeline';}).length,actN=S.courses.filter(function(c){return c.stage==='actual';}).length,runN=S.courses.filter(function(c){return c.stage==='running';}).length;
-  var ackN=S.courses.filter(function(c){return c.stage==='pipeline'&&!c.cpAck;}).length,readyN=S.courses.filter(function(c){return c.stage==='pipeline'&&pipeStatus(c)==='ready';}).length,dueN=S.courses.filter(function(c){return c.stage==='running'&&runStatus(c)==='due';}).length;
+  var cnt=function(fn){return S.courses.filter(fn).length;};
+  var pipeN=cnt(function(c){return c.stage==='pipeline';}),actN=cnt(function(c){return c.stage==='actual';}),runN=cnt(function(c){return c.stage==='running';}),sbN=cnt(function(c){return c.stage==='standby';});
+  var myPipe=cnt(function(c){return c.stage==='pipeline'&&myTurn(c);}),myBatch=cnt(function(c){return (c.stage==='standby'||c.stage==='running')&&myTurn(c);});
   var reqN=S.courses.filter(function(c){return c.stage==='actual'&&c.editRequest&&!c.unlocked;}).length;
   var pend=0;
   $('tabs').innerHTML=TABS.map(function(t){var extra='';
-    if(t[0]==='pipeline'&&S.loaded)extra='<span class="count">'+pipeN+'</span>'+(S.me.role==='cp'&&ackN?'<span class="count alert">'+ackN+' to acknowledge</span>':'')+(S.me.isOwner&&readyN?'<span class="count alert">'+readyN+' to start</span>':'');
-    if(t[0]==='actuals'&&S.loaded)extra='<span class="count">'+actN+'</span>'+(runN?'<span class="count">'+runN+' running</span>':'')+(S.me.isOwner&&dueN?'<span class="count alert">'+dueN+' to complete</span>':'')+(reqN&&S.me.isOwner?'<span class="count alert">'+reqN+' edit request'+(reqN>1?'s':'')+'</span>':'');
+    if(t[0]==='pipeline'&&S.loaded)extra='<span class="count">'+pipeN+'</span>'+(myPipe?'<span class="count alert">'+myPipe+' for you</span>':'');
+    if(t[0]==='batches'&&S.loaded)extra='<span class="count">'+runN+' running · '+sbN+' standby</span>'+(myBatch?'<span class="count alert">'+myBatch+' for you</span>':'');
+    if(t[0]==='actuals'&&S.loaded)extra='<span class="count">'+actN+'</span>'+(reqN&&S.me.isOwner?'<span class="count alert">'+reqN+' edit request'+(reqN>1?'s':'')+'</span>':'');
     if(t[0]==='setup'&&pend)extra='<span class="count alert">'+pend+' access request'+(pend>1?'s':'')+'</span>';
     return '<a href="#'+t[0]+'"'+(S.tab===t[0]?' aria-current="page"':'')+'>'+t[1]+extra+'</a>';}).join('');
   var n='';
@@ -579,9 +623,9 @@ function render(){
   main.querySelectorAll('input[id],textarea[id]').forEach(function(el){if(el.type!=='checkbox')keep[el.id]=el.value;});
   if(actId&&act.selectionStart!=null){try{selS=act.selectionStart;}catch(e){}}
   var sc=S.lastTab===S.tab?[].map.call(main.querySelectorAll('.scroll,.gantt'),function(e){return [e.scrollLeft,e.scrollTop];}):[];S.lastTab=S.tab;
-  main.innerHTML=S.tab==='pipeline'?viewPipeline():S.tab==='actuals'?viewActuals():S.tab==='calendar'?viewCalendar():S.tab==='setup'?viewSetup():viewDashboard();
+  main.innerHTML=S.tab==='pipeline'?viewPipeline():S.tab==='actuals'?viewActuals():S.tab==='calendar'?viewCalendar():S.tab==='batches'?viewBatches():S.tab==='setup'?viewSetup():viewDashboard();
   [].forEach.call(main.querySelectorAll('.scroll,.gantt'),function(e,i){if(sc[i]){e.scrollLeft=sc[i][0];e.scrollTop=sc[i][1];}});
-  if(S.tab==='calendar')calScroll();positionPop();
+  if(S.tab==='calendar')calScroll();positionPop();renderLog();
   for(var id in keep){var el=$(id);if(el)el.value=keep[id];}
   if(actId&&$(actId)){$(actId).focus();if(selS!=null){try{$(actId).setSelectionRange(selS,selS);}catch(e){}}}
 }
@@ -620,6 +664,7 @@ function defaults(scope){
   if(scope==='f')return {fys:curFY(),months:null,gati:null,school:null,campus:null,mode:null,ptype:null,conf:null,by:S.f.by};
   if(scope==='pf')return {fys:curFY(),smonths:null,emonths:null,gati:null,school:null,campus:null,mode:null,ptype:null,conf:null,status:null,q:'',view:'active'};
   if(scope==='kf')return {gati:null,school:null,campus:null,mode:null,ptype:null,kind:null};
+  if(scope==='bf')return {fys:null,smonths:null,emonths:null,gati:null,school:null,campus:null,mode:null,ptype:null,q:'',view:S.bf.view};
   return {fys:curFY(),smonths:null,emonths:null,gati:null,school:null,campus:null,mode:null,ptype:null,q:'',view:'completed'};}
 function isDefault(scope){var d=defaults(scope),f=S[scope];for(var k in d){if(k!=='by'&&k!=='view'&&norm(f[k])!==norm(d[k]))return false;}return scope==='kf'||!S.online;}
 function resetBtn(scope){return '<button type="button" class="reset" data-act="reset" data-scope="'+scope+'"'+(isDefault(scope)?' disabled':'')+'><span aria-hidden="true">↺</span> Reset filters</button>';}
@@ -709,47 +754,44 @@ var VIEW={list:[],kind:'pipeline'};
 function exportBtn(){return true?'<button data-act="export">Export to Excel</button>':'';}
 
 /* ----- pipeline ----- */
-function stepsCell(c){var st=pipeStatus(c),a=c.cpAck;
-  var s1='<span class="step done"'+tip('Added by '+nameOf(c.createdBy)+(c.createdAt?' on '+stamp(c.createdAt).split(',')[0]:''))+'>✓ GATI head</span>';
-  var s2=a?'<span class="step done"'+tip('Acknowledged by '+nameOf(a.by)+' on '+stamp(a.at).split(',')[0]+(a.note?'\n'+a.note:''))+'>✓ Course production</span>':'<span class="step now">Course production</span>';
-  var s3='<span class="step'+(a&&st==='ready'?' now':'')+'">Operations · start</span>';
-  return '<div class="steps">'+s1+s2+s3+'</div>'+statusPill(st,c);}
+function stepsCell(c){var st=pipeStatus(c),up=(c.log||[]).some(function(e){return e.kind==='upload';});
+  function chip(done,now,label){return '<span class="step'+(done?' done':now?' now':'')+'">'+(done?'✓ ':'')+label+'</span>';}
+  return '<div class="steps">'+chip(true,false,'Added')+chip(st!=='awaiting'&&st!=='changes',st==='awaiting'||st==='changes','Course uploaded')+chip(st==='approved',st==='review','Head approved')+chip(false,st==='approved','Batch confirmed')+'</div>'+statusPill(st,c);}
+function logBtn(c){var n=(c.log||[]).length,turn=myTurn(c);return '<button class="sm'+(turn?' primary':'')+'" data-act="log" data-id="'+esc(c.id)+'">'+(turn?'Open · your turn':'Log')+(n?' · '+n:'')+'</button>';}
 function viewPipeline(){
   var f=S.pf,q=f.q.trim().toLowerCase(),fy1=oneFY(f),dropped=f.view==='dropped';
   var active=S.courses.filter(function(c){return c.stage==='pipeline';}),drops=S.courses.filter(function(c){return c.stage==='dropped';});
   var list=(dropped?drops:active).filter(function(c){return pass(c,f,FKEYS.concat(dropped?[]:['conf','status']))&&matchQ(c,q)&&datePass(c,f);})
     .sort(function(a,b){return (a.plannedStart||'')<(b.plannedStart||'')?-1:1;});
   VIEW={list:list,kind:'pipeline'};
-  var ackN=active.filter(function(c){return !c.cpAck;}).length,readyN=active.filter(function(c){return pipeStatus(c)==='ready';}).length;
+  var up=active.filter(canUpload).length,rv=active.filter(canReview).length,cb=active.filter(canConfirmBatch).length;
   var h='<section class="panel"><div class="panel-b filters">'+fyFilter('pf')+
     '<label class="fld"><span>Search</span><input type="search" id="pf-q" data-pf="q" placeholder="Course, client, batch, school" value="'+esc(f.q)+'"></label>'+
     '<div class="fld"><span>Show</span><div class="seg"><button data-act="pview" data-v="active" aria-pressed="'+!dropped+'">Active · '+active.length+'</button><button data-act="pview" data-v="dropped" aria-pressed="'+dropped+'">Dropped · '+drops.length+'</button></div></div>'+
     onlineCheck()+resetBtn('pf')+hfHint()+'<span class="spacer"></span>'+exportBtn()+(canAdd()?'<button class="primary" data-act="add">Add pipeline course</button>':'')+'</div></section>';
   if(!dropped){
-    h+='<div class="flow"><span><b>1</b> GATI head adds the course</span><i>→</i><span><b>2</b> Course production acknowledges it is available</span><i>→</i><span><b>3</b> Operations confirm the start, and it moves to Actuals · Running</span></div>';
-    if(ackN&&canAck())h+='<div class="note warn"><span><b>'+ackN+' course'+(ackN>1?'s are':' is')+' waiting for course production.</b> Check the course is available and click Acknowledge.</span></div>';
-    if(readyN&&S.me.isOwner)h+='<div class="note warn"><span><b>'+readyN+' acknowledged course'+(readyN>1?'s have':' has')+' reached the start date.</b> Confirm the start with the actual date and number of learners to move '+(readyN>1?'them':'it')+' to Running.</span></div>';}
+    h+='<div class="flow"><span><b>1</b> GATI head adds the course</span><i>→</i><span><b>2</b> Course production uploads the course</span><i>→</i><span><b>3</b> GATI head approves it or asks for changes</span><i>→</i><span><b>4</b> GATI head confirms the batch, and it moves to Batches · Standby</span></div>';
+    if(up)h+='<div class="note warn"><span><b>'+up+' course'+(up>1?'s need':' needs')+' a course upload.</b> Open the log, attach the course files and send them to the GATI head.</span></div>';
+    if(rv)h+='<div class="note warn"><span><b>'+rv+' uploaded course'+(rv>1?'s are':' is')+' waiting for your review.</b> Open the log to approve or ask for changes.</span></div>';
+    if(cb)h+='<div class="note warn"><span><b>'+cb+' approved course'+(cb>1?'s need':' needs')+' the batch confirmed.</b> Confirm the final dates and learners to send '+(cb>1?'them':'it')+' to Batches · Standby.</span></div>';}
   if(!active.length&&!drops.length)return h+'<div class="panel"><div class="empty"><h2>The pipeline is empty</h2><p>GATI heads add the courses they expect to bring, with dates, batch size and how likely each one is.</p></div></div>';
   h+=totalsBox(list,'pipeline');
-  h+='<section class="panel"><div class="scroll"><table><thead><tr>'+hf('pf','course',[['ptype','Programme type']],'Course')+hf('pf','gati',[['gati','GATI']],'GATI')+hf('pf','school',[['school','School']],'School')+hf('pf','campus',[['campus','Campus'],['mode','Mode']],'Campus')+hf('pf','start',[['smonths','Start month']],'Start','',fy1)+hf('pf','end',[['emonths','End month']],'End','',fy1)+'<th class="n">Days</th><th class="n">Batch</th><th class="n">TP days</th>'+(dropped?'<th>Reason</th><th>Status</th>':hf('pf','conf',[['conf','Confidence']],'Confidence')+hf('pf','status',[['status','Approvals']],'Approvals'))+'<th></th></tr></thead><tbody>'+
-    (list.length?list.map(function(c){var st=pipeStatus(c),can=canEditCourse(c),acts='';
-      if(dropped){if(can)acts+='<button class="sm" data-act="restore" data-id="'+esc(c.id)+'">Restore</button>';acts+=histBtn(c);if(S.me.isOwner)acts+='<button class="sm danger'+(S.armed===c.id?' armed':'')+'" data-act="del" data-id="'+esc(c.id)+'">'+(S.armed===c.id?'Click again to delete':'Delete')+'</button>';}
-      else{if(!c.cpAck&&canAck())acts+='<button class="sm primary" data-act="ack" data-id="'+esc(c.id)+'">Acknowledge</button>';
-        if(c.cpAck&&S.me.isOwner&&st==='ready')acts+='<button class="sm primary" data-act="start" data-id="'+esc(c.id)+'">Confirm start</button>';
-        if(can)acts+='<button class="sm" data-act="edit" data-id="'+esc(c.id)+'">Edit</button>';acts+=histBtn(c);if(canDrop(c))acts+='<button class="sm danger" data-act="drop" data-id="'+esc(c.id)+'">Drop</button>';}
+  h+='<section class="panel"><div class="scroll"><table><thead><tr>'+hf('pf','course',[['ptype','Programme type']],'Course')+hf('pf','gati',[['gati','GATI']],'GATI')+hf('pf','school',[['school','School']],'School')+hf('pf','campus',[['campus','Campus'],['mode','Mode']],'Campus')+hf('pf','start',[['smonths','Start month']],'Start','',fy1)+hf('pf','end',[['emonths','End month']],'End','',fy1)+'<th class="n">Days</th><th class="n">Batch</th><th class="n">TP days</th>'+(dropped?'<th>Reason</th><th>Status</th>':hf('pf','conf',[['conf','Confidence']],'Confidence')+hf('pf','status',[['status','Stage']],'Stage'))+'<th></th></tr></thead><tbody>'+
+    (list.length?list.map(function(c){var can=canEditCourse(c),acts='';
+      if(dropped){if(can)acts+='<button class="sm" data-act="restore" data-id="'+esc(c.id)+'">Restore</button>';acts+=logBtn(c);if(S.me.isAdmin)acts+=delBtn(c);}
+      else{acts+=logBtn(c);if(canConfirmBatch(c))acts+='<button class="sm primary" data-act="confirm-batch" data-id="'+esc(c.id)+'">Confirm batch</button>';if(can)acts+='<button class="sm" data-act="edit" data-id="'+esc(c.id)+'">Edit</button>';if(canDrop(c))acts+='<button class="sm danger" data-act="drop" data-id="'+esc(c.id)+'">Drop</button>';if(S.me.isAdmin)acts+=delBtn(c);}
       return '<tr><td class="c-main">'+courseCell(c)+'</td><td>'+gchip(c.gati)+'</td><td title="'+esc(c.school)+'">'+esc((c.school||'').replace(/^School of /,''))+'</td><td>'+esc(c.campus)+'<div class="sub nowrap">'+esc(modeName(c.mode))+'</div></td>'+
         '<td class="nowrap">'+nice(c.plannedStart)+'</td><td class="nowrap">'+nice(c.plannedEnd)+'</td><td class="n">'+daysCell(c)+'</td><td class="n">'+num(c.batchSize)+'</td><td class="n">'+tpdCell(c)+'</td><td>'+(dropped?esc(c.dropReason||'—'):confPill(c.confidence))+'</td><td>'+(dropped?'<span class="pill plain">Dropped</span>':stepsCell(c))+'</td>'+
-        '<td class="acts">'+acts+'</td></tr>'+(S.openHist.has(c.id)?histRow(c,12):'');}).join('')
+        '<td class="acts">'+acts+'</td></tr>';}).join('')
       :'<tr><td colspan="12" class="muted">No '+(dropped?'dropped':'pipeline')+' courses match these filters. Use Reset filters above to clear them.</td></tr>')+
     (canAdd()&&!dropped?'<tr class="addrow"><td colspan="12"><button class="addnew" data-act="add"><b>+</b> Add new course</button></td></tr>':'')+'</tbody></table></div></section>';
   return h;
 }
+function delBtn(c){return '<button class="sm danger'+(S.armed===c.id?' armed':'')+'" data-act="del" data-id="'+esc(c.id)+'">'+(S.armed===c.id?'Click again to delete':'Delete')+'</button>';}
 
 /* ----- actuals ----- */
 function viewActuals(){
-  var f=S.af,q=f.q.trim().toLowerCase(),fy1=oneFY(f),running=S.courses.filter(function(c){return c.stage==='running';}),doneN=S.courses.filter(function(c){return c.stage==='actual';}).length;
-  var seg='<div class="fld"><span>Show</span><div class="seg"><button data-act="aview" data-v="running" aria-pressed="'+(f.view==='running')+'">Running · '+running.length+'</button><button data-act="aview" data-v="completed" aria-pressed="'+(f.view!=='running')+'">Completed · '+doneN+'</button></div></div>';
-  if(f.view==='running')return viewRunning(running,f,q,fy1,seg);
+  var f=S.af,q=f.q.trim().toLowerCase(),fy1=oneFY(f),seg='';
   var all=S.courses.filter(function(c){return c.stage==='actual';});
   var list=all.filter(function(c){return pass(c,f,FKEYS)&&matchQ(c,q)&&datePass(c,f);})
     .sort(function(a,b){return (a.actualEnd||'')>(b.actualEnd||'')?-1:1;});
@@ -757,10 +799,10 @@ function viewActuals(){
   var h='<section class="panel"><div class="panel-b filters">'+fyFilter('af')+
     '<label class="fld"><span>Search</span><input type="search" id="af-q" data-af="q" placeholder="Course, client, batch, school" value="'+esc(f.q)+'"></label>'+seg+
     onlineCheck()+resetBtn('af')+hfHint()+'<span class="spacer"></span>'+exportBtn()+(S.me.isOwner?'<button class="primary" data-act="add-actual">Add actual course</button>':'')+'</div></section>';
-  if(!all.length)return h+'<div class="panel"><div class="empty"><h2>No completed courses yet</h2><p>When a pipeline course has run, its GATI head confirms the real dates, throughput and lab split. The record then moves here and is locked.</p></div></div>';
+  if(!all.length)return h+'<div class="panel"><div class="empty"><h2>No actuals yet</h2><p>When a pipeline course has run, its GATI head confirms the real dates, throughput and lab split. The record then moves here and is locked.</p></div></div>';
   h+=totalsBox(list,'completed');
   var shown=list.slice(0,300);
-  h+='<section class="panel"><div class="panel-h"><span class="sub">Completed courses are locked. A GATI head requests an edit; the program team approves it. Only the program team can add a course here directly.</span></div><div class="scroll"><table><thead><tr>'+hf('af','course',[['ptype','Programme type']],'Course')+hf('af','gati',[['gati','GATI']],'GATI')+hf('af','school',[['school','School']],'School')+hf('af','campus',[['campus','Campus'],['mode','Mode']],'Campus')+hf('af','start',[['smonths','Start month']],'Start','',fy1)+hf('af','end',[['emonths','End month']],'End','',fy1)+'<th class="n">Days</th><th class="n">Throughput</th><th class="n">TP days</th><th>Lab split</th><th>Confirmed</th><th></th></tr></thead><tbody>'+
+  h+='<section class="panel"><div class="panel-h"><span class="sub">Completed courses are locked. A GATI head requests an edit; the program team approves it. Only the program team can add a course here directly, and only the admin can delete one.</span></div><div class="scroll"><table><thead><tr>'+hf('af','course',[['ptype','Programme type']],'Course')+hf('af','gati',[['gati','GATI']],'GATI')+hf('af','school',[['school','School']],'School')+hf('af','campus',[['campus','Campus'],['mode','Mode']],'Campus')+hf('af','start',[['smonths','Start month']],'Start','',fy1)+hf('af','end',[['emonths','End month']],'End','',fy1)+'<th class="n">Days</th><th class="n">Throughput</th><th class="n">TP days</th><th>Lab split</th><th>Confirmed</th><th></th></tr></thead><tbody>'+
     (shown.length?shown.map(function(c){var b=Number(c.actualBatch)||0;
       var sv=(c.plannedStart&&c.actualStart!==c.plannedStart)?'<div class="var">Planned '+nice(c.plannedStart)+'</div>':'';
       var ev=(c.plannedEnd&&c.actualEnd!==c.plannedEnd)?'<div class="var">Planned '+nice(c.plannedEnd)+'</div>':'';
@@ -769,33 +811,46 @@ function viewActuals(){
       var req=c.editRequest&&!c.unlocked,acts='';
       if(S.me.isOwner){acts+='<button class="sm" data-act="edit" data-id="'+esc(c.id)+'">Edit</button>';if(req)acts+='<button class="sm primary" data-act="approve" data-id="'+esc(c.id)+'">Unlock for the GATI head</button><button class="sm" data-act="decline" data-id="'+esc(c.id)+'">Decline</button>';}
       else if(ownsGati(c)){if(c.unlocked)acts+='<button class="sm primary" data-act="edit" data-id="'+esc(c.id)+'">Edit (unlocked)</button>';else if(!req)acts+='<button class="sm" data-act="request" data-id="'+esc(c.id)+'">Request edit</button>';}
-      acts+=histBtn(c);
-      return '<tr><td class="c-main">'+courseCell(c)+(req?'<div class="var">Edit requested by '+esc(nameOf(c.editRequest.by))+': '+esc(c.editRequest.reason||'')+'</div>':'')+(c.unlocked?'<div class="var">Unlocked for one edit</div>':'')+'</td><td>'+gchip(c.gati)+'</td><td title="'+esc(c.school)+'">'+esc((c.school||'').replace(/^School of /,''))+'</td><td>'+esc(c.campus)+'<div class="sub nowrap">'+esc(modeName(c.mode))+'</div></td>'+
+      acts+=(c.log&&c.log.length||c.completedVia?logBtn(c):'')+histBtn(c);if(S.me.isAdmin)acts+=delBtn(c);
+      var fm=c.completedVia==='batches'&&!(c.files||[]).some(function(x){return x.kind==='feedback';})?'<div class="var">Feedback missing</div>':'';
+      return '<tr><td class="c-main">'+courseCell(c)+fm+(req?'<div class="var">Edit requested by '+esc(nameOf(c.editRequest.by))+': '+esc(c.editRequest.reason||'')+'</div>':'')+(c.unlocked?'<div class="var">Unlocked for one edit</div>':'')+'</td><td>'+gchip(c.gati)+'</td><td title="'+esc(c.school)+'">'+esc((c.school||'').replace(/^School of /,''))+'</td><td>'+esc(c.campus)+'<div class="sub nowrap">'+esc(modeName(c.mode))+'</div></td>'+
         '<td class="nowrap">'+nice(c.actualStart)+sv+'</td><td class="nowrap">'+nice(c.actualEnd)+ev+'</td><td class="n">'+daysCell(c)+'</td><td class="n">'+num(b)+mf+bv+'</td><td class="n">'+tpdCell(c)+'</td><td class="labs">'+(labsText(c.labs,c.classPct)?esc(labsText(c.labs,c.classPct)).replace(/ · /g,'<br>'):'<span class="muted">—</span>')+'</td><td><span class="nowrap">'+(c.confirmedAt?esc(stamp(c.confirmedAt).split(',')[0]):'—')+'</span><div class="sub">'+(c.source==='master'?'Master sheet':esc(nameOf(c.confirmedBy)))+'</div></td><td class="acts">'+acts+'</td></tr>'+(S.openHist.has(c.id)?histRow(c,12):'');}).join('')
       :'<tr><td colspan="12" class="muted">No actuals match these filters. Use Reset filters above to clear them.</td></tr>')+(S.me.isOwner?'<tr class="addrow"><td colspan="12"><button class="addnew" data-act="add-actual"><b>+</b> Add actual course</button></td></tr>':'')+'</tbody></table></div></section>';
   if(list.length>shown.length)h+='<p class="sub">Showing the latest 300 of '+list.length+'. The totals and the Excel export cover all '+list.length+'. Pick a financial year or month to narrow the list.</p>';
   return h;
 }
 
-function viewRunning(all,f,q,fy1,seg){
-  var list=all.filter(function(c){return pass(c,f,FKEYS)&&matchQ(c,q)&&datePass(c,f);}).sort(function(a,b){return eff(a).end<eff(b).end?-1:1;});
-  VIEW={list:list,kind:'running'};
-  var dueN=all.filter(function(c){return runStatus(c)==='due';}).length;
-  var h='<section class="panel"><div class="panel-b filters">'+fyFilter('af')+
-    '<label class="fld"><span>Search</span><input type="search" id="af-q" data-af="q" placeholder="Course, client, batch, school" value="'+esc(f.q)+'"></label>'+seg+
-    onlineCheck()+resetBtn('af')+hfHint()+'<span class="spacer"></span>'+exportBtn()+'</div></section>';
-  if(dueN&&S.me.isOwner)h+='<div class="note warn"><span><b>'+dueN+' running batch'+(dueN>1?'es have':' has')+' reached the end date.</b> Mark '+(dueN>1?'them':'it')+' completed with the final throughput to move '+(dueN>1?'them':'it')+' to Completed.</span></div>';
-  if(!all.length)return h+'<div class="panel"><div class="empty"><h2>No batches are running</h2><p>When operations confirm the start of an acknowledged GATI pipeline course, it shows here until it is marked completed.</p></div></div>';
-  h+=totalsBox(list,'running');
-  h+='<section class="panel"><div class="panel-h"><span class="sub">Started batches. Operations mark a batch completed on or after its end date, with the final throughput.</span></div><div class="scroll"><table><thead><tr>'+hf('af','course',[['ptype','Programme type']],'Course')+hf('af','gati',[['gati','GATI']],'GATI')+hf('af','school',[['school','School']],'School')+hf('af','campus',[['campus','Campus'],['mode','Mode']],'Campus')+hf('af','start',[['smonths','Start month']],'Started','',fy1)+hf('af','end',[['emonths','End month']],'Expected end','',fy1)+'<th class="n">Days</th><th class="n">Learners</th><th class="n">TP days</th><th>Status</th><th></th></tr></thead><tbody>'+
-    (list.length?list.map(function(c){var e=eff(c),st=runStatus(c),acts='';
-      if(S.me.isOwner){if(st==='due')acts+='<button class="sm primary" data-act="complete" data-id="'+esc(c.id)+'">Mark completed</button>';acts+='<button class="sm" data-act="edit" data-id="'+esc(c.id)+'">Edit</button>';}
-      acts+=histBtn(c);
-      var sv=c.plannedStart&&e.start!==c.plannedStart?'<div class="var">Planned '+nice(c.plannedStart)+'</div>':'',ev=c.plannedEnd&&e.end!==c.plannedEnd?'<div class="var">Planned '+nice(c.plannedEnd)+'</div>':'';
-      var bv=c.batchSize!=null&&Number(c.batchSize)!==e.batch?'<div class="var">Planned '+num(c.batchSize)+'</div>':'';
+function progressCell(c){var e=eff(c),p=plan(c),t=today(),di=0,left=0;for(var x=e.start;x<=e.end;x=addDays(x,1)){if(trains(c,x)){if(x<=t)di++;else left++;}}
+  var tot=Math.max(1,Math.round(p.days)),pct=Math.min(100,Math.round(di/tot*100));
+  return '<div class="pbar"><i class="k-actual" style="width:'+pct+'%"></i></div><span class="sub">Day '+di+' of '+tot+' · '+(left?left+' training day'+(left===1?'':'s')+' left':'ends today or ended')+'</span>';}
+function viewBatches(){
+  var f=S.bf,q=f.q.trim().toLowerCase(),fy1=oneFY(f),isRun=f.view!=='standby';
+  var running=S.courses.filter(function(c){return c.stage==='running';}),standby=S.courses.filter(function(c){return c.stage==='standby';});
+  var all=isRun?running:standby;
+  var list=all.filter(function(c){return pass(c,f,FKEYS)&&matchQ(c,q)&&datePass(c,f);}).sort(function(a,b){return eff(a)[isRun?'end':'start']<eff(b)[isRun?'end':'start']?-1:1;});
+  VIEW={list:list,kind:isRun?'running':'standby'};
+  var dueR=running.filter(function(c){return runStatus(c)==='due';}).length,dueS=standby.filter(function(c){return sbStatus(c)==='due';}).length;
+  var h='<div class="bswitch" role="group" aria-label="Batches"><button data-act="bview" data-v="running" aria-pressed="'+isRun+'"><b>Running batches</b><span>'+running.length+' running'+(dueR?' · '+dueR+' due to complete':'')+'</span></button><button data-act="bview" data-v="standby" aria-pressed="'+!isRun+'"><b>Standby</b><span>'+standby.length+' confirmed'+(dueS?' · '+dueS+' to start':'')+'</span></button></div>';
+  h+='<section class="panel"><div class="panel-b filters">'+ms('bf','fys','Financial year')+
+    '<label class="fld"><span>Search</span><input type="search" id="bf-q" data-bf="q" placeholder="Course, client, batch, school" value="'+esc(f.q)+'"></label>'+
+    onlineCheck()+resetBtn('bf')+hfHint()+'<span class="spacer"></span>'+exportBtn()+'</div></section>';
+  if(isRun&&dueR&&S.me.isOwner)h+='<div class="note warn"><span><b>'+dueR+' running batch'+(dueR>1?'es have':' has')+' reached the end day.</b> Click Batch completed to confirm the final numbers and move '+(dueR>1?'them':'it')+' to Actuals.</span></div>';
+  if(!isRun&&dueS&&S.me.isOwner)h+='<div class="note warn"><span><b>'+dueS+' standby batch'+(dueS>1?'es have':' has')+' reached the start day.</b> Click Batch started to confirm who turned up and move '+(dueS>1?'them':'it')+' to Running batches.</span></div>';
+  if(!all.length)return h+'<div class="panel"><div class="empty"><h2>'+(isRun?'No batches are running':'Nothing on standby')+'</h2><p>'+(isRun?'When operations click Batch started on a standby batch, it shows here until it is completed.':'When a GATI head confirms the batch for an approved course, it waits here until its start day.')+'</p></div></div>';
+  h+=totalsBox(list,isRun?'running':'pipeline');
+  var cols=10;
+  h+='<section class="panel"><div class="scroll"><table><thead><tr>'+hf('bf','course',[['ptype','Programme type']],'Course')+hf('bf','gati',[['gati','GATI']],'GATI')+hf('bf','school',[['school','School']],'School')+hf('bf','campus',[['campus','Campus'],['mode','Mode']],'Campus')+
+    hf('bf','start',[['smonths','Start month']],isRun?'Started':'Start','',fy1)+hf('bf','end',[['emonths','End month']],isRun?'Expected end':'End','',fy1)+'<th class="n">Learners</th><th class="n">TP days</th><th>'+(isRun?'Progress':'Status')+'</th><th></th></tr></thead><tbody>'+
+    (list.length?list.map(function(c){var e=eff(c),acts='';
+      if(isRun){if(S.me.isOwner&&runStatus(c)==='due')acts+='<button class="sm primary" data-act="bdone" data-id="'+esc(c.id)+'">Batch completed</button>';}
+      else if(S.me.isOwner){acts+='<button class="sm'+(sbStatus(c)==='due'?' primary':'')+'" data-act="bstart" data-id="'+esc(c.id)+'"'+(sbStatus(c)==='due'?'':' disabled title="Available from the start day"')+'>Batch started</button>';}
+      acts+=logBtn(c);if(canEditCourse(c))acts+='<button class="sm" data-act="edit" data-id="'+esc(c.id)+'">Edit</button>';if(canDrop(c))acts+='<button class="sm danger" data-act="drop" data-id="'+esc(c.id)+'">Cancel batch</button>';if(S.me.isAdmin)acts+=delBtn(c);
+      var sv=isRun&&c.plannedStart&&e.start!==c.plannedStart?'<div class="var">Planned '+nice(c.plannedStart)+'</div>':'',ev=isRun&&c.plannedEnd&&e.end!==c.plannedEnd?'<div class="var">Planned '+nice(c.plannedEnd)+'</div>':'';
+      var bv=isRun&&c.batchSize!=null&&Number(c.batchSize)!==e.batch?'<div class="var">Planned '+num(c.batchSize)+'</div>':'';
+      var who=isRun?(c.startedBy?esc(nameOf(c.startedBy)):'—'):(c.batchConfirmedBy?esc(nameOf(c.batchConfirmedBy))+' · '+esc(stamp(c.batchConfirmedAt).split(',')[0]):'—');
       return '<tr><td class="c-main">'+courseCell(c)+'</td><td>'+gchip(c.gati)+'</td><td title="'+esc(c.school)+'">'+esc((c.school||'').replace(/^School of /,''))+'</td><td>'+esc(c.campus)+'<div class="sub nowrap">'+esc(modeName(c.mode))+'</div></td>'+
-        '<td class="nowrap">'+nice(e.start)+sv+'</td><td class="nowrap">'+nice(e.end)+ev+'</td><td class="n">'+daysCell(c)+'</td><td class="n">'+num(e.batch)+bv+'</td><td class="n">'+tpdCell(c)+'</td><td>'+statusPill(st,c)+'<div class="sub">Started by '+esc(nameOf(c.startedBy))+'</div></td><td class="acts">'+acts+'</td></tr>'+(S.openHist.has(c.id)?histRow(c,11):'');}).join('')
-      :'<tr><td colspan="11" class="muted">No running batches match these filters. Use Reset filters above to clear them.</td></tr>')+'</tbody></table></div></section>';
+        '<td class="nowrap">'+nice(e.start)+sv+(isRun?'<div class="sub">by '+who+'</div>':'')+'</td><td class="nowrap">'+nice(e.end)+ev+'<div class="sub">'+daysCell(c)+' training days</div></td><td class="n">'+num(e.batch)+bv+'</td><td class="n">'+tpdCell(c)+'</td><td class="prog">'+(isRun?progressCell(c)+'<div>'+statusPill(runStatus(c),c)+'</div>':statusPill(sbStatus(c),c)+'<div class="sub">Confirmed by '+who+'</div>')+'</td><td class="acts">'+acts+'</td></tr>';}).join('')
+      :'<tr><td colspan="'+cols+'" class="muted">No batches match these filters. Use Reset filters above to clear them.</td></tr>')+'</tbody></table></div></section>';
   return h;}
 
 /* ----- calendar (Gantt) ----- */
@@ -827,9 +882,9 @@ function calLabel(r){var v=S.cal.view;
   if(v==='week')return segTitle('week',weekStart(S.cal.anchor));
   if(v==='month')return monthLong(S.cal.anchor.slice(0,7));return fyLabel(fyOf(r[0]))+' · April to March';}
 function trains(c,day){var w=pd(day).getUTCDay();return w!==0&&(w!==6||!!c.sat)&&!S.holSet.has(day);}
-function calCourses(r){return S.courses.filter(function(c){if((!isDone(c)&&c.stage!=='pipeline')||!valid(c))return false;var e=eff(c);
+function calCourses(r){return S.courses.filter(function(c){if((!isDone(c)&&c.stage!=='pipeline'&&c.stage!=='standby')||!valid(c))return false;var e=eff(c);
   return e.end>=r[0]&&e.start<=r[1]&&pass(c,S.kf,FKEYS.concat(['kind']));}).sort(function(a,b){var x=eff(a),y=eff(b);return x.start<y.start?-1:x.start>y.start?1:(x.end<y.end?-1:1);});}
-function kindName(c){return c.stage==='actual'?'Completed':c.stage==='running'?'Running':'Pipeline · '+confName(c.confidence)+(c.cpAck?'':' · awaiting course production');}
+function kindName(c){return c.stage==='actual'?'Completed':c.stage==='running'?'Running batch':c.stage==='standby'?'Standby · batch confirmed':'Pipeline · '+confName(c.confidence);}
 function barTip(c){var e=eff(c),p=plan(c);return [c.title,[c.batch,c.client].filter(Boolean).join(' · '),gatiName(c.gati)+' · '+(c.school||'No school'),(c.campus||'')+' · '+modeName(c.mode),nice(e.start)+' → '+nice(e.end)+' · '+Math.round(p.days*10)/10+' training days',(c.stage==='actual'?'Throughput: ':c.stage==='running'?'Learners started: ':'Batch size: ')+num(e.batch),kindName(c)].filter(Boolean).join('\n');}
 function calGroupKey(c){var g=S.cal.group;if(g==='gati'){var x=GATI.filter(function(z){return z.k===c.gati;})[0];return x?gatiLong(x):'Unassigned';}
   if(g==='campus')return c.campus||'No campus';if(g==='kind')return kindName(c);if(g==='school')return c.school||'No school';return '';}
@@ -952,12 +1007,66 @@ function calDay(list,d,leg){var w=pd(d).getUTCDay(),run=list.filter(function(c){
     '<div class="scroll"><table>'+head+'<tbody>'+(run.length?run.map(function(c){return row(c,true);}).join(''):'<tr><td colspan="8" class="muted">No courses are training on this day.</td></tr>')+
     (off.length?'<tr class="subhead"><td colspan="8">Running but not training today (weekend or holiday) · '+off.length+'</td></tr>'+off.map(function(c){return row(c,false);}).join(''):'')+'</tbody></table></div></section>';}
 
+/* ----- files kept in the database (up to 5 MB each, in pieces) ----- */
+var MAXF=5*1024*1024,CHUNK=600*1024;
+function shrinkImage(f){return new Promise(function(res){var u=URL.createObjectURL(f),img=new Image();img.onload=function(){var k=Math.min(1,1800/Math.max(img.width,img.height)),cv=document.createElement('canvas');cv.width=Math.round(img.width*k);cv.height=Math.round(img.height*k);cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);
+  cv.toBlob(function(b){URL.revokeObjectURL(u);res(b&&b.size<f.size?new File([b],f.name.replace(/\.[^.]+$/,'')+'.jpg',{type:'image/jpeg'}):f);},'image/jpeg',0.82);};img.onerror=function(){URL.revokeObjectURL(u);res(f);};img.src=u;});}
+function toB64(blob){return new Promise(function(res,rej){var r=new FileReader();r.onload=function(){res(String(r.result).split(',')[1]||'');};r.onerror=rej;r.readAsDataURL(blob);});}
+function storeFile(f,courseId,kind){return (/^image\//.test(f.type)&&f.size>700*1024?shrinkImage(f):Promise.resolve(f)).then(function(g){if(g.size>MAXF)throw {code:'too-big',name:f.name};
+  var ref=S.db.collection('files').doc(),n=Math.max(1,Math.ceil(g.size/CHUNK)),meta={name:g.name||f.name,type:g.type||'application/octet-stream',size:g.size,chunks:n,courseId:courseId,kind:kind||'',by:S.me.id,at:new Date().toISOString()};
+  return ref.set(meta).then(function(){var p=Promise.resolve();for(var i=0;i<n;i++)(function(i){p=p.then(function(){return toB64(g.slice(i*CHUNK,(i+1)*CHUNK)).then(function(d){return ref.collection('chunks').doc(String(i).padStart(3,'0')).set({d:d});});});})(i);return p;})
+    .then(function(){return {id:ref.id,name:meta.name,size:meta.size,type:meta.type,kind:meta.kind};});});}
+function fetchFile(id){var ref=S.db.collection('files').doc(id);return ref.get().then(function(m){var meta=m.data();return ref.collection('chunks').get().then(function(sn){var parts=sn.docs.map(function(d){var bin=atob(d.data().d),a=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i);return a;});return {meta:meta,blob:new Blob(parts,{type:meta.type})};});});}
+function sizeTxt(n){return n>=1048576?(Math.round(n/104857.6)/10)+' MB':Math.max(1,Math.round(n/1024))+' KB';}
+var KINDLBL={course:'Course file',feedback:'Feedback',photo:'Group photo'};
+function fileChip(f){return '<span class="fchip"><button type="button" class="linkish" data-act="dl-file" data-f="'+esc(f.id)+'" data-n="'+esc(f.name)+'">'+esc(f.name)+'</button><span class="sub">'+(KINDLBL[f.kind]?esc(KINDLBL[f.kind])+' · ':'')+sizeTxt(f.size||0)+'</span></span>';}
+
+/* ----- conversation log ----- */
+var LOGKIND={added:'Added the course',upload:'Uploaded the course',changes:'Asked for changes',approve:'Approved the course',confirm:'Confirmed the batch',started:'Started the batch',completed:'Completed the batch',note:'Note',files:'Added files'};
+function logNext(c){var st=pipeStatus(c);
+  if(c.stage==='pipeline'){if(st==='awaiting')return 'Waiting for course production to upload the course.';if(st==='changes')return 'Changes asked. Waiting for course production to upload again.';if(st==='review')return 'Uploaded. Waiting for the GATI head to approve or ask for changes.';return 'Course approved. Waiting for the GATI head to confirm the batch.';}
+  if(c.stage==='standby')return 'Batch confirmed. Waiting for operations to click Batch started on '+nice(c.plannedStart)+'.';
+  if(c.stage==='running')return 'Running. Operations click Batch completed on '+nice(eff(c).end)+'.';
+  if(c.stage==='actual')return 'Completed.';return '';}
+function openLog(id){S.logId=id;S.logKey='';renderLog();}
+function closeLog(){S.logId=null;S.logKey='';var d=$('logdrawer');if(d)d.remove();}
+function renderLog(){var c=S.logId&&byId(S.logId);if(!c){if(S.logId)closeLog();return;}
+  var key=JSON.stringify([c.log,c.history,c.stage,c.review,S.me.id]);if(key===S.logKey&&$('logdrawer'))return;S.logKey=key;
+  var keep=$('lg-note')?$('lg-note').value:'';
+  var items=(c.log||[]).map(function(e){return {at:e.at,by:e.by,kind:e.kind,text:e.text,files:e.files,log:true};}).concat((c.history||[]).filter(function(hh){return ['edited','edited-locked','dropped','restored','imported','created','unlocked','edit-requested','request-declined'].indexOf(hh.action)>=0;}).map(function(hh){return {at:hh.at,by:hh.by,kind:'hist',text:(ACTIONS[hh.action]||hh.action)+(hh.note?': '+hh.note:''),changes:hh.changes};}));
+  items.forEach(function(x,i){x.i=i;});items.sort(function(a,b){return a.at<b.at?-1:a.at>b.at?1:a.i-b.i;});
+  var st=pipeStatus(c),form='';
+  if(canUpload(c))form+='<div class="lg-act"><span class="lab">'+(st==='changes'?'Upload the revised course':'Upload the course')+'</span><input type="file" id="lg-files" multiple><textarea id="lg-note" maxlength="600" placeholder="What is attached, or a link if the file is larger than 5 MB"></textarea><div class="row"><button class="primary" data-act="lg-upload">Send to GATI head for review</button></div></div>';
+  else if(canReview(c))form+='<div class="lg-act"><span class="lab">Your review</span><textarea id="lg-note" maxlength="600" placeholder="Comments for course production (needed when asking for changes)"></textarea><div class="row"><button class="primary" data-act="lg-approve">Approve course</button><button data-act="lg-changes">Ask for changes</button></div></div>';
+  else if(canConfirmBatch(c))form+='<div class="lg-act"><span class="lab">Next step</span><div class="row"><button class="primary" data-act="confirm-batch" data-id="'+esc(c.id)+'">Confirm batch</button></div></div>';
+  if(!form&&canNote(c))form+='<div class="lg-act"><span class="lab">'+(c.stage==='actual'?'Add feedback, photos or a note':'Add a note')+'</span>'+(c.stage!=='pipeline'||isCPUser()?'<input type="file" id="lg-files" multiple>':'')+'<textarea id="lg-note" maxlength="600" placeholder="Write a note"></textarea><div class="row"><button data-act="lg-note">Add to log</button></div></div>';
+  else if(form&&canNote(c)&&!canUpload(c))form+='<div class="lg-act sub"><button class="linkish" data-act="lg-note-only">Add a note without approving</button></div>';
+  var html='<div class="lg-h"><div><b>'+esc(c.title)+'</b><div class="sub">'+esc([gatiName(c.gati),c.school,c.campus].filter(Boolean).join(' · '))+'</div></div><button class="sm" data-act="log-close" aria-label="Close">✕</button></div>'+
+    '<div class="lg-next">'+esc(logNext(c))+'</div>'+
+    '<ol class="lg-list">'+(items.length?items.map(function(e){return '<li class="lg-'+esc(e.kind)+'"><div class="lg-meta"><b>'+esc(nameOf(e.by))+'</b> <span>'+esc(e.log?(LOGKIND[e.kind]||e.kind):'')+'</span><time>'+esc(stamp(e.at))+'</time></div>'+(e.text?'<p>'+esc(e.text)+'</p>':'')+(e.files&&e.files.length?'<div class="lg-files">'+e.files.map(fileChip).join('')+'</div>':'')+
+      (e.changes&&e.changes.length?'<p class="sub">'+e.changes.map(function(x){return esc(LABELS[x.f]||x.f)+': '+esc(fmtVal(x.f,x.from))+' → '+esc(fmtVal(x.f,x.to));}).join(' · ')+'</p>':'')+'</li>';}).join(''):'<li class="muted">Nothing yet.</li>')+'</ol>'+form+'<p class="err" id="lg-err" hidden></p>';
+  var d=$('logdrawer');if(!d){d=document.createElement('aside');d.id='logdrawer';d.className='logdrawer';d.setAttribute('aria-label','Course log');document.body.appendChild(d);}
+  d.innerHTML=html;if(keep&&$('lg-note'))$('lg-note').value=keep;var l=d.querySelector('.lg-list');if(l)l.scrollTop=l.scrollHeight;}
+function lgErr(m){var e=$('lg-err');if(e){e.textContent=m;e.hidden=false;}}
+function lgSend(kind){var c=byId(S.logId);if(!c)return;var note=($('lg-note')||{value:''}).value.trim(),fi=$('lg-files'),files=fi?[].slice.call(fi.files):[];
+  if(kind==='changes'&&!note)return lgErr('Say what needs to change, so course production knows what to fix.');
+  if((kind==='note')&&!note&&!files.length)return lgErr('Write a note or choose a file.');
+  if(kind==='upload'&&!files.length&&!note)return lgErr('Attach the course files, or paste a link to them in the note.');
+  var up=[],btns=document.querySelectorAll('#logdrawer .lg-act button');[].forEach.call(btns,function(b){b.disabled=true;});
+  var p=Promise.resolve();files.forEach(function(f){p=p.then(function(){return storeFile(f,c.id,kind==='upload'?'course':(c.stage==='actual'?(/^image\//.test(f.type)?'photo':'feedback'):'')).then(function(r){up.push(r);});});});
+  guard(function(){return p.then(function(){var now=new Date().toISOString(),patch={updatedAt:now,updatedBy:S.me.id,log:(c.log||[]).concat([logEntry(files.length&&kind==='note'?'files':kind,note,up)])};
+      if(up.length)patch.files=(c.files||[]).concat(up);
+      if(kind==='upload')patch.review='review';if(kind==='approve')patch.review='approved';if(kind==='changes')patch.review='changes';
+      return courseRef(c.id).update(patch);}).then(function(){S.logKey='';if($('lg-note'))$('lg-note').value='';toast(kind==='upload'?'Sent to the GATI head for review':kind==='approve'?'Course approved. Confirm the batch when it is final.':kind==='changes'?'Sent back to course production':'Added to the log');})
+    .catch(function(err){[].forEach.call(btns,function(b){b.disabled=false;});if(err&&err.code==='too-big')return lgErr(err.name+' is larger than 5 MB. Share it as a link in the note instead.');throw err;});});}
+function downloadFile(id,name){toast('Preparing '+name+'…');fetchFile(id).then(function(r){return download({filename:r.meta.name||name,data:r.blob});}).catch(function(){toast('The file could not be opened.');});}
+
 /* ----- export ----- */
 function download(o){return new Promise(function(res){var u=URL.createObjectURL(o.data),a=document.createElement('a');a.href=u;a.download=o.filename;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u);},5000);res({status:'saved'});});}
 function xdate(s){if(!s)return '';var p=s.split('-').map(Number);return {t:'n',v:(Date.UTC(p[0],p[1]-1,p[2])-Date.UTC(1899,11,30))/86400000,z:'dd-mmm-yyyy'};}
 function exportList(){
   if(typeof XLSX==='undefined')return toast('Excel export could not load. Reload the page and try again.');
-  var v=VIEW,k=v.kind,a=k==='completed',run=k==='running';
+  var v=VIEW,k=v.kind,a=k==='completed',run=k==='running',sb=k==='standby';
   var head=['Course','Batch / code','Client / source','Programme type','GATI','School','Campus','Mode','Planned start','Planned end','Planned batch'];
   if(run)head=head.concat(['Actual start','Expected end','Learners started']);
   if(a)head=head.concat(['Actual start','Actual end','Learners started','Throughput','Male','Female']);
@@ -965,17 +1074,17 @@ function exportList(){
   head=head.concat(['Training days','Saturdays counted','TP days']);
   if(a)head=head.concat(['Lab 1','Lab 1 %','Lab 2','Lab 2 %','Lab 3','Lab 3 %','Classroom %','Completed on']);
   head.push('Notes');
-  var stName={awaiting:'Awaiting course production',upcoming:'Acknowledged',ready:'Ready to start'};
+  var stName={awaiting:'With course production · upload',review:'With GATI head · review',changes:'Changes asked',approved:'Course approved · confirm batch'};
   var rows=[head];
   v.list.forEach(function(c){var e=eff(c),p=plan(c),cnt=counted(c),r=[c.title||'',c.batch||'',c.client||'',c.programType||'',gatiName(c.gati),c.school||'',c.campus||'',modeName(c.mode),xdate(c.plannedStart),xdate(c.plannedEnd),c.batchSize==null?'':Number(c.batchSize)];
     if(run)r.push(xdate(e.start),xdate(e.end),e.batch);
     if(a)r.push(xdate(e.start),xdate(e.end),c.startBatch==null?'':Number(c.startBatch),e.batch,c.male==null?'':Number(c.male),c.female==null?'':Number(c.female));
-    if(!a&&!run)r.push(confName(c.confidence),c.stage==='dropped'?'Dropped':stName[pipeStatus(c)]);
+    if(!a&&!run)r.push(confName(c.confidence),c.stage==='dropped'?'Dropped':sb?'Standby · batch confirmed':stName[pipeStatus(c)]);
     r.push(Math.round(p.days*10)/10,c.sat?'Yes':'No',cnt?Math.round(p.days*e.batch):0);
     if(a){var L=c.labs||[];for(var i=0;i<3;i++){r.push(L[i]?L[i].lab:'',L[i]?Number(L[i].pct):'');}r.push(c.classPct==null?'':Number(c.classPct),c.confirmedAt?xdate(c.confirmedAt.slice(0,10)):'');}
     r.push(c.stage==='dropped'&&c.dropReason?('Dropped: '+c.dropReason+'. '+(c.notes||'')):(c.notes||''));rows.push(r);});
   var ws=XLSX.utils.aoa_to_sheet(rows);ws['!cols']=head.map(function(hh,i){return {wch:i===0?48:i<8?22:14};});
-  var wb=XLSX.utils.book_new(),nm=a?'Completed':run?'Running':'GATI pipeline';XLSX.utils.book_append_sheet(wb,ws,nm);
+  var wb=XLSX.utils.book_new(),nm=a?'Actuals':run?'Running batches':sb?'Standby':'Pipeline';XLSX.utils.book_append_sheet(wb,ws,nm);
   var buf=XLSX.write(wb,{bookType:'xlsx',type:'array'});
   download({filename:'GATI-'+nm.toLowerCase().replace(/ /g,'-')+'-'+today()+'.xlsx',data:new Blob([buf])}).then(function(){toast('Saved '+v.list.length+' rows to Excel');}).catch(function(){toast('The file could not be saved.');});
 }
@@ -984,7 +1093,7 @@ function viewSetup(){
   var c=cfg(),own=S.me.isOwner,g=myGatis();
   var access='<p>'+(own?'You are in the program team. You can edit everything, add and remove people, unlock actuals and manage the lists on this page.':g.length?'You are a GATI head for <b>'+esc(g.map(gatiName).join(', '))+'</b>. You can add, edit and confirm courses for '+(g.length>1?'those sources':'that source')+'.':'You can see everything. Only GATI heads and the program team can change courses.')+'</p><p class="sub">Signed in as '+esc(S.me.email)+'</p><div class="row"><button data-act="chpw">Change password</button></div>';
   var users=S.users.slice().sort(function(a,b){var o={program:0,cp:1,head:2,viewer:3};return (o[a.role]-o[b.role])||String(a.name||a.id).localeCompare(String(b.name||b.id));});
-  var people='<ul class="list">'+users.map(function(u){var rl=u.role==='program'?'Program team':u.role==='cp'?'Course production':u.role==='head'?'GATI head · '+(u.gatis||[]).map(gatiName).join(', '):'Viewer';
+  var people='<ul class="list">'+users.map(function(u){var rl=u.id===ADMIN?'Admin · full access':u.role==='program'?'Program team · operations'+((u.gatis||[]).length?' · GATI head '+(u.gatis||[]).map(gatiName).join(', '):''):u.role==='cp'?'Course production':u.role==='head'?'GATI head · '+(u.gatis||[]).map(gatiName).join(', '):'Viewer';
     return '<li><span><b>'+esc(u.name||u.id)+'</b> <span class="sub">'+esc(u.id)+'</span><br><span class="sub">'+esc(rl)+(u.defaultPassword?' · still on the starting password':'')+'</span></span>'+(own?'<span class="nowrap"><button class="sm" data-act="edit-person" data-id="'+esc(u.id)+'">Edit</button>'+(u.id!==S.me.id?' <button class="sm danger'+(S.armed==='u:'+u.id?' armed':'')+'" data-act="rm-person" data-id="'+esc(u.id)+'">'+(S.armed==='u:'+u.id?'Click again to remove':'Remove')+'</button>':'')+'</span>':'')+'</li>';}).join('')+'</ul>'+
     (own?'<div class="row"><button class="primary" data-act="add-person">Add a person</button></div>':'');
   var heads='<ul class="list">'+GATI.map(function(x){var nm=c.headNames[x.k],acc=users.filter(function(u){return u.role==='head'&&(u.gatis||[]).indexOf(x.k)>=0;});return '<li><span>'+gchip(x.k)+'</span><span>'+(nm?'<b>'+esc(nm)+'</b>':'<span class="muted">No head named</span>')+(acc.length?' · can edit: '+acc.map(function(u){return esc(u.name||u.id);}).join(', '):' <span class="sub">· no login with edit rights yet</span>')+'</span></li>';}).join('')+'</ul>';
@@ -1003,7 +1112,7 @@ function viewSetup(){
     '<p><b>Throughput days</b> is learners × training days, placed in the month the days fall in. A course from October to December adds to each of the three months separately.</p>'+
     '<p><b>Training days</b> are Monday to Friday between the two dates, minus holidays. Tick "Saturdays count" on a course that runs Monday to Saturday. If a course trains on fewer days than its date range, enter the number of training days by hand; it is spread across the months in proportion.</p>'+
     '<p><b>Online courses</b> count in throughput but not in throughput days, unless you tick "Count online courses".</p>'+
-    '<p><b>The flow:</b> a GATI head adds a course to the GATI pipeline. Course production acknowledges that the course is available. On or after the start date, operations confirm the start with the actual date and learners, and it moves to Actuals · Running. On or after the end date, operations mark it completed with the final throughput, gender split and labs, and it moves to Actuals · Completed and is locked. Running batches count as actuals on the dashboard.</p><p><b>Start month and End month</b> filters on Pipeline and Actuals list a course by the month it starts and the month it ends. The end month is the month its throughput is counted in.</p><p><b>Quarters</b> follow the April to March year: Q1 Apr–Jun, Q2 Jul–Sep, Q3 Oct–Dec, Q4 Jan–Mar. H1 is Apr–Sep and H2 is Oct–Mar.</p>'+
+    '<p><b>The flow:</b> a GATI head adds a course to the Pipeline. Course production uploads the course. The GATI head approves it or asks for changes, which sends it back to course production; every step is kept in the course log. Once approved, the GATI head confirms the batch and it moves to Batches · Standby. On the start day, operations click Batch started with the actual date and learners present, and it moves to Running batches. On the end day, operations click Batch completed with the final throughput, gender split, labs, feedback and group photo, and it moves to Actuals, locked. Running batches count as actuals on the dashboard; standby counts as confirmed pipeline. Only the admin can delete records.</p><p><b>Start month and End month</b> filters on Pipeline and Actuals list a course by the month it starts and the month it ends. The end month is the month its throughput is counted in.</p><p><b>Quarters</b> follow the April to March year: Q1 Apr–Jun, Q2 Jul–Sep, Q3 Oct–Dec, Q4 Jan–Mar. H1 is Apr–Sep and H2 is Oct–Mar.</p>'+
     '<p><b>Lab utilisation</b> shares each on-campus actual course\'s throughput days across up to three labs and the classroom, using the percentages entered when the course is moved to Actuals.</p></div></section></div>';
 }
 
@@ -1025,11 +1134,11 @@ function readExtras(p,batch){var o={labs:[],classPct:null,male:null,female:null}
   return o;}
 function labSum(p){var el=$(p+'-labsum');if(!el)return;var t=0;for(var i=1;i<=3;i++)t+=Number($(p+'-pct'+i).value)||0;t+=Number($(p+'-class').value)||0;el.textContent=t?('Total '+t+'%'+(Math.abs(t-100)>0.5?' · should be 100%':'')):'Leave empty for onsite and online courses.';}
 function courseForm(c,newActual){
-  var isA=!!newActual||(c&&c.stage==='actual'),isR=c&&c.stage==='running',e=c?eff(c):{start:'',end:'',batch:''},fix=c&&c.cpAck&&!S.me.isOwner?' disabled':'';
+  var isA=!!newActual||(c&&c.stage==='actual'),isR=c&&c.stage==='running',e=c?eff(c):{start:'',end:'',batch:''},fix=c&&c.stage==='pipeline'&&pipeStatus(c)!=='awaiting'&&!S.me.isAdmin?' disabled':'';
   var gl=S.me.isOwner?GATI.map(function(g){return g.k;}):myGatis();
   var gsel=c?(c.gati||''):(gl.length===1?gl[0]:'');
   var types={};S.courses.forEach(function(x){if(x.programType)types[x.programType]=1;});
-  openDlg('<form class="dlg" id="cf" novalidate data-id="'+esc(c?c.id:'')+'" data-na="'+(newActual?1:0)+'"><h2>'+(c?(isA?'Edit locked record':isR?'Edit running batch':'Edit pipeline course'):(newActual?'Add a completed course to actuals':'Add pipeline course'))+'</h2>'+(fix?'<p class="sub">Course production has acknowledged this course, so its name, GATI source and school are fixed. Dates, numbers and other details can still change.</p>':'')+(newActual?'<p class="sub">For a course that has already run and was never in the pipeline. It is saved as a locked actual record.</p>':'')+'<div class="fgrid">'+
+  openDlg('<form class="dlg" id="cf" novalidate data-id="'+esc(c?c.id:'')+'" data-na="'+(newActual?1:0)+'"><h2>'+(c?(isA?'Edit locked record':isR?'Edit running batch':'Edit pipeline course'):(newActual?'Add a completed course to actuals':'Add pipeline course'))+'</h2>'+(fix?'<p class="sub">Course production has started on this course, so its name, GATI source and school are fixed. Dates, numbers and other details can still change.</p>':'')+(newActual?'<p class="sub">For a course that has already run and was never in the pipeline. It is saved as a locked actual record.</p>':'')+'<div class="fgrid">'+
     '<label class="fld wide"><span>Course name</span><input type="text" id="cf-title" value="'+esc(c?c.title:'')+'" maxlength="200"'+fix+'></label>'+
     '<label class="fld"><span>Client / source organisation</span><input type="text" id="cf-client" value="'+esc(c?c.client:'')+'" maxlength="160" placeholder="Who is sending the learners"></label>'+
     '<label class="fld"><span>Batch / code</span><input type="text" id="cf-batchcode" value="'+esc(c?c.batch:'')+'" maxlength="80" placeholder="e.g. Batch 6, FDP Batch 14"></label>'+
@@ -1057,28 +1166,40 @@ function calcPreview(p){var form=$(p),s=$(p+'-start').value,e=$(p+'-end').value,
   var pl=planOf(s,e,sat,td),ks=Object.keys(pl.months).sort();
   el.innerHTML='<b>'+Math.round(pl.days*10)/10+' training day'+(pl.days===1?'':'s')+'</b>'+(pl.over?' (set by hand; '+pl.range+' in the date range)':'')+' · <b>'+num(pl.days*b)+' throughput days</b>'+(ks.length>1&&b?' ('+esc(ks.map(function(k){return monthLabel(k).slice(0,3)+' '+num(pl.months[k]*b);}).join(' · '))+')':'')+' · throughput of <b>'+num(b)+'</b> counted in '+esc(monthLabel(e.slice(0,7)))+(mode==='Online'?' · online, so throughput days are not counted by default':'')+(pl.days===0?' · no training days in this range, check the dates or tick Saturdays':'');}
 function planLine(c){return esc(gatiName(c.gati))+' · '+esc(c.school||'')+' · planned '+nice(c.plannedStart)+' → '+nice(c.plannedEnd)+', batch of '+num(c.batchSize);}
-function ackForm(c){
-  openDlg('<form class="dlg" id="kf-ack" novalidate data-id="'+esc(c.id)+'"><h2>Acknowledge for course production</h2><p><b>'+esc(c.title)+'</b><br><span class="sub">'+planLine(c)+'</span></p>'+
-    '<p>Confirm that this course is available, or will be ready before the start date. Once acknowledged it cannot be withdrawn, and the course waits for operations to confirm the start.</p>'+
-    '<label class="fld"><span>Note for the GATI head and operations (optional)</span><textarea id="ack-note" maxlength="400" placeholder="e.g. Course exists as CNC-101; content refresh due by 1 Dec"></textarea></label><p class="err" id="ack-err" hidden></p>'+
-    '<div class="dlg-actions"><button type="button" data-act="dlg-close">Cancel</button><button type="submit" class="primary">Acknowledge: course available</button></div></form>');}
+function planBox(items){return '<div class="planbox">'+items.map(function(i){return '<div><span class="lab">'+esc(i[0])+'</span><b>'+esc(i[1])+'</b></div>';}).join('')+'</div>';}
+function confirmBatchForm(c){
+  openDlg('<form class="dlg" id="cbf" novalidate data-id="'+esc(c.id)+'" data-sat="'+(c.sat?1:0)+'" data-td="'+esc(c.trainingDays||'')+'" data-mode="'+esc(c.mode||'')+'"><h2>Confirm batch</h2><p><b>'+esc(c.title)+'</b><br><span class="sub">'+esc(gatiName(c.gati))+' · '+esc(c.school||'')+' · '+esc(c.campus||'')+'</span></p>'+
+    '<p>The course is approved. Confirm the batch: learners are coming and the dates are final. It moves to Batches · Standby for operations to start on the day.</p><div class="fgrid">'+
+    '<label class="fld"><span>Start date</span><input type="date" id="cbf-start" value="'+esc(c.plannedStart)+'"></label>'+
+    '<label class="fld"><span>End date</span><input type="date" id="cbf-end" value="'+esc(c.plannedEnd)+'"></label>'+
+    '<label class="fld wide"><span>Learners confirmed</span><input type="number" id="cbf-batch" min="1" step="1" value="'+esc(c.batchSize)+'"></label>'+
+    '<label class="fld wide"><span>Note (optional)</span><input type="text" id="cbf-note" maxlength="300"></label></div>'+
+    '<div class="calc" id="cbf-calc"></div><p class="err" id="cbf-err" hidden></p>'+
+    '<div class="dlg-actions"><button type="button" data-act="dlg-close">Cancel</button><button type="submit" class="primary">Confirm batch · send to Standby</button></div></form>');
+  calcPreview('cbf');}
 function startForm(c){var t=today();
-  openDlg('<form class="dlg" id="sf" novalidate data-id="'+esc(c.id)+'" data-sat="'+(c.sat?1:0)+'" data-td="'+esc(c.trainingDays||'')+'" data-mode="'+esc(c.mode||'')+'"><h2>Confirm start</h2><p><b>'+esc(c.title)+'</b><br><span class="sub">'+planLine(c)+'</span></p><div class="fgrid">'+
+  openDlg('<form class="dlg" id="sf" novalidate data-id="'+esc(c.id)+'" data-sat="'+(c.sat?1:0)+'" data-td="'+esc(c.trainingDays||'')+'" data-mode="'+esc(c.mode||'')+'"><h2>Batch started</h2><p><b>'+esc(c.title)+'</b><br><span class="sub">'+esc(gatiName(c.gati))+' · '+esc(c.school||'')+' · '+esc(c.campus||'')+'</span></p>'+
+    '<span class="lab">As planned</span>'+planBox([['Start',nice(c.plannedStart)],['End',nice(c.plannedEnd)],['Learners',num(c.batchSize)]])+
+    '<span class="lab">Actual</span><div class="fgrid">'+
     '<label class="fld"><span>Actual start date</span><input type="date" id="sf-start" value="'+esc(c.plannedStart>t?t:c.plannedStart)+'" max="'+t+'"></label>'+
     '<label class="fld"><span>Expected end date</span><input type="date" id="sf-end" value="'+esc(c.plannedEnd)+'"></label>'+
-    '<label class="fld wide"><span>Learners who started (planned '+num(c.batchSize)+')</span><input type="number" id="sf-batch" min="1" step="1" value="'+esc(c.batchSize)+'"></label></div>'+
-    '<div class="calc" id="sf-calc"></div><p class="sub">The batch moves to Actuals · Running. When it reaches the end date, operations mark it completed with the final throughput.</p><p class="err" id="sf-err" hidden></p>'+
-    '<div class="dlg-actions"><button type="button" data-act="dlg-close">Cancel</button><button type="submit" class="primary">Confirm start</button></div></form>');
+    '<label class="fld wide"><span>Learners present</span><input type="number" id="sf-batch" min="1" step="1" value="'+esc(c.batchSize)+'"></label></div>'+
+    '<div class="calc" id="sf-calc"></div><p class="err" id="sf-err" hidden></p>'+
+    '<div class="dlg-actions"><button type="button" data-act="dlg-close">Cancel</button><button type="submit" class="primary">Confirm · move to Running batches</button></div></form>');
   calcPreview('sf');}
 function confirmForm(c){
   var t=today(),e=eff(c);
-  openDlg('<form class="dlg" id="mf" novalidate data-id="'+esc(c.id)+'" data-sat="'+(c.sat?1:0)+'" data-td="'+esc(c.trainingDays||'')+'" data-mode="'+esc(c.mode||'')+'"><h2>Mark completed</h2><p><b>'+esc(c.title)+'</b><br><span class="sub">'+planLine(c)+'</span><br><span class="sub">Started '+nice(e.start)+' with '+num(e.batch)+' learners · expected end '+nice(e.end)+'</span></p><div class="fgrid">'+
+  openDlg('<form class="dlg" id="mf" novalidate data-id="'+esc(c.id)+'" data-sat="'+(c.sat?1:0)+'" data-td="'+esc(c.trainingDays||'')+'" data-mode="'+esc(c.mode||'')+'"><h2>Batch completed</h2><p><b>'+esc(c.title)+'</b><br><span class="sub">'+esc(gatiName(c.gati))+' · '+esc(c.school||'')+' · '+esc(c.campus||'')+'</span></p>'+
+    '<span class="lab">As planned and started</span>'+planBox([['Planned',nice(c.plannedStart)+' → '+nice(c.plannedEnd)],['Planned learners',num(c.batchSize)],['Started',nice(e.start)],['Learners started',num(e.batch)]])+
+    '<span class="lab">Final</span><div class="fgrid">'+
     '<label class="fld"><span>Actual start</span><input type="date" id="mf-start" value="'+esc(e.start)+'"></label>'+
     '<label class="fld"><span>Actual end</span><input type="date" id="mf-end" value="'+esc(e.end>t?t:e.end)+'" max="'+t+'"></label>'+
-    '<label class="fld wide"><span>Final throughput: learners who completed (started '+num(e.batch)+')</span><input type="number" id="mf-batch" min="1" step="1" value="'+esc(e.batch)+'"></label>'+
-    extrasHTML('mf',c)+'</div>'+
-    '<div class="calc" id="mf-calc"></div><p class="sub">Once completed, this record is locked. A later change needs the program team to unlock it.</p><p class="err" id="mf-err" hidden></p>'+
-    '<div class="dlg-actions"><button type="button" data-act="dlg-close">Cancel</button><button type="submit" class="primary">Mark completed and lock</button></div></form>');
+    '<label class="fld wide"><span>Final throughput: learners who completed</span><input type="number" id="mf-batch" min="1" step="1" value="'+esc(e.batch)+'"></label>'+
+    extrasHTML('mf',c)+
+    '<label class="fld"><span>Feedback (Excel) · optional</span><input type="file" id="mf-fb" accept=".xlsx,.xls,.csv,.pdf"></label>'+
+    '<label class="fld"><span>Group photo · optional</span><input type="file" id="mf-ph" accept="image/*"></label></div>'+
+    '<div class="calc" id="mf-calc"></div><p class="sub">Files up to 5 MB each; photos are shrunk automatically. They can also be added later from the log. Once completed, this record is locked.</p><p class="err" id="mf-err" hidden></p>'+
+    '<div class="dlg-actions"><button type="button" data-act="dlg-close">Cancel</button><button type="submit" class="primary" id="mf-go">Confirm · move to Actuals</button></div></form>');
   calcPreview('mf');labSum('mf');
 }
 function textForm(id,c,title,blurb,label,btn){
@@ -1112,41 +1233,52 @@ function submitCourse(form){
   else if(isR){v.actualStart=s;v.expectedEnd=e;v.startBatch=b;}
   else{v.plannedStart=s;v.plannedEnd=e;v.batchSize=b;v.confidence=$('cf-conf').value;}
   guard(function(){var now=new Date().toISOString();
-    if(!c){v.stage=na?'actual':'pipeline';v.createdBy=S.me.id;v.createdAt=now;v.updatedAt=now;v.history=[{at:now,by:S.me.id,action:na?'created-actual':'created'}];
+    if(!c){v.stage=na?'actual':'pipeline';v.createdBy=S.me.id;v.createdAt=now;v.updatedAt=now;v.history=[{at:now,by:S.me.id,action:na?'created-actual':'created'}];if(!na){v.review='awaiting';v.log=[{at:now,by:S.me.id,kind:'added',text:'Added '+v.title+' · '+nice(v.plannedStart)+' → '+nice(v.plannedEnd)+', '+v.batchSize+' learners'}];}
       if(na){v.plannedStart=v.actualStart;v.plannedEnd=v.actualEnd;v.batchSize=v.actualBatch;v.confidence='green';v.confirmedBy=S.me.id;v.confirmedAt=now;v.unlocked=false;v.editRequest=null;}
       return S.db.collection('courses').doc().set(v).then(function(){closeDlg();toast(na?'Added to actuals and locked':'Added to the pipeline');});}
-    if(c.cpAck&&!S.me.isOwner){delete v.title;delete v.gati;delete v.school;}
+    if(c.stage==='pipeline'&&pipeStatus(c)!=='awaiting'&&!S.me.isAdmin){delete v.title;delete v.gati;delete v.school;}
     var changes=[];Object.keys(v).forEach(function(k){if(norm(c[k])!==norm(v[k]))changes.push({f:k,from:c[k]==null?null:c[k],to:v[k]});});
     if(!changes.length){closeDlg();return;}
     var patch={};changes.forEach(function(x){patch[x.f]=x.to;});patch.updatedAt=now;patch.updatedBy=S.me.id;patch.history=hist(c,{action:isA?'edited-locked':'edited',changes:changes});
     if(isA&&!S.me.isOwner){patch.unlocked=false;patch.editRequest=null;}
     return courseRef(c.id).update(patch).then(function(){closeDlg();toast(isA&&!S.me.isOwner?'Saved. The record is locked again.':'Changes saved');});});
 }
-function submitAck(form){var c=byId(form.dataset.id);if(!c)return closeDlg();if(c.cpAck)return closeDlg();var note=$('ack-note').value.trim(),now=new Date().toISOString();
-  guard(function(){return courseRef(c.id).update({cpAck:{by:S.me.id,at:now,note:note},updatedAt:now,updatedBy:S.me.id,history:hist(c,{action:'acknowledged',note:note})}).then(function(){closeDlg();toast('Acknowledged. It now waits for operations to confirm the start.');});});}
+function logEntry(kind,text,files,extra){var e={at:new Date().toISOString(),by:S.me.id,kind:kind,text:text||''};if(files&&files.length)e.files=files;for(var k in extra||{})e[k]=extra[k];return e;}
+function submitConfirmBatch(form){var c=byId(form.dataset.id);if(!c)return closeDlg();
+  var s=$('cbf-start').value,e=$('cbf-end').value,b=Math.round(Number($('cbf-batch').value)),note=$('cbf-note').value.trim();
+  if(!s||!e)return showErr('cbf','Enter both dates.');if(e<s)return showErr('cbf','The end date is before the start date.');if(!(b>=1))return showErr('cbf','Enter the number of learners.');
+  guard(function(){var now=new Date().toISOString(),ch=[],patch={stage:'standby',batchConfirmedBy:S.me.id,batchConfirmedAt:now,updatedAt:now,updatedBy:S.me.id};
+    if(s!==c.plannedStart){ch.push({f:'plannedStart',from:c.plannedStart,to:s});patch.plannedStart=s;}if(e!==c.plannedEnd){ch.push({f:'plannedEnd',from:c.plannedEnd,to:e});patch.plannedEnd=e;}if(b!==Number(c.batchSize)){ch.push({f:'batchSize',from:c.batchSize,to:b});patch.batchSize=b;}
+    patch.log=(c.log||[]).concat([logEntry('confirm',note||'Batch confirmed · '+nice(s)+' → '+nice(e)+', '+b+' learners')]);patch.history=hist(c,{action:'batch-confirmed',changes:ch});
+    return courseRef(c.id).update(patch).then(function(){closeDlg();toast('Batch confirmed. It is now in Batches · Standby.');});});}
 function submitStart(form){
   var c=byId(form.dataset.id);if(!c)return closeDlg();
   var s=$('sf-start').value,e=$('sf-end').value,b=Math.round(Number($('sf-batch').value));
   if(!s||!e)return showErr('sf','Enter both dates.');
   if(s>today())return showErr('sf','The batch has not started yet. Use a start date of today or earlier.');
   if(e<s)return showErr('sf','The expected end is before the start date.');
-  if(!(b>=1))return showErr('sf','Enter the number of learners who started.');
+  if(!(b>=1))return showErr('sf','Enter the number of learners present.');
   guard(function(){var now=new Date().toISOString(),ch=[];
     if(s!==c.plannedStart)ch.push({f:'actualStart',from:c.plannedStart,to:s});if(e!==c.plannedEnd)ch.push({f:'expectedEnd',from:c.plannedEnd,to:e});if(b!==Number(c.batchSize))ch.push({f:'startBatch',from:c.batchSize,to:b});
-    return courseRef(c.id).update({stage:'running',actualStart:s,expectedEnd:e,startBatch:b,startedBy:S.me.id,startedAt:now,updatedAt:now,updatedBy:S.me.id,history:hist(c,{action:'started',changes:ch})})
-      .then(function(){closeDlg();toast('Start confirmed. The batch is now in Actuals · Running.');});});}
+    return courseRef(c.id).update({stage:'running',actualStart:s,expectedEnd:e,startBatch:b,startedBy:S.me.id,startedAt:now,updatedAt:now,updatedBy:S.me.id,log:(c.log||[]).concat([logEntry('started','Batch started '+nice(s)+' with '+b+' learners (planned '+num(c.batchSize)+')')]),history:hist(c,{action:'started',changes:ch})})
+      .then(function(){closeDlg();toast('Batch started. It is now in Running batches.');});});}
 function submitConfirm(form){
   var c=byId(form.dataset.id);if(!c)return closeDlg();var ef=eff(c);
   var s=$('mf-start').value,e=$('mf-end').value,b=Math.round(Number($('mf-batch').value));
   if(!s||!e)return showErr('mf','Enter both dates.');
   if(e<s)return showErr('mf','The end date is before the start date.');
-  if(e>today())return showErr('mf','The course has not ended yet. Use an end date of today or earlier.');
+  if(e>today())return showErr('mf','The batch has not ended yet. Use an end date of today or earlier.');
   if(!(b>=1))return showErr('mf','Enter the number of learners who completed.');
   var x=readExtras('mf',b);if(x.err)return showErr('mf',x.err);
-  guard(function(){var now=new Date().toISOString(),ch=[];
-    if(s!==ef.start)ch.push({f:'actualStart',from:ef.start,to:s});if(e!==ef.end)ch.push({f:'actualEnd',from:ef.end,to:e});if(b!==ef.batch)ch.push({f:'actualBatch',from:ef.batch,to:b});
-    return courseRef(c.id).update({stage:'actual',actualStart:s,actualEnd:e,actualBatch:b,male:x.male,female:x.female,labs:x.labs,classPct:x.classPct,confirmedBy:S.me.id,confirmedAt:now,unlocked:false,editRequest:null,updatedAt:now,updatedBy:S.me.id,history:hist(c,{action:'completed',changes:ch})})
-      .then(function(){closeDlg();toast('Marked completed and locked');});});
+  var fb=$('mf-fb').files[0],ph=$('mf-ph').files[0],go=$('mf-go');
+  guard(function(){var up=[];go.disabled=true;go.textContent='Saving files…';
+    var p=Promise.resolve();[[fb,'feedback'],[ph,'photo']].forEach(function(z){if(z[0])p=p.then(function(){return storeFile(z[0],c.id,z[1]).then(function(r){up.push(r);});});});
+    return p.then(function(){var now=new Date().toISOString(),ch=[];
+      if(s!==ef.start)ch.push({f:'actualStart',from:ef.start,to:s});if(e!==ef.end)ch.push({f:'actualEnd',from:ef.end,to:e});if(b!==ef.batch)ch.push({f:'actualBatch',from:ef.batch,to:b});
+      return courseRef(c.id).update({stage:'actual',actualStart:s,actualEnd:e,actualBatch:b,male:x.male,female:x.female,labs:x.labs,classPct:x.classPct,confirmedBy:S.me.id,confirmedAt:now,completedVia:'batches',unlocked:false,editRequest:null,updatedAt:now,updatedBy:S.me.id,
+        files:(c.files||[]).concat(up),log:(c.log||[]).concat([logEntry('completed','Batch completed '+nice(e)+' with '+b+' learners (started '+num(ef.batch)+')'+(up.length?'':' · no feedback files yet'),up)]),history:hist(c,{action:'completed',changes:ch})});})
+      .then(function(){closeDlg();toast('Batch completed. It is now in Actuals.');})
+      .catch(function(err){go.disabled=false;go.textContent='Confirm · move to Actuals';if(err&&err.code==='too-big')return showErr('mf',err.name+' is larger than 5 MB. Choose a smaller file.');throw err;});});
 }
 function submitRequest(form){
   var c=byId(form.dataset.id);if(!c)return closeDlg();var r=$('rf-reason').value.trim();
@@ -1182,17 +1314,24 @@ document.addEventListener('click',function(ev){
   if(a==='add')return courseForm(null);
   if(a==='add-actual'&&S.me.isOwner)return courseForm(null,true);
   if(a==='edit'&&c&&canEditCourse(c))return courseForm(c);
-  if(a==='ack'&&c&&canAck()&&!c.cpAck)return ackForm(c);
-  if(a==='start'&&c&&S.me.isOwner&&c.cpAck)return startForm(c);
-  if(a==='complete'&&c&&S.me.isOwner&&c.stage==='running')return confirmForm(c);
-  if(a==='aview'){S.af.view=b.dataset.v;return render();}
-  if(a==='request'&&c)return textForm('rf',c,'Request an edit','This record is locked. Say what needs to change; the program team can unlock it for one edit.','What needs to change, and why','Send request');
+  if(a==='log'&&c)return openLog(id);
+  if(a==='log-close')return closeLog();
+  if(a==='lg-upload')return lgSend('upload');
+  if(a==='lg-approve')return lgSend('approve');
+  if(a==='lg-changes')return lgSend('changes');
+  if(a==='lg-note')return lgSend('note');
+  if(a==='lg-note-only'){S.logKey='';var cc=byId(S.logId);if(cc){var saveRev=cc.review;}var d0=$('logdrawer');var act=d0&&d0.querySelector('.lg-act');if(act)act.outerHTML='<div class="lg-act"><span class="lab">Add a note</span><textarea id="lg-note" maxlength="600" placeholder="Write a note"></textarea><div class="row"><button data-act="lg-note">Add to log</button></div></div>';var lo=d0&&d0.querySelector('.lg-act.sub');if(lo)lo.remove();return;}
+  if(a==='dl-file')return downloadFile(b.dataset.f,b.dataset.n);
+  if(a==='confirm-batch'&&c&&canConfirmBatch(c))return confirmBatchForm(c);
+  if(a==='bstart'&&c&&S.me.isOwner&&c.stage==='standby')return startForm(c);
+  if(a==='bdone'&&c&&S.me.isOwner&&c.stage==='running')return confirmForm(c);
+  if(a==='bview'){S.bf.view=b.dataset.v;return render();}
   if(a==='drop'&&c&&canDrop(c))return textForm('df',c,'Drop this course','It leaves the pipeline and the dashboard, and stays in the Dropped list for later analysis.','Why it was dropped (optional)','Mark as dropped');
-  if(a==='restore'&&c&&canEditCourse(c))return guard(function(){return courseRef(id).update({stage:c.startedAt?'running':'pipeline',dropReason:null,history:hist(c,{action:'restored'})}).then(function(){toast('Restored to the pipeline');});});
+  if(a==='restore'&&c&&canEditCourse(c))return guard(function(){return courseRef(id).update({stage:c.startedAt?'running':c.batchConfirmedAt?'standby':'pipeline',dropReason:null,history:hist(c,{action:'restored'})}).then(function(){toast('Restored to the pipeline');});});
   if(a==='hist'){if(S.openHist.has(id))S.openHist.delete(id);else S.openHist.add(id);return render();}
   if(a==='by'){S.f.by=b.dataset.v;return render();}
   if(a==='pview'){S.pf.view=b.dataset.v;return render();}
-  if(a==='del'&&c&&S.me.isOwner){if(!arm(id))return;return guard(function(){return courseRef(id).delete().then(function(){toast('Deleted for good');});});}
+  if(a==='del'&&c&&S.me.isAdmin){if(!arm(id))return;return guard(function(){return courseRef(id).delete().then(function(){toast('Deleted for good');});});}
   if(a==='approve'&&c)return guard(function(){return courseRef(id).update({unlocked:true,history:hist(c,{action:'unlocked'})}).then(function(){toast('Unlocked for one edit');});});
   if(a==='decline'&&c)return guard(function(){return courseRef(id).update({editRequest:null,history:hist(c,{action:'request-declined'})}).then(function(){toast('Request declined');});});
   if(a==='clear-samples'){if(!arm('samples'))return;var ids=S.courses.filter(function(x){return x.sample;}).map(function(x){return x.id;});
@@ -1210,7 +1349,7 @@ document.addEventListener('click',function(ev){
     return guard(function(){var o={};o[k]=cfg()[k].concat([s]);return saveCfg(o).then(function(){inp.value='';render();});});}
   if(a==='rm-item')return guard(function(){var k=b.dataset.k,o={};o[k]=cfg()[k].filter(function(x){return x!==b.dataset.v;});return saveCfg(o);});
 });
-document.addEventListener('submit',function(ev){ev.preventDefault();var f=ev.target;if(f.id==='login')return doLogin();if(f.id==='kf-ack')return submitAck(f);if(f.id==='sf')return submitStart(f);if(f.id==='pw')return submitPw(f);if(f.id==='pf-person')return submitPerson(f);if(f.id==='cf')submitCourse(f);else if(f.id==='mf')submitConfirm(f);else if(f.id==='rf')submitRequest(f);else if(f.id==='df')submitDrop(f);});
+document.addEventListener('submit',function(ev){ev.preventDefault();var f=ev.target;if(f.id==='login')return doLogin();if(f.id==='cbf')return submitConfirmBatch(f);if(f.id==='sf')return submitStart(f);if(f.id==='pw')return submitPw(f);if(f.id==='pf-person')return submitPerson(f);if(f.id==='cf')submitCourse(f);else if(f.id==='mf')submitConfirm(f);else if(f.id==='rf')submitRequest(f);else if(f.id==='df')submitDrop(f);});
 function setF(obj,k,el){obj[k]=el.type==='checkbox'?el.checked:(k==='fy'?(el.value===''?'':Number(el.value)):el.value);}
 document.addEventListener('change',function(ev){var el=ev.target,d=el.dataset;
   if(d.g==='online'){S.online=el.checked;return render();}
@@ -1219,16 +1358,20 @@ document.addEventListener('change',function(ev){var el=ev.target,d=el.dataset;
   if(d.msc){var op=MSOPTS[d.msc]||[],cur=getMs(d.msc),ns={},cnt=0;op.forEach(function(o){var on=o.k===d.v?el.checked:(!cur||!!cur[o.k]);if(on){ns[o.k]=1;cnt++;}});setMs(d.msc,cnt===op.length?null:ns);return render();}
   if(d.f){setF(S.f,d.f,el);return render();}
   if(d.pf&&el.tagName==='SELECT'){setF(S.pf,d.pf,el);return render();}
+  if(d.bf&&el.tagName==='SELECT'){setF(S.bf,d.bf,el);return render();}
   if(d.af&&el.tagName==='SELECT'){setF(S.af,d.af,el);return render();}
   if(el.closest&&el.closest('#cf')){calcPreview('cf');labSum('cf');}
   if(el.closest&&el.closest('#mf')){calcPreview('mf');labSum('mf');}
-  if(el.closest&&el.closest('#sf'))calcPreview('sf');});
+  if(el.closest&&el.closest('#sf'))calcPreview('sf');
+  if(el.closest&&el.closest('#cbf'))calcPreview('cbf');});
 document.addEventListener('input',function(ev){var el=ev.target;
   if(el.dataset.pf==='q'){S.pf.q=el.value;return render();}
   if(el.dataset.af==='q'){S.af.q=el.value;return render();}
+  if(el.dataset.bf==='q'){S.bf.q=el.value;return render();}
   if(el.closest&&el.closest('#cf')){calcPreview('cf');labSum('cf');}
   if(el.closest&&el.closest('#mf')){calcPreview('mf');labSum('mf');}
-  if(el.closest&&el.closest('#sf'))calcPreview('sf');});
+  if(el.closest&&el.closest('#sf'))calcPreview('sf');
+  if(el.closest&&el.closest('#cbf'))calcPreview('cbf');});
 /* chart hover */
 document.addEventListener('mousemove',function(ev){var t=ev.target;
   if(!(t.classList&&t.classList.contains('band'))){document.querySelectorAll('.tip').forEach(function(x){x.remove();});return;}
@@ -1247,7 +1390,7 @@ document.addEventListener('mouseover',function(ev){var t=ev.target.closest&&ev.t
 document.addEventListener('mousemove',function(ev){if(!tipEl||tipEl.hidden)return;var t=ev.target.closest&&ev.target.closest('[data-tip]');if(t)tipShow(t,ev.clientX,ev.clientY);});
 document.addEventListener('focusin',function(ev){var t=ev.target.closest&&ev.target.closest('[data-tip]');if(t){var r=t.getBoundingClientRect();tipShow(t,r.left,r.bottom-10);}});
 document.addEventListener('focusout',tipHide);
-document.addEventListener('keydown',function(ev){if(ev.key==='Escape'&&$('daypop')){closeDayPop();return;}if(ev.key==='Escape'&&S.openMs){var id=S.openMs;S.openMs=null;render();var bb=$('msb-'+id);if(bb)bb.focus();}});
+document.addEventListener('keydown',function(ev){if(ev.key==='Escape'&&$('daypop')){closeDayPop();return;}if(ev.key==='Escape'&&$('logdrawer')&&!$('dlg').open){closeLog();return;}if(ev.key==='Escape'&&S.openMs){var id=S.openMs;S.openMs=null;render();var bb=$('msb-'+id);if(bb)bb.focus();}});
 function route(){var h=(location.hash||'').replace('#','');S.tab=TABS.some(function(t){return t[0]===h;})?h:'dashboard';render();}
 window.addEventListener('hashchange',route);
 
@@ -1290,8 +1433,8 @@ function personForm(u){
   openDlg('<form class="dlg" id="pf-person" novalidate data-id="'+esc(u?u.id:'')+'"><h2>'+(u?'Edit access':'Add a person')+'</h2><div class="fgrid">'+
     '<label class="fld"><span>Name</span><input type="text" id="pp-name" value="'+esc(u?u.name:'')+'" maxlength="80"></label>'+
     '<label class="fld"><span>Work email</span><input type="email" id="pp-email" value="'+esc(u?u.id:'')+'"'+(u?' disabled':'')+' placeholder="name@'+esc(DOMAIN)+'"></label>'+
-    '<label class="fld"><span>Access</span><select id="pp-role">'+opts([{k:'viewer',n:'Viewer · can see everything'},{k:'head',n:'GATI head · edits own source'},{k:'cp',n:'Course production · acknowledges courses'},{k:'program',n:'Program team · full access'}],u?u.role:'viewer',null)+'</select></label>'+
-    '<div class="fld"><span>GATI sources · for GATI heads</span><div class="checks">'+GATI.map(function(g){return '<label class="check"><input type="checkbox" id="pp-g-'+g.k+'" data-g2="'+g.k+'"'+(u&&(u.gatis||[]).indexOf(g.k)>=0?' checked':'')+'>'+esc(g.k==='N'?'NST':g.k)+'</label>';}).join('')+'</div></div>'+
+    '<label class="fld"><span>Access</span><select id="pp-role">'+opts([{k:'viewer',n:'Viewer · can see everything'},{k:'head',n:'GATI head · edits own source'},{k:'cp',n:'Course production · acknowledges courses'},{k:'program',n:'Program team · operations: batches and actuals'}],u?u.role:'viewer',null)+'</select></label>'+
+    '<div class="fld"><span>GATI sources · for GATI heads (a program team member can also head a source)</span><div class="checks">'+GATI.map(function(g){return '<label class="check"><input type="checkbox" id="pp-g-'+g.k+'" data-g2="'+g.k+'"'+(u&&(u.gatis||[]).indexOf(g.k)>=0?' checked':'')+'>'+esc(g.k==='N'?'NST':g.k)+'</label>';}).join('')+'</div></div>'+
     (u?'':'<label class="fld wide"><span>Starting password · they can change it any time</span><input type="text" id="pp-pw" value="'+esc(START_PW)+'" autocomplete="off"></label>')+
     '</div><p class="err" id="pp-err" hidden></p><div class="dlg-actions"><button type="button" data-act="dlg-close">Cancel</button><button type="submit" class="primary">'+(u?'Save':'Add person')+'</button></div></form>');}
 function submitPerson(form){var id=form.dataset.id,isNew=!id,name=$('pp-name').value.trim(),email=(isNew?$('pp-email').value:id).trim().toLowerCase(),role=$('pp-role').value;
@@ -1301,7 +1444,7 @@ function submitPerson(form){var id=form.dataset.id,isNew=!id,name=$('pp-name').v
   if(!/^[^@\s]+@[^@\s]+$/.test(email))return err('Enter a valid email address.');
   if(email.slice(-DOMAIN.length-1)!=='@'+DOMAIN)return err('Only '+DOMAIN+' email addresses can be added.');
   if(role==='head'&&!gatis.length)return err('Tick at least one GATI source for a GATI head.');
-  if(role!=='head')gatis=[];
+  if(role!=='head'&&role!=='program')gatis=[];
   var data={name:name,role:role,gatis:gatis,updatedAt:new Date().toISOString(),updatedBy:S.me.id};
   if(!isNew)return guard(function(){return S.db.collection('users').doc(email).update(data).then(function(){closeDlg();toast('Access saved');});});
   if(S.users.some(function(u){return u.id===email;}))return err('This person is already on the list. Use Edit instead.');
@@ -1334,7 +1477,7 @@ function boot(){
     var email=(u.email||'').toLowerCase();S.me={id:email,email:email,name:'',role:'',gatis:[],isOwner:false};S.authState='loading';render();AUTHMSG='';
     profUnsub=S.db.collection('users').doc(email).onSnapshot(function(snap){
       if(!snap.exists){var was=S.authState;S.authState='noprofile';stopData();return render();}
-      var p=snap.data();S.me={id:email,email:email,name:p.name||'',role:p.role||'viewer',gatis:p.gatis||[],isOwner:p.role==='program',defaultPw:!!p.defaultPassword};
+      var p=snap.data();S.me={id:email,email:email,name:p.name||'',role:p.role||'viewer',gatis:p.gatis||[],isOwner:p.role==='program'||email===ADMIN,isAdmin:email===ADMIN,defaultPw:!!p.defaultPassword};
       var start=S.authState!=='in';S.authState='in';if(start)startData();render();
     },function(){S.authState='noprofile';render();});});
 }

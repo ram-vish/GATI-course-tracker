@@ -2,13 +2,18 @@ rules_version = '2';
 
 // Who can do what in the GATI Course Tracker.
 // Everyone must be signed in with a @tataiis.org email AND be listed in the "users" collection.
-// Roles: "program" (program team / operations, full access), "cp" (course production),
-//        "head" (GATI head for the sources in "gatis"), "viewer" (read only).
+// Roles: "program" (program team / operations), "cp" (course production),
+//        "head" (GATI head), "viewer" (read only). Anyone may also head GATI sources listed in "gatis".
+// The admin (ram.viswanath@tataiis.org) can do everything, and is the only one who can delete.
 //
-// Course stages: "pipeline" (GATI pipeline) → "running" → "actual" (completed); or "dropped".
-//   1. A GATI head adds a pipeline course.
-//   2. Course production acknowledges it (sets cpAck). This cannot be undone.
-//   3. The program team confirms the start (→ running) and later marks it completed (→ actual).
+// Course stages:
+//   "pipeline": GATI head adds it; course production uploads the course (review: awaiting/changes → review);
+//               the GATI head approves (→ approved) or asks for changes (→ changes);
+//               once approved, the GATI head confirms the batch (→ stage "standby").
+//   "standby":  operations click Batch started (→ "running").
+//   "running":  operations click Batch completed (→ "actual").
+//   "actual":   completed and locked; GATI heads may request an edit.
+//   "dropped":  dropped from the pipeline or a cancelled batch.
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -20,57 +25,81 @@ service cloud.firestore {
     function profilePath() { return /databases/$(database)/documents/users/$(email()); }
     function hasProfile() { return signedIn() && exists(profilePath()); }
     function me() { return get(profilePath()).data; }
+    function isAdmin() { return hasProfile() && email() == 'ram.viswanath@tataiis.org'; }
     function isProgram() { return hasProfile() && me().role == 'program'; }
     function isCP() { return hasProfile() && me().role == 'cp'; }
-    function isHeadFor(g) { return hasProfile() && me().role == 'head' && g in me().gatis; }
+    function isHeadFor(g) { return hasProfile() && g in me().get('gatis', []); }
     function changed() { return request.resource.data.diff(resource.data).affectedKeys(); }
-    function acked(d) { return d.get('cpAck', null) != null; }
+    function rv(d) { return d.get('review', 'awaiting'); }
 
     // People and their access. Only the program team adds, edits or removes people.
     // A person may only clear their own "still on the starting password" flag.
     match /users/{id} {
       allow read: if hasProfile();
-      allow create, delete: if isProgram();
-      allow update: if isProgram()
+      allow create, update: if isProgram() || isAdmin()
         || (hasProfile() && id == email() && changed().hasOnly(['defaultPassword']));
+      allow delete: if isProgram() || isAdmin();
     }
 
     // Lists of schools, labs, holidays and named heads.
     match /config/{doc} {
       allow read: if hasProfile();
-      allow write: if isProgram();
+      allow write: if isProgram() || isAdmin();
     }
 
-    // What a GATI head may change on a course of their own source.
-    function headUpdateOK() {
-      return
-        // Not yet acknowledged: edit freely, or drop it. Cannot acknowledge or move it forward.
-        (resource.data.stage == 'pipeline' && !acked(resource.data)
-          && isHeadFor(request.resource.data.gati) && !acked(request.resource.data)
-          && request.resource.data.stage in ['pipeline', 'dropped'])
-        // Acknowledged: dates, numbers and details only; course name, source, school and stage stay fixed.
-        || (resource.data.stage == 'pipeline' && acked(resource.data)
-          && changed().hasOnly(['plannedStart', 'plannedEnd', 'batchSize', 'confidence', 'notes', 'sat',
-                                'trainingDays', 'campus', 'mode', 'batch', 'client', 'programType',
-                                'history', 'updatedAt', 'updatedBy']))
-        // Dropped before acknowledgement: may be restored.
-        || (resource.data.stage == 'dropped' && !acked(resource.data) && !acked(request.resource.data)
-          && isHeadFor(request.resource.data.gati) && request.resource.data.stage in ['pipeline', 'dropped'])
-        // Completed: file an edit request, or make one edit once the program team unlocks it.
-        || (resource.data.stage == 'actual' && request.resource.data.stage == 'actual'
-          && (resource.data.get('unlocked', false) == true || changed().hasOnly(['editRequest', 'history'])));
+    // Files attached to courses, stored in pieces. Anyone signed in may read; people add their own; only the admin deletes.
+    match /files/{fileId} {
+      allow read: if hasProfile();
+      allow create: if hasProfile() && request.resource.data.by == email();
+      allow delete: if isAdmin();
+      match /chunks/{chunk} {
+        allow read: if hasProfile();
+        allow create: if hasProfile() && get(/databases/$(database)/documents/files/$(fileId)).data.by == email();
+        allow delete: if isAdmin();
+      }
+    }
+
+    // GATI head on a pipeline course of their own source.
+    function headPipelineOK() {
+      let was = rv(resource.data);
+      let now = rv(request.resource.data);
+      let st = request.resource.data.stage;
+      return isHeadFor(request.resource.data.gati)
+        // Review moves only from "review" to approved or changes; otherwise it stays as it was.
+        && (now == was || (was == 'review' && now in ['approved', 'changes']))
+        // Stays in the pipeline; moves to standby only once approved; may be dropped until approved.
+        && (st == 'pipeline' || (st == 'standby' && was == 'approved') || (st == 'dropped' && was != 'approved'))
+        // Once course production has started, the course name, source and school stay fixed.
+        && (was == 'awaiting' || !changed().hasAny(['title', 'gati', 'school']))
+        // Only course production uploads course files.
+        && !changed().hasAny(['files']);
     }
 
     match /courses/{id} {
       allow read: if hasProfile();
-      allow create: if isProgram()
+      allow create: if isAdmin()
+        || (isProgram() && request.resource.data.stage == 'actual')
         || (isHeadFor(request.resource.data.gati) && request.resource.data.stage == 'pipeline'
-            && !acked(request.resource.data));
-      allow update: if isProgram()
-        || (isCP() && resource.data.stage == 'pipeline' && !acked(resource.data)
-            && changed().hasOnly(['cpAck', 'history', 'updatedAt', 'updatedBy']))
-        || (isHeadFor(resource.data.gati) && headUpdateOK());
-      allow delete: if isProgram();
+            && rv(request.resource.data) == 'awaiting');
+      allow update: if isAdmin()
+        // Operations: standby, running and completed batches; may cancel a standby batch.
+        || (isProgram() && resource.data.stage in ['standby', 'running', 'actual']
+            && request.resource.data.stage in ['standby', 'running', 'actual', 'dropped']
+            && (request.resource.data.stage != 'dropped' || resource.data.stage == 'standby'))
+        // Course production: upload the course, or add a note, while it is in the pipeline.
+        || (isCP() && resource.data.stage == 'pipeline' && request.resource.data.stage == 'pipeline'
+            && changed().hasOnly(['review', 'log', 'files', 'updatedAt', 'updatedBy'])
+            && (rv(request.resource.data) == rv(resource.data)
+                || (rv(resource.data) in ['awaiting', 'changes'] && rv(request.resource.data) == 'review')))
+        // GATI heads: their own pipeline courses.
+        || (isHeadFor(resource.data.gati) && resource.data.stage == 'pipeline' && headPipelineOK())
+        // GATI heads: restore their own course dropped before approval.
+        || (isHeadFor(resource.data.gati) && resource.data.stage == 'dropped' && rv(resource.data) != 'approved'
+            && isHeadFor(request.resource.data.gati) && request.resource.data.stage in ['pipeline', 'dropped'])
+        // GATI heads: completed courses, an edit request, or one edit once the program team unlocks it.
+        || (isHeadFor(resource.data.gati) && resource.data.stage == 'actual' && request.resource.data.stage == 'actual'
+            && (resource.data.get('unlocked', false) == true || changed().hasOnly(['editRequest', 'history'])));
+      allow delete: if isAdmin();
     }
   }
 }
