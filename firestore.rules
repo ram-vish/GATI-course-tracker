@@ -7,7 +7,8 @@ rules_version = '2';
 // The admin (ram.viswanath@tataiis.org) can do everything, and is the only one who can delete.
 //
 // Course stages:
-//   "pipeline": GATI head adds it; course production uploads the course (review: awaiting/changes → review);
+//   "pipeline": GATI head adds it, saying whether the course is already available (courseReady → review "approved")
+//               or not (review "awaiting"); course production uploads the course (review: awaiting/changes → review);
 //               the GATI head approves (→ approved) or asks for changes (→ changes);
 //               once approved, the GATI head confirms the batch (→ leadership);
 //               leadership approves (→ stage "standby", shown as Upcoming batches) or sends it back (→ approved).
@@ -68,11 +69,15 @@ service cloud.firestore {
       let st = request.resource.data.stage;
       return isHeadFor(request.resource.data.gati)
         // Review moves from "review" to approved or changes, or from approved to leadership (batch confirmed).
-        && (now == was || (was == 'review' && now in ['approved', 'changes']) || (was == 'approved' && now == 'leadership'))
+        // Before course production starts, the head can switch "course already available" on (→ approved) or back off.
+        && (now == was || (was == 'review' && now in ['approved', 'changes']) || (was == 'approved' && now == 'leadership')
+            || (was == 'awaiting' && now == 'approved' && request.resource.data.get('courseReady', false) == true)
+            || (was == 'approved' && now == 'awaiting' && resource.data.get('courseReady', false) == true))
         // Stays in the pipeline; may be dropped until the course is approved.
         && (st == 'pipeline' || (st == 'dropped' && !(was in ['approved', 'leadership'])))
         // Once course production has started, the course name, source and school stay fixed.
-        && (was == 'awaiting' || !changed().hasAny(['title', 'gati', 'school']))
+        && (was == 'awaiting' || (was == 'approved' && resource.data.get('courseReady', false) == true)
+            || !changed().hasAny(['title', 'gati', 'school']))
         // Only course production uploads course files.
         && !changed().hasAny(['files']);
     }
@@ -82,7 +87,8 @@ service cloud.firestore {
       allow create: if isAdmin()
         || (isProgram() && request.resource.data.stage == 'actual')
         || (isHeadFor(request.resource.data.gati) && request.resource.data.stage == 'pipeline'
-            && rv(request.resource.data) == 'awaiting');
+            && (rv(request.resource.data) == 'awaiting'
+                || (rv(request.resource.data) == 'approved' && request.resource.data.get('courseReady', false) == true)));
       allow update: if isAdmin()
         // Operations: standby, running and completed batches; may cancel a standby batch.
         || (isProgram() && resource.data.stage in ['standby', 'running', 'actual']

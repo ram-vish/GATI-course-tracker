@@ -15,15 +15,15 @@ Tracks the courses brought in by the four GATI sources (Government, Academics, T
 
 ### How a course moves
 
-1. **Pipeline:** a GATI head adds the course. Course production uploads the course files; the GATI head approves or asks for changes (back to course production). Every step, file and note is kept in the course log. Once approved, the GATI head confirms the batch, and leadership approves it (or sends it back to the GATI head).
+1. **Pipeline:** a GATI head adds the course and says whether the course is already available. If not, course production uploads the course files and the GATI head confirms it or asks for changes (back to course production); if it is, course production is skipped. Every step, file and note is kept in the course log. Once approved, the GATI head confirms the batch, and leadership approves it (or sends it back to the GATI head).
 2. **Batches · Upcoming batches:** approved batches wait for their start day. Operations click **Batch started**, upload the student list (required; a template is offered) and enter the actual start date and learners present.
 3. **Batches · Running:** shows progress and days left. On the end day operations click **Batch completed** with the final throughput, gender split, labs, and optionally the feedback Excel and group photo.
-4. **Actuals:** completed and locked. GATI heads can request an edit; the program team unlocks it.
+4. **Throughput** (the completed list): locked. GATI heads can request an edit; the program team unlocks it.
 
 ### Who can do what
 
 - **Admin** (ram.viswanath@tataiis.org): everything, and the only one who can delete records.
-- **GATI head:** adds and edits pipeline courses for their own sources, reviews uploads, confirms batches. A program team member can also head a source.
+- **GATI head:** adds and edits pipeline courses for their own sources, confirms uploaded courses, confirms batches. A program team member can also head a source.
 - **Course production:** uploads courses for review and adds notes in the pipeline.
 - **Leadership:** approves confirmed batches into Upcoming batches, or sends them back to the GATI head.
 - **Program team (operations):** starts and completes batches, edits standby/running/completed records, manages people and lists. View only in the pipeline.
@@ -42,6 +42,7 @@ Tracks the courses brought in by the four GATI sources (Government, Academics, T
 - **Throughput days** are learners × training days, placed in the month each day falls in.
 - **Training days** are Monday to Friday, plus Saturday when a course is marked that way, minus listed holidays. A course can also have its training days set by hand.
 - **Online courses** count in throughput but not in throughput days by default.
+- **Courses marked as not counting towards throughput** never add to throughput or throughput days. Dashboard and Throughput show only counted courses unless the filter says otherwise.
 - **Financial year** runs April to March.
 
 ## Making changes
