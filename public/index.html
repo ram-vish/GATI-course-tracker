@@ -380,6 +380,17 @@ tr.subhead > td{background:var(--surface-2);font-weight:600;font-size:12px;color
 .fchip .linkish{padding:0;min-height:0;text-align:left;overflow-wrap:anywhere}
 .lg-act{display:flex;flex-direction:column;gap:6px;border-top:1px solid var(--line);padding-top:10px}
 .lg-act textarea{min-height:60px;width:100%;box-sizing:border-box}
+.msgbox{position:relative}
+.msgbox textarea{padding-right:40px;display:block}
+.atbtn{position:absolute;right:6px;bottom:6px;width:28px;height:28px;min-height:0;padding:0;border-radius:50%;font-weight:700;font-size:14px;line-height:26px;text-align:center}
+.atbtn[aria-expanded=true]{background:var(--accent);color:#fff;border-color:var(--accent)}
+.atpop{position:absolute;right:0;bottom:40px;z-index:5;width:240px;max-height:260px;overflow:auto;background:var(--surface);border:1px solid var(--line-2);border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,.16);padding:6px;display:flex;flex-direction:column;gap:2px}
+.atpop input{width:100%;box-sizing:border-box;margin-bottom:4px}
+.atpop button{display:flex;justify-content:space-between;gap:8px;text-align:left;border:0;background:transparent;min-height:30px;padding:4px 8px;border-radius:6px;font-size:13px}
+.atpop button:hover,.atpop button:focus-visible{background:var(--surface-2)}
+.atpop button.on::after{content:'✓';color:var(--accent);font-weight:700}
+.labbtn{align-self:flex-start;text-align:left}
+.labbtn.need{border-color:var(--crit-ink);color:var(--crit-ink)}
 .lg-act.sub{border-top:0;padding-top:0}
 .lg-act select{max-width:100%}
 .lg-list li.tome{border-color:var(--accent);box-shadow:inset 3px 0 0 var(--accent)}
@@ -1096,6 +1107,19 @@ function fetchFile(id){var ref=S.db.collection('files').doc(id);return ref.get()
 function hasList(c){return (c.files||[]).some(function(x){return x.kind==='students';});}
 function sizeTxt(n){return n>=1048576?(Math.round(n/104857.6)/10)+' MB':Math.max(1,Math.round(n/1024))+' KB';}
 var KINDLBL={course:'Course file',feedback:'Feedback',photo:'Group photo',students:'Student list'};
+/* Lab split waiting to be sent with the course upload. */
+function pendLabs(c){if(S.lgLabs&&S.lgLabs.id===c.id)return S.lgLabs;if((c.labs||[]).length||c.classPct)return {id:c.id,labs:c.labs||[],classPct:c.classPct||null};return null;}
+function labBtn(c){var p=pendLabs(c),t=p?labsText(p.labs,p.classPct):'';return '<button type="button" class="sm labbtn'+(!t&&needsLabs(c.mode)?' need':'')+'" data-act="lg-labs">'+(t?'Lab utilisation: '+esc(t)+' · change':'+ Add lab utilisation'+(needsLabs(c.mode)?' · required':''))+'</button>';}
+function labForm(c){var p=pendLabs(c)||{labs:[],classPct:null};openDlg('<form class="dlg" id="luf" novalidate><h2>Lab utilisation</h2><p><b>'+esc(c.title)+'</b><br><span class="sub">'+esc([c.campus,modeName(c.mode)].filter(Boolean).join(' · '))+'</span></p><div class="fgrid">'+labsHTML('lu',{labs:p.labs,classPct:p.classPct},false)+'</div><p class="err" id="lu-err" hidden></p><div class="dlg-actions"><button type="button" data-act="dlg-close">Cancel</button><button type="submit" class="primary">Save</button></div></form>');labSum('lu');}
+function submitLabs(){var c=byId(S.logId);if(!c)return closeDlg();var lx=readLabs('lu',needsLabs(c.mode));if(lx.err)return showErr('lu',lx.err);S.lgLabs={id:c.id,labs:lx.labs,classPct:lx.classPct};closeDlg();var lb=document.querySelector('#logdrawer [data-act=lg-labs]');if(lb){lb.outerHTML=labBtn(c);var nb=document.querySelector('#logdrawer [data-act=lg-labs]');if(nb)nb.focus();}}
+function atBtn(){return '<button type="button" class="atbtn sm" data-act="at" aria-expanded="false" aria-label="Mention people" title="Mention people">@</button>';}
+function atPeople(){return S.users.filter(function(u){return u.id!==S.me.id;}).sort(function(a,b){return String(a.name||a.id).localeCompare(String(b.name||b.id));});}
+/* The @ list: tick people to tag them in the message (their @Name goes into the text); tick again to untag. Stays open for several picks. */
+function atList(q){var ta=$('lg-note'),t=ta?ta.value:'';q=(q||'').toLowerCase();return atPeople().filter(function(u){return !q||String(u.name||u.id).toLowerCase().indexOf(q)>=0;}).map(function(u){var nm=u.name||u.id,on=t.indexOf('@'+nm)>=0;return '<button type="button" class="'+(on?'on':'')+'" data-act="at-pick" data-id="'+esc(u.id)+'" aria-pressed="'+on+'">'+esc(nm)+'</button>';}).join('')||'<span class="muted sub">No one matches.</span>';}
+function atClose(){var p=document.querySelector('.atpop');if(p)p.remove();var b=document.querySelector('.atbtn[aria-expanded=true]');if(b)b.setAttribute('aria-expanded','false');}
+function atOpen(btn){atClose();var p=document.createElement('div');p.className='atpop';p.innerHTML='<input type="search" id="at-q" placeholder="Find a person" aria-label="Find a person"><div id="at-list">'+atList('')+'</div>';btn.parentNode.appendChild(p);btn.setAttribute('aria-expanded','true');$('at-q').focus();}
+function atPick(id){var ta=$('lg-note');if(!ta)return;var nm='@'+(S.names[id]||id);if(ta.value.indexOf(nm)>=0)ta.value=ta.value.split(nm+' ').join('').split(nm).join('').replace(/\s{2,}/g,' ');else ta.value=ta.value+(ta.value&&!/\s$/.test(ta.value)?' ':'')+nm+' ';
+  var l=$('at-list');if(l)l.innerHTML=atList(($('at-q')||{value:''}).value);}
 function mentionSel(){var us=S.users.filter(function(u){return u.id!==S.me.id;}).sort(function(a,b){return String(a.name||a.id).localeCompare(String(b.name||b.id));});
   return '<select id="lg-mention" aria-label="Mention someone"><option value="">@ Mention someone</option>'+us.map(function(u){return '<option value="'+esc(u.id)+'">'+esc(u.name||u.id)+'</option>';}).join('')+'</select>';}
 function mentionsIn(text){return S.users.filter(function(u){return u.id!==S.me.id&&text.indexOf('@'+(u.name||u.id))>=0;}).map(function(u){return u.id;});}
@@ -1123,12 +1147,12 @@ function renderLog(){var c=S.logId&&byId(S.logId);if(!c){if(S.logId)closeLog();r
   var items=(c.log||[]).map(function(e){return {at:e.at,by:e.by,kind:e.kind,text:e.text,files:e.files,to:e.to,log:true};}).concat((c.history||[]).filter(function(hh){var dup=['acknowledged','batch-confirmed','started','completed','leader-approved','leader-back'];if(hh.action==='created'&&(c.log||[]).some(function(e){return e.kind==='added';}))return false;return dup.indexOf(hh.action)<0;}).map(function(hh){return {at:hh.at,by:hh.by,kind:'hist',text:(ACTIONS[hh.action]||hh.action)+(hh.note?': '+hh.note:''),changes:hh.changes};}));
   items.forEach(function(x,i){x.i=i;});items.sort(function(a,b){return a.at<b.at?-1:a.at>b.at?1:a.i-b.i;});
   var st=pipeStatus(c),form='';
-  if(canUpload(c))form+='<div class="lg-act"><span class="lab">'+(st==='changes'?'Upload the revised course':'Upload the course')+'</span><input type="file" id="lg-files" multiple><textarea id="lg-note" maxlength="600" placeholder="What is attached, or a link if the file is larger than 5 MB"></textarea>'+mentionSel()+labsHTML('lg',c,false)+'<div class="row"><button class="primary" data-act="lg-upload">Send to GATI head for review</button></div></div>';
-  else if(canReview(c))form+='<div class="lg-act"><span class="lab">Your review</span><textarea id="lg-note" maxlength="600" placeholder="Comments for course production (needed when asking for changes)"></textarea>'+mentionSel()+'<div class="row"><button class="primary" data-act="lg-approve">Confirm course</button><button data-act="lg-changes">Ask for changes</button></div></div>';
-  else if(canLead(c))form+='<div class="lg-act"><span class="lab">Leadership approval</span><textarea id="lg-note" maxlength="600" placeholder="Comments (needed when sending it back)"></textarea>'+mentionSel()+'<div class="row"><button class="primary" data-act="lg-lead">Approve · move to Upcoming batches</button><button data-act="lg-leadback">Send back to GATI head</button></div></div>';
+  if(canUpload(c))form+='<div class="lg-act"><span class="lab">'+(st==='changes'?'Upload the revised course':'Upload the course')+'</span><input type="file" id="lg-files" multiple>'+labBtn(c)+'<div class="msgbox"><textarea id="lg-note" maxlength="600" placeholder="What is attached, or a link if the file is larger than 5 MB"></textarea>'+atBtn()+'</div><div class="row"><button class="primary" data-act="lg-upload">Send to GATI head for review</button></div></div>';
+  else if(canReview(c))form+='<div class="lg-act"><span class="lab">Your review</span><div class="msgbox"><textarea id="lg-note" maxlength="600" placeholder="Comments for course production (needed when asking for changes)"></textarea>'+atBtn()+'</div>'+'<div class="row"><button class="primary" data-act="lg-approve">Confirm course</button><button data-act="lg-changes">Ask for changes</button></div></div>';
+  else if(canLead(c))form+='<div class="lg-act"><span class="lab">Leadership approval</span><div class="msgbox"><textarea id="lg-note" maxlength="600" placeholder="Comments (needed when sending it back)"></textarea>'+atBtn()+'</div>'+'<div class="row"><button class="primary" data-act="lg-lead">Approve · move to Upcoming batches</button><button data-act="lg-leadback">Send back to GATI head</button></div></div>';
   else if(canConfirmBatch(c))form+='<div class="lg-act"><span class="lab">Next step</span><div class="row"><button class="primary" data-act="confirm-batch" data-id="'+esc(c.id)+'">Confirm batch</button></div></div>';
   var fileOK=c.stage==='pipeline'?isCPUser():S.me.isOwner;
-  if(!form&&canNote(c))form+='<div class="lg-act"><span class="lab">'+(fileOK?'Add files or a message':'Add a message')+'</span>'+(fileOK?(c.stage==='pipeline'?'<input type="file" id="lg-files" multiple>':'<div class="row"><select id="lg-kind" aria-label="What the files are">'+opts([{k:'students',n:'Student list'},{k:'feedback',n:'Feedback'},{k:'photo',n:'Group photo'},{k:'',n:'Other'}],hasList(c)||c.stage==='standby'?(c.stage==='actual'?'feedback':'students'):'students',null)+'</select><input type="file" id="lg-files" multiple></div>'):'')+'<textarea id="lg-note" maxlength="600" placeholder="Write a message. Use Mention to direct it to someone."></textarea>'+mentionSel()+'<div class="row"><button data-act="lg-note">Add to log</button></div></div>';
+  if(!form&&canNote(c))form+='<div class="lg-act"><span class="lab">'+(fileOK?'Add files or a message':'Add a message')+'</span>'+(fileOK?(c.stage==='pipeline'?'<input type="file" id="lg-files" multiple>':'<div class="row"><select id="lg-kind" aria-label="What the files are">'+opts([{k:'students',n:'Student list'},{k:'feedback',n:'Feedback'},{k:'photo',n:'Group photo'},{k:'',n:'Other'}],hasList(c)||c.stage==='standby'?(c.stage==='actual'?'feedback':'students'):'students',null)+'</select><input type="file" id="lg-files" multiple></div>'):'')+'<div class="msgbox"><textarea id="lg-note" maxlength="600" placeholder="Write a message. Use @ to tag people."></textarea>'+atBtn()+'</div>'+'<div class="row"><button data-act="lg-note">Add to log</button></div></div>';
   else if(form&&canNote(c)&&!canUpload(c))form+='<div class="lg-act sub"><button class="linkish" data-act="lg-note-only">Add a note without confirming</button></div>';
   var html='<div class="lg-h"><div><b>'+esc(c.title)+'</b><div class="sub">'+esc([gatiName(c.gati),c.school,c.campus].filter(Boolean).join(' · '))+'</div></div><div class="lg-hbtns"><button class="sm" data-act="lg-allfiles" aria-pressed="'+!!S.logFiles+'">Uploaded files · '+(c.files||[]).length+'</button><button class="sm" data-act="log-close" aria-label="Close">✕</button></div></div>'+
     (S.logFiles?'<div class="lg-allfiles">'+((c.files||[]).length?fileRows(c):'<span class="muted">No files uploaded yet.</span>')+'</div>':'')+
@@ -1136,14 +1160,14 @@ function renderLog(){var c=S.logId&&byId(S.logId);if(!c){if(S.logId)closeLog();r
     '<ol class="lg-list">'+(items.length?items.map(function(e){return '<li class="lg-'+esc(e.kind)+(e.to&&e.to.indexOf(S.me.id)>=0?' tome':'')+'"><div class="lg-meta"><b>'+esc(nameOf(e.by))+'</b> <span>'+esc(e.log?(LOGKIND[e.kind]||e.kind):'')+'</span><time>'+esc(stamp(e.at))+'</time></div>'+(e.text?'<p>'+mentionHi(e.text,e.to)+'</p>':'')+(e.files&&e.files.length?'<div class="lg-files">'+e.files.map(fileChip).join('')+'</div>':'')+
       (e.changes&&e.changes.length?'<p class="sub">'+e.changes.map(function(x){return esc(LABELS[x.f]||x.f)+': '+esc(fmtVal(x.f,x.from))+' → '+esc(fmtVal(x.f,x.to));}).join(' · ')+'</p>':'')+'</li>';}).join(''):'<li class="muted">Nothing yet.</li>')+'</ol>'+form+'<p class="err" id="lg-err" hidden></p>';
   var d=$('logdrawer');if(!d){d=document.createElement('aside');d.id='logdrawer';d.className='logdrawer';d.setAttribute('aria-label','Course log');document.body.appendChild(d);}
-  d.innerHTML=html;for(var kid in keep){if($(kid))$(kid).value=keep[kid];}labSum('lg');var l=d.querySelector('.lg-list');if(l)l.scrollTop=l.scrollHeight;}
+  d.innerHTML=html;for(var kid in keep){if($(kid))$(kid).value=keep[kid];}var l=d.querySelector('.lg-list');if(l)l.scrollTop=l.scrollHeight;}
 function lgErr(m){var e=$('lg-err');if(e){e.textContent=m;e.hidden=false;}}
 function lgSend(kind){var c=byId(S.logId);if(!c)return;var note=($('lg-note')||{value:''}).value.trim(),fi=$('lg-files'),files=fi?[].slice.call(fi.files):[];
   if(kind==='changes'&&!note)return lgErr('Say what needs to change, so course production knows what to fix.');
   if(kind==='lead-back'&&!note)return lgErr('Say why it is going back, so the GATI head knows what to change.');
   if((kind==='note')&&!note&&!files.length)return lgErr('Write a note or choose a file.');
   if(kind==='upload'&&!files.length&&!note)return lgErr('Attach the course files, or paste a link to them in the note.');
-  var lx=null;if(kind==='upload'&&$('lg-labbox')){lx=readLabs('lg',needsLabs(c.mode));if(lx.err)return lgErr(lx.err);}
+  var lx=null;if(kind==='upload'){lx=pendLabs(c);if(!lx&&needsLabs(c.mode))return lgErr('Add the lab utilisation first, with the button above the message.');}
   var fk=$('lg-kind')?$('lg-kind').value:null,to=mentionsIn(note);
   var up=[],btns=document.querySelectorAll('#logdrawer .lg-act button');[].forEach.call(btns,function(b){b.disabled=true;});
   var p=Promise.resolve();files.forEach(function(f){p=p.then(function(){return storeFile(f,c.id,kind==='upload'?'course':fk!=null?fk:(c.stage==='actual'?(/^image\//.test(f.type)?'photo':'feedback'):'')).then(function(r){up.push(r);});});});
@@ -1151,7 +1175,7 @@ function lgSend(kind){var c=byId(S.logId);if(!c)return;var note=($('lg-note')||{
       if(up.length)patch.files=(c.files||[]).concat(up);
       if(kind==='upload'){patch.review='review';if(lx){patch.labs=lx.labs;patch.classPct=lx.classPct;var lt=labsText(lx.labs,lx.classPct);if(lt)patch.log[patch.log.length-1].text=(note?note+'\n':'')+'Lab utilisation: '+lt;}}if(kind==='approve')patch.review='approved';if(kind==='changes')patch.review='changes';
       if(kind==='lead-approve'){patch.stage='standby';patch.leaderApprovedBy=S.me.id;patch.leaderApprovedAt=now;patch.history=hist(c,{action:'leader-approved'});}if(kind==='lead-back'){patch.review='approved';patch.history=hist(c,{action:'leader-back',note:note});}
-      return courseRef(c.id).update(patch);}).then(function(){S.logKey='';if($('lg-note'))$('lg-note').value='';toast(kind==='upload'?'Sent to the GATI head for review':kind==='approve'?'Course confirmed. Confirm the batch when it is final.':kind==='lead-approve'?'Approved. It is now in Upcoming batches.':kind==='lead-back'?'Sent back to the GATI head':kind==='changes'?'Sent back to course production':'Added to the log');})
+      return courseRef(c.id).update(patch);}).then(function(){S.logKey='';if($('lg-note'))$('lg-note').value='';if(kind==='upload')S.lgLabs=null;toast(kind==='upload'?'Sent to the GATI head for review':kind==='approve'?'Course confirmed. Confirm the batch when it is final.':kind==='lead-approve'?'Approved. It is now in Upcoming batches.':kind==='lead-back'?'Sent back to the GATI head':kind==='changes'?'Sent back to course production':'Added to the log');})
     .catch(function(err){[].forEach.call(btns,function(b){b.disabled=false;});if(err&&err.code==='too-big')return lgErr(err.name+' is larger than 5 MB. Share it as a link in the note instead.');throw err;});});}
 function downloadFile(id,name){toast('Preparing '+name+'…');fetchFile(id).then(function(r){return download({filename:r.meta.name||name,data:r.blob});}).catch(function(){toast('The file could not be opened.');});}
 
@@ -1433,6 +1457,7 @@ document.addEventListener('click',function(ev){
   if(b&&(b.dataset.act==='chpw'||b.dataset.act==='signout'||b.dataset.act==='log')&&S.pmenu){S.pmenu=false;renderChrome();}
   if($('daypop')&&!ev.target.closest('#daypop')&&!ev.target.closest('[data-act=yday]'))closeDayPop();
   if(!inMs&&S.openMs){S.openMs=null;render();}
+  if(!ev.target.closest('.atpop,.atbtn'))atClose();
   if(!b)return;var a=b.dataset.act,id=b.dataset.id,c=id?byId(id):null,mid=b.dataset.ms;
   if(a==='ms-toggle'){S.openMs=S.openMs===mid?null:mid;return render();}
   if(a==='ms-all'){var cur=getMs(mid),op=MSOPTS[mid]||[],isAll=!cur||op.every(function(o){return cur[o.k];});setMs(mid,isAll?{}:null);return render();}
@@ -1458,8 +1483,11 @@ document.addEventListener('click',function(ev){
   if(a==='lg-lead')return lgSend('lead-approve');
   if(a==='lg-leadback')return lgSend('lead-back');
   if(a==='lg-note')return lgSend('note');
-  if(a==='lg-note-only'){S.logKey='';var cc=byId(S.logId);if(cc){var saveRev=cc.review;}var d0=$('logdrawer');var act=d0&&d0.querySelector('.lg-act');if(act)act.outerHTML='<div class="lg-act"><span class="lab">Add a message</span><textarea id="lg-note" maxlength="600" placeholder="Write a message"></textarea>'+mentionSel()+'<div class="row"><button data-act="lg-note">Add to log</button></div></div>';var lo=d0&&d0.querySelector('.lg-act.sub');if(lo)lo.remove();return;}
+  if(a==='lg-note-only'){S.logKey='';var cc=byId(S.logId);if(cc){var saveRev=cc.review;}var d0=$('logdrawer');var act=d0&&d0.querySelector('.lg-act');if(act)act.outerHTML='<div class="lg-act"><span class="lab">Add a message</span><div class="msgbox"><textarea id="lg-note" maxlength="600" placeholder="Write a message"></textarea>'+atBtn()+'</div>'+'<div class="row"><button data-act="lg-note">Add to log</button></div></div>';var lo=d0&&d0.querySelector('.lg-act.sub');if(lo)lo.remove();return;}
   if(a==='dl-file')return downloadFile(b.dataset.f,b.dataset.n);
+  if(a==='lg-labs'){var lc=byId(S.logId);if(lc)labForm(lc);return;}
+  if(a==='at'){if(b.getAttribute('aria-expanded')==='true')atClose();else atOpen(b);return;}
+  if(a==='at-pick'){atPick(b.dataset.id);return;}
   if(a==='lg-allfiles'){S.logFiles=!S.logFiles;S.logKey='';return renderLog();}
   if(a==='confirm-batch'&&c&&canConfirmBatch(c))return confirmBatchForm(c);
   if(a==='bstart'&&c&&S.me.isOwner&&c.stage==='standby')return startForm(c);
@@ -1489,7 +1517,7 @@ document.addEventListener('click',function(ev){
     return guard(function(){var o={};o[k]=cfg()[k].concat([s]);return saveCfg(o).then(function(){inp.value='';render();});});}
   if(a==='rm-item')return guard(function(){var k=b.dataset.k,o={};o[k]=cfg()[k].filter(function(x){return x!==b.dataset.v;});return saveCfg(o);});
 });
-document.addEventListener('submit',function(ev){ev.preventDefault();var f=ev.target;if(f.id==='login')return doLogin();if(f.id==='cbf')return submitConfirmBatch(f);if(f.id==='sf')return submitStart(f);if(f.id==='pw')return submitPw(f);if(f.id==='pf-person')return submitPerson(f);if(f.id==='cf')submitCourse(f);else if(f.id==='mf')submitConfirm(f);else if(f.id==='rf')submitRequest(f);else if(f.id==='df')submitDrop(f);});
+document.addEventListener('submit',function(ev){ev.preventDefault();var f=ev.target;if(f.id==='login')return doLogin();if(f.id==='cbf')return submitConfirmBatch(f);if(f.id==='luf')return submitLabs();if(f.id==='sf')return submitStart(f);if(f.id==='pw')return submitPw(f);if(f.id==='pf-person')return submitPerson(f);if(f.id==='cf')submitCourse(f);else if(f.id==='mf')submitConfirm(f);else if(f.id==='rf')submitRequest(f);else if(f.id==='df')submitDrop(f);});
 function setF(obj,k,el){obj[k]=el.type==='checkbox'?el.checked:(k==='fy'?(el.value===''?'':Number(el.value)):el.value);}
 document.addEventListener('change',function(ev){var el=ev.target,d=el.dataset;
   if(el.id==='sf-list'){readStudentList(el.files[0]);return;}
@@ -1504,7 +1532,7 @@ document.addEventListener('change',function(ev){var el=ev.target,d=el.dataset;
   if(d.af&&el.tagName==='SELECT'){setF(S.af,d.af,el);return render();}
   if(el.name==='cf-ready'&&$('cf-labbox')){$('cf-labbox').hidden=!$('cf-ready-yes').checked;}
   if(el.id==='cf-ptype'){var k=el.value.split('|')[1];$('cf-ptother').hidden=!(k==='Other'||k==='C');if(!$('cf-ptother').hidden)$('cf-ptother').focus();}
-  if(el.closest&&el.closest('#logdrawer'))labSum('lg');
+  if(el.closest&&el.closest('#luf'))labSum('lu');
   if(el.closest&&el.closest('#cf')){calcPreview('cf');labSum('cf');}
   if(el.closest&&el.closest('#mf')){calcPreview('mf');labSum('mf');}
   if(el.closest&&el.closest('#sf'))calcPreview('sf');
@@ -1513,7 +1541,8 @@ document.addEventListener('input',function(ev){var el=ev.target;
   if(el.dataset.pf==='q'){S.pf.q=el.value;return render();}
   if(el.dataset.af==='q'){S.af.q=el.value;return render();}
   if(el.dataset.bf==='q'){S.bf.q=el.value;return render();}
-  if(el.closest&&el.closest('#logdrawer'))labSum('lg');
+  if(el.id==='at-q'){var al=$('at-list');if(al)al.innerHTML=atList(el.value);return;}
+  if(el.closest&&el.closest('#luf'))labSum('lu');
   if(el.closest&&el.closest('#cf')){calcPreview('cf');labSum('cf');}
   if(el.closest&&el.closest('#mf')){calcPreview('mf');labSum('mf');}
   if(el.closest&&el.closest('#sf'))calcPreview('sf');
@@ -1538,7 +1567,7 @@ document.addEventListener('mousemove',function(ev){if(tipPin||!tipEl||tipEl.hidd
 document.addEventListener('focusin',function(ev){var t=ev.target.closest&&ev.target.closest('[data-tip]');if(t){var r=t.getBoundingClientRect();tipShow(t,r.left,r.bottom-10);}});
 document.addEventListener('focusout',function(){if(!tipPin&&tipEl)tipEl.hidden=true;});
 document.addEventListener('click',function(ev){var t=ev.target.closest&&ev.target.closest('[data-tip]');if(t&&!ev.target.closest('[data-act]')){if(tipPin===t){tipHide();return;}tipPin=null;tipShow(t,ev.clientX,ev.clientY);tipPin=t;}else if(tipPin)tipHide();});
-document.addEventListener('keydown',function(ev){if(ev.key==='Escape'&&S.pmenu){S.pmenu=false;renderChrome();var av=document.querySelector('.avatar');if(av)av.focus();return;}if(ev.key==='Escape'&&$('daypop')){closeDayPop();return;}if(ev.key==='Escape'&&$('logdrawer')&&!$('dlg').open){closeLog();return;}if(ev.key==='Escape'&&S.openMs){var id=S.openMs;S.openMs=null;render();var bb=$('msb-'+id);if(bb)bb.focus();}});
+document.addEventListener('keydown',function(ev){if(ev.key==='Escape'&&document.querySelector('.atpop')){var ab=document.querySelector('.atbtn[aria-expanded=true]');atClose();if(ab)ab.focus();return;}if(ev.key==='Escape'&&S.pmenu){S.pmenu=false;renderChrome();var av=document.querySelector('.avatar');if(av)av.focus();return;}if(ev.key==='Escape'&&$('daypop')){closeDayPop();return;}if(ev.key==='Escape'&&$('logdrawer')&&!$('dlg').open){closeLog();return;}if(ev.key==='Escape'&&S.openMs){var id=S.openMs;S.openMs=null;render();var bb=$('msb-'+id);if(bb)bb.focus();}});
 function route(){var h=(location.hash||'').replace('#','');S.tab=TABS.some(function(t){return t[0]===h;})?h:'dashboard';render();}
 window.addEventListener('hashchange',route);
 
