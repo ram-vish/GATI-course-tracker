@@ -2,14 +2,15 @@ rules_version = '2';
 
 // Who can do what in the GATI Course Tracker.
 // Everyone must be signed in with a @tataiis.org email AND be listed in the "users" collection.
-// Roles: "program" (program team / operations), "cp" (course production),
+// Roles: "program" (program team / operations), "cp" (course production), "lead" (leadership),
 //        "head" (GATI head), "viewer" (read only). Anyone may also head GATI sources listed in "gatis".
 // The admin (ram.viswanath@tataiis.org) can do everything, and is the only one who can delete.
 //
 // Course stages:
 //   "pipeline": GATI head adds it; course production uploads the course (review: awaiting/changes → review);
 //               the GATI head approves (→ approved) or asks for changes (→ changes);
-//               once approved, the GATI head confirms the batch (→ stage "standby").
+//               once approved, the GATI head confirms the batch (→ leadership);
+//               leadership approves (→ stage "standby", shown as Upcoming batches) or sends it back (→ approved).
 //   "standby":  operations click Batch started (→ "running").
 //   "running":  operations click Batch completed (→ "actual").
 //   "actual":   completed and locked; GATI heads may request an edit.
@@ -28,6 +29,7 @@ service cloud.firestore {
     function isAdmin() { return hasProfile() && email() == 'ram.viswanath@tataiis.org'; }
     function isProgram() { return hasProfile() && me().role == 'program'; }
     function isCP() { return hasProfile() && me().role == 'cp'; }
+    function isLead() { return hasProfile() && me().role == 'lead'; }
     function isHeadFor(g) { return hasProfile() && g in me().get('gatis', []); }
     function changed() { return request.resource.data.diff(resource.data).affectedKeys(); }
     function rv(d) { return d.get('review', 'awaiting'); }
@@ -65,10 +67,10 @@ service cloud.firestore {
       let now = rv(request.resource.data);
       let st = request.resource.data.stage;
       return isHeadFor(request.resource.data.gati)
-        // Review moves only from "review" to approved or changes; otherwise it stays as it was.
-        && (now == was || (was == 'review' && now in ['approved', 'changes']))
-        // Stays in the pipeline; moves to standby only once approved; may be dropped until approved.
-        && (st == 'pipeline' || (st == 'standby' && was == 'approved') || (st == 'dropped' && was != 'approved'))
+        // Review moves from "review" to approved or changes, or from approved to leadership (batch confirmed).
+        && (now == was || (was == 'review' && now in ['approved', 'changes']) || (was == 'approved' && now == 'leadership'))
+        // Stays in the pipeline; may be dropped until the course is approved.
+        && (st == 'pipeline' || (st == 'dropped' && !(was in ['approved', 'leadership'])))
         // Once course production has started, the course name, source and school stay fixed.
         && (was == 'awaiting' || !changed().hasAny(['title', 'gati', 'school']))
         // Only course production uploads course files.
@@ -91,6 +93,13 @@ service cloud.firestore {
             && changed().hasOnly(['review', 'log', 'files', 'updatedAt', 'updatedBy'])
             && (rv(request.resource.data) == rv(resource.data)
                 || (rv(resource.data) in ['awaiting', 'changes'] && rv(request.resource.data) == 'review')))
+        // Leadership: approve a confirmed batch (→ standby) or send it back to the GATI head; add notes.
+        || (isLead() && resource.data.stage == 'pipeline' && rv(resource.data) == 'leadership'
+            && changed().hasOnly(['review', 'stage', 'log', 'leaderApprovedBy', 'leaderApprovedAt', 'history', 'updatedAt', 'updatedBy'])
+            && ((request.resource.data.stage == 'standby' && rv(request.resource.data) == 'leadership')
+                || (request.resource.data.stage == 'pipeline' && rv(request.resource.data) == 'approved')))
+        || (isLead() && resource.data.stage == 'pipeline' && request.resource.data.stage == 'pipeline'
+            && changed().hasOnly(['log', 'updatedAt', 'updatedBy']))
         // GATI heads: their own pipeline courses.
         || (isHeadFor(resource.data.gati) && resource.data.stage == 'pipeline' && headPipelineOK())
         // GATI heads: restore their own course dropped before approval.
