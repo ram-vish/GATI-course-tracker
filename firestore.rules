@@ -2,7 +2,13 @@ rules_version = '2';
 
 // Who can do what in the GATI Course Tracker.
 // Everyone must be signed in with a @tataiis.org email AND be listed in the "users" collection.
-// Roles: "program" (program team, full access), "head" (GATI head for the sources in "gatis"), "viewer" (read only).
+// Roles: "program" (program team / operations, full access), "cp" (course production),
+//        "head" (GATI head for the sources in "gatis"), "viewer" (read only).
+//
+// Course stages: "pipeline" (GATI pipeline) → "running" → "actual" (completed); or "dropped".
+//   1. A GATI head adds a pipeline course.
+//   2. Course production acknowledges it (sets cpAck). This cannot be undone.
+//   3. The program team confirms the start (→ running) and later marks it completed (→ actual).
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -15,8 +21,10 @@ service cloud.firestore {
     function hasProfile() { return signedIn() && exists(profilePath()); }
     function me() { return get(profilePath()).data; }
     function isProgram() { return hasProfile() && me().role == 'program'; }
+    function isCP() { return hasProfile() && me().role == 'cp'; }
     function isHeadFor(g) { return hasProfile() && me().role == 'head' && g in me().gatis; }
     function changed() { return request.resource.data.diff(resource.data).affectedKeys(); }
+    function acked(d) { return d.get('cpAck', null) != null; }
 
     // People and their access. Only the program team adds, edits or removes people.
     // A person may only clear their own "still on the starting password" flag.
@@ -33,18 +41,35 @@ service cloud.firestore {
       allow write: if isProgram();
     }
 
-    // Courses. GATI heads work only on their own sources.
-    // A locked actual can only be changed by a head after the program team unlocks it;
-    // until then the head may only file an edit request.
+    // What a GATI head may change on a course of their own source.
+    function headUpdateOK() {
+      return
+        // Not yet acknowledged: edit freely, or drop it. Cannot acknowledge or move it forward.
+        (resource.data.stage == 'pipeline' && !acked(resource.data)
+          && isHeadFor(request.resource.data.gati) && !acked(request.resource.data)
+          && request.resource.data.stage in ['pipeline', 'dropped'])
+        // Acknowledged: dates, numbers and details only; course name, source, school and stage stay fixed.
+        || (resource.data.stage == 'pipeline' && acked(resource.data)
+          && changed().hasOnly(['plannedStart', 'plannedEnd', 'batchSize', 'confidence', 'notes', 'sat',
+                                'trainingDays', 'campus', 'mode', 'batch', 'client', 'programType',
+                                'history', 'updatedAt', 'updatedBy']))
+        // Dropped before acknowledgement: may be restored.
+        || (resource.data.stage == 'dropped' && !acked(resource.data) && !acked(request.resource.data)
+          && isHeadFor(request.resource.data.gati) && request.resource.data.stage in ['pipeline', 'dropped'])
+        // Completed: file an edit request, or make one edit once the program team unlocks it.
+        || (resource.data.stage == 'actual' && request.resource.data.stage == 'actual'
+          && (resource.data.get('unlocked', false) == true || changed().hasOnly(['editRequest', 'history'])));
+    }
+
     match /courses/{id} {
       allow read: if hasProfile();
       allow create: if isProgram()
-        || (isHeadFor(request.resource.data.gati) && request.resource.data.stage == 'pipeline');
+        || (isHeadFor(request.resource.data.gati) && request.resource.data.stage == 'pipeline'
+            && !acked(request.resource.data));
       allow update: if isProgram()
-        || (isHeadFor(resource.data.gati) && isHeadFor(request.resource.data.gati)
-            && (resource.data.stage != 'actual'
-                || resource.data.get('unlocked', false) == true
-                || changed().hasOnly(['editRequest', 'history'])));
+        || (isCP() && resource.data.stage == 'pipeline' && !acked(resource.data)
+            && changed().hasOnly(['cpAck', 'history', 'updatedAt', 'updatedBy']))
+        || (isHeadFor(resource.data.gati) && headUpdateOK());
       allow delete: if isProgram();
     }
   }
