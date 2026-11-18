@@ -1,4 +1,4 @@
-# GATI Course Tracker
+# Tata IIS Course Tracker
 
 Tracks the courses brought in by the four GATI sources (Government, Academics, Technology partners, Industries) plus NST, for the Indian Institute of Skills: what is in the pipeline, what has actually run, and the throughput and throughput days by month, quarter, campus, school and lab.
 
@@ -15,9 +15,9 @@ Tracks the courses brought in by the four GATI sources (Government, Academics, T
 
 ### How a course moves
 
-1. **Pipeline:** a GATI head adds the course and says whether the course is already available. If not, course production uploads the course files and the GATI head confirms it or asks for changes (back to course production); if it is, course production is skipped. Every step, file and note is kept in the course log. Once approved, the GATI head confirms the batch, and leadership approves it (or sends it back to the GATI head).
+1. **Pipeline:** a GATI head adds the course and answers "Do we have course outline?". With **Request from course production**, course production uploads the course files with the lab utilisation, and the GATI head confirms it or asks for changes (back to course production). With **Already have course outline**, the GATI head fills in the lab utilisation and course production is skipped. Every step, file and note is kept in the course log. Once approved, the GATI head confirms the batch, and leadership approves it (or sends it back to the GATI head).
 2. **Batches · Upcoming batches:** approved batches wait for their start day. Operations click **Batch started**, upload the student list (required; a template is offered) and enter the actual start date and learners present.
-3. **Batches · Running:** shows progress and days left. On the end day operations click **Batch completed** with the final throughput, gender split, labs, and optionally the feedback Excel and group photo.
+3. **Batches · Running:** shows progress and days left. On the end day operations click **Batch completed** with the final throughput, gender split, and optionally the feedback Excel and group photo.
 4. **Throughput** (the completed list): locked. GATI heads can request an edit; the program team unlocks it.
 
 ### Who can do what
@@ -40,9 +40,12 @@ Tracks the courses brought in by the four GATI sources (Government, Academics, T
 
 - **Throughput** is the number of learners, counted once, in the month the course ends.
 - **Throughput days** are learners × training days, placed in the month each day falls in.
-- **Training days** are Monday to Friday, plus Saturday when a course is marked that way, minus listed holidays. A course can also have its training days set by hand.
+- **Training days** are Monday to Friday, plus Saturday and/or Sunday when a course includes them, minus listed holidays. A course can also have its training days set by hand.
 - **Online courses** count in throughput but not in throughput days by default.
-- **Courses marked as not counting towards throughput** never add to throughput or throughput days. Dashboard and Throughput show only counted courses unless the filter says otherwise.
+- **Courses marked non-eligible for throughput** never add to throughput or throughput days. Dashboard and Throughput show only eligible courses unless the filter says otherwise.
+- **Dashboard categories:** every chart, total and table can show any of Throughput (completed), Running batches, Upcoming batches and Pipeline. Pipeline confidence (green, yellow, red) is shown only on the Pipeline tab.
+- **Programme types** are grouped as Fresh Skilling (FS), Academic Skilling (AS) and Professional Skilling (PS); `ptCat` and `ptCode` hold the choice and `programType` the label shown.
+- **Lab utilisation** is entered in the pipeline (up to three labs plus the classroom, adding up to 100% for on-campus and hybrid courses).
 - **Financial year** runs April to March.
 
 ## Making changes

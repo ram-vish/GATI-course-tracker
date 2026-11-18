@@ -1,6 +1,6 @@
 rules_version = '2';
 
-// Who can do what in the GATI Course Tracker.
+// Who can do what in the Tata IIS Course Tracker.
 // Everyone must be signed in with a @tataiis.org email AND be listed in the "users" collection.
 // Roles: "program" (program team / operations), "cp" (course production), "lead" (leadership),
 //        "head" (GATI head), "viewer" (read only). Anyone may also head GATI sources listed in "gatis".
@@ -94,9 +94,9 @@ service cloud.firestore {
         || (isProgram() && resource.data.stage in ['standby', 'running', 'actual']
             && request.resource.data.stage in ['standby', 'running', 'actual', 'dropped']
             && (request.resource.data.stage != 'dropped' || resource.data.stage == 'standby'))
-        // Course production: upload the course, or add a note, while it is in the pipeline.
+        // Course production: upload the course with its lab utilisation, or add a note, while it is in the pipeline.
         || (isCP() && resource.data.stage == 'pipeline' && request.resource.data.stage == 'pipeline'
-            && changed().hasOnly(['review', 'log', 'files', 'updatedAt', 'updatedBy'])
+            && changed().hasOnly(['review', 'log', 'files', 'labs', 'classPct', 'updatedAt', 'updatedBy'])
             && (rv(request.resource.data) == rv(resource.data)
                 || (rv(resource.data) in ['awaiting', 'changes'] && rv(request.resource.data) == 'review')))
         // Leadership: approve a confirmed batch (→ standby) or send it back to the GATI head; add notes.
