@@ -391,6 +391,19 @@ body.resizing{cursor:col-resize;user-select:none}
 table.fixed td.acts{overflow:visible}
 button.ico{width:30px;padding:0;display:inline-grid;place-items:center}
 button.ico svg{width:15px;height:15px}
+.plgrid td.sel{background:var(--accent-soft)}
+.plgrid td.sel input,.plgrid td.sel select{background:transparent}
+#pl-wrap.selecting,#pl-wrap.selecting *{user-select:none}
+.plgrid th[data-sc],.plgrid td.rn{cursor:pointer}
+.act-list li.new{border-color:var(--accent);box-shadow:inset 3px 0 0 var(--accent)}
+.act-c{padding:0;min-height:0;text-align:left;font-weight:600;overflow-wrap:anywhere}
+.bd-info{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px 18px;padding:12px 14px;background:var(--surface-2);border-radius:8px}
+.bd-info > div{display:flex;flex-direction:column;gap:2px;min-width:0}
+.bd-info b{font-weight:600;font-size:13px;overflow-wrap:anywhere}
+.bd-sum{font-size:13px;font-weight:600}
+.plgrid.bdgrid td{padding:6px 10px;white-space:nowrap}
+.bdgrid th.pc{background:var(--accent-soft)}
+.bdgrid td.pc{background:color-mix(in srgb,var(--accent-soft) 35%,var(--surface))}
 .listbox{display:flex;flex-direction:column;gap:6px;border:1px solid var(--line-2);border-radius:8px;padding:10px 12px}
 .listbox .lb-row{align-items:center}
 .listbox .lb-old{font-size:13px}
@@ -814,7 +827,7 @@ function render(){
   [].forEach.call(main.querySelectorAll('.scroll,.gantt'),function(e,i){if(sc[i]){e.scrollLeft=sc[i][0];e.scrollTop=sc[i][1];}});
   if(S.openMs)main.style.minHeight=Math.max(prevH,parseFloat(main.style.minHeight)||0)+'px';else main.style.minHeight='';
   [].forEach.call(document.querySelectorAll('input[data-part]'),function(x){x.indeterminate=true;});addResizers();
-  if(S.tab==='calendar')calScroll();positionPop();renderLog();
+  if(S.tab==='calendar')calScroll();positionPop();renderLog();if(S.act&&S.act.pg!==S.tab)closeAct();else renderAct();
   for(var id in keep){var el=$(id);if(el)el.value=keep[id];}
   if(actId&&$(actId)){$(actId).focus();if(selS!=null){try{$(actId).setSelectionRange(selS,selS);}catch(e){}}}
 }
@@ -953,7 +966,7 @@ function totalsBox(list,kind){var n=0,learn=0,tpd=0,male=0,female=0;
   return '<section class="panel totals"><h3>Totals for the list below</h3><div class="tot-items">'+items.map(function(i){return '<div><span class="lab">'+esc(i[0])+'</span><b>'+num(i[1])+'</b></div>';}).join('')+'</div><span class="sub">Online courses are '+(S.online?'counted':'not counted')+' in TP days</span></section>';}
 function matchQ(c,q){return !q||((c.title||'')+' '+(c.client||'')+' '+(c.school||'')+' '+(c.batch||'')+' '+(c.programType||'')).toLowerCase().indexOf(q)>=0;}
 var VIEW={list:[],kind:'pipeline'};
-function exportBtn(){return true?'<button data-act="export">Export to Excel</button>':'';}
+function exportBtn(){return activityBtn()+'<button data-act="export">Export to Excel</button>';}
 
 /* ----- pipeline ----- */
 function statusText(st,c){return ({awaiting:'with course production to upload',review:'with the GATI head to review',changes:'changes asked, with course production',approved:'GATI head to confirm the batch',leadership:'with leadership for approval'})[st]||'';}
@@ -1016,13 +1029,13 @@ function viewActuals(){
   if(!all.length)return h+'<div class="panel"><div class="empty"><h2>No completed courses yet</h2><p>When operations complete a running batch, it moves here and is locked.</p></div></div>';
   h+=totalsBox(list,'completed');
   var shown=list.slice(0,300);
-  h+='<section class="panel"><div class="panel-h"><span class="sub">Completed courses are locked. A GATI head requests an edit; the program team approves it. Courses arrive here when operations click Batch completed. Only the admin can add or delete one directly.</span></div><div class="scroll">'+tblOpen('af',[300,112,124,116,88,88,74,104,80,150,110,280])+'<thead><tr>'+hf('af','course',[['ptype','Programme type']],'Course')+hf('af','gati',[['gati','Source']],'Source')+hf('af','school',[['school','School']],'School')+hf('af','campus',[['campus','Campus']],'Campus')+hf('af','start',[['smonths','Start month']],'Start','',fy1)+hf('af','end',[['emonths','End month']],'End','',fy1)+hf('af','ndays',[['ndays','Training days']],'Days','n')+hf('af','nbatch',[['nbatch','Throughput']],'Throughput','n')+hf('af','ntpd',[['ntpd','TP days']],'TP days','n')+'<th>Lab split</th><th>Confirmed</th><th></th></tr></thead><tbody>'+
+  h+='<section class="panel"><div class="panel-h"><span class="sub">Completed courses are locked. A GATI head requests an edit; the program team approves it. Courses arrive here when operations click Batch completed. Only the admin can add or delete one directly.</span></div><div class="scroll">'+tblOpen('af',[300,112,124,116,88,88,74,104,80,150,110,300])+'<thead><tr>'+hf('af','course',[['ptype','Programme type']],'Course')+hf('af','gati',[['gati','Source']],'Source')+hf('af','school',[['school','School']],'School')+hf('af','campus',[['campus','Campus']],'Campus')+hf('af','start',[['smonths','Start month']],'Start','',fy1)+hf('af','end',[['emonths','End month']],'End','',fy1)+hf('af','ndays',[['ndays','Training days']],'Days','n')+hf('af','nbatch',[['nbatch','Throughput']],'Throughput','n')+hf('af','ntpd',[['ntpd','TP days']],'TP days','n')+'<th>Lab split</th><th>Confirmed</th><th></th></tr></thead><tbody>'+
     (shown.length?shown.map(function(c){var b=Number(c.actualBatch)||0;
       var sv=(c.plannedStart&&c.actualStart!==c.plannedStart)?'<div class="var">Planned '+nice(c.plannedStart)+'</div>':'';
       var ev=(c.plannedEnd&&c.actualEnd!==c.plannedEnd)?'<div class="var">Planned '+nice(c.plannedEnd)+'</div>':'';
       var bv=(c.batchSize!=null&&(Number(c.batchSize)!==b||(c.startBatch!=null&&Number(c.startBatch)!==b)))?'<div class="var">'+(c.source==='master'?'Enrolled ':'Planned ')+num(c.batchSize)+(c.startBatch!=null?' · started '+num(c.startBatch):'')+'</div>':'';
       var mf=(c.male!=null||c.female!=null)?'<div class="sub">'+num(c.male)+' M · '+num(c.female)+' F</div>':'';
-      var req=c.editRequest&&!c.unlocked,acts='';
+      var req=c.editRequest&&!c.unlocked,acts='<button class="sm" data-act="bdet" data-id="'+esc(c.id)+'">Batch details</button>';
       if(progFor(c)){acts+=icoBtn('edit',c,'Edit',ICO.edit);if(req)acts+='<button class="sm primary" data-act="approve" data-id="'+esc(c.id)+'" title="Unlock for the GATI head to make one edit">Unlock edit</button><button class="sm" data-act="decline" data-id="'+esc(c.id)+'">Decline</button>';}
       else if(ownsGati(c)){if(c.unlocked)acts+='<button class="sm primary" data-act="edit" data-id="'+esc(c.id)+'">Edit (unlocked)</button>';else if(!req)acts+='<button class="sm" data-act="request" data-id="'+esc(c.id)+'">Request edit</button>';}
       acts+=logBtn(c);if(S.me.isAdmin)acts+=delBtn(c);
@@ -1271,7 +1284,7 @@ function logNext(c){var st=pipeStatus(c);
   if(c.stage==='standby')return 'Upcoming. Operations click Batch started on '+nice(c.plannedStart)+' and upload the student list.';
   if(c.stage==='running')return 'Running. Operations click Batch completed on '+nice(eff(c).end)+'.';
   if(c.stage==='actual')return 'Completed.';return '';}
-function openLog(id){S.logId=id;S.logKey='';markSeen(id);renderLog();renderChrome();}
+function openLog(id){closeAct();S.logId=id;S.logKey='';markSeen(id);renderLog();renderChrome();}
 function closeLog(){S.logId=null;S.logKey='';var d=$('logdrawer');if(d)d.remove();}
 function renderLog(){var c=S.logId&&byId(S.logId);if(!c){if(S.logId)closeLog();return;}
   var key=JSON.stringify([c.log,c.history,c.stage,c.review,S.me.id,!!S.logFiles,c.files]);if(key===S.logKey&&$('logdrawer'))return;S.logKey=key;markSeen(c.id);
@@ -1370,7 +1383,7 @@ function viewSetup(){
 
 /* ---------- dialogs ---------- */
 function openDlg(html){var d=$('dlg');d.classList.remove('xl');d.innerHTML=html;if(!d.open)d.showModal();}
-function closeDlg(){var d=$('dlg');if(d.open)d.close();d.innerHTML='';d.classList.remove('xl');PL=null;}
+function closeDlg(){var d=$('dlg');if(d.open)d.close();d.innerHTML='';d.classList.remove('xl');PL=null;SEL=null;}
 function plcField(p,v){return '<div class="fld wide"><span>Placement eligible?'+(p==='mf'?' · choose one':'')+'</span><div class="ready-opts"><label class="check"><input type="radio" name="'+p+'-plc" id="'+p+'-plc-yes"'+(v===true?' checked':'')+'>Yes · placement support is given; tracked on the Placements tab</label><label class="check"><input type="radio" name="'+p+'-plc" id="'+p+'-plc-no"'+(v===false?' checked':'')+'>No</label></div></div>';}
 function genderHTML(p,c){return '<label class="fld"><span>Male</span><input type="number" id="'+p+'-male" min="0" step="1" value="'+esc(c&&c.male!=null?c.male:'')+'"></label><label class="fld"><span>Female</span><input type="number" id="'+p+'-female" min="0" step="1" value="'+esc(c&&c.female!=null?c.female:'')+'"></label>';}
 function extrasHTML(p,c){return genderHTML(p,c)+labsHTML(p,c,false);}
@@ -1647,6 +1660,9 @@ document.addEventListener('click',function(ev){
   if(a==='pl-addrow'&&PL){PL.rows.push({});plRedraw([PL.rows.length-1,'name']);return;}
   if(a==='pl-delrow'&&PL){PL.rows.splice(Number(b.dataset.r),1);if(!PL.rows.length)PL.rows.push({});plRedraw();return;}
   if(a==='pl-save')return plSave();
+  if(a==='activity')return openAct(b.dataset.pg);
+  if(a==='act-close')return closeAct();
+  if(a==='bdet'&&c)return bdOpen(c.id);
   if(a==='sl-sheet')return slOpen(b.dataset.p);
   if(a==='dlg2-close')return closeDlg2();
   if(a==='pl-load')return plLoad();
@@ -1744,7 +1760,7 @@ document.addEventListener('focusin',function(ev){var t=ev.target.closest&&ev.tar
 document.addEventListener('focusout',function(){if(!tipPin&&tipEl)tipEl.hidden=true;});
 document.addEventListener('click',function(ev){var t=ev.target.closest&&ev.target.closest('[data-tip]');if(t&&!ev.target.closest('[data-act]')){if(tipPin===t){tipHide();return;}tipPin=null;tipShow(t,ev.clientX,ev.clientY);tipPin=t;}else if(tipPin)tipHide();});
 document.addEventListener('paste',function(ev){var el=ev.target.closest&&ev.target.closest('[data-pr]');if(el&&PL&&!PL.ro)plPaste(ev,el);});
-document.addEventListener('keydown',function(ev){var pe=ev.target.closest&&ev.target.closest('[data-pr]');if(pe&&PL&&ev.key==='Enter'){ev.preventDefault();var nr=Number(pe.dataset.pr)+(ev.shiftKey?-1:1);if(nr<0)return;if(nr>=PL.rows.length&&!PL.ro){PL.rows.push({});plRedraw([nr,pe.dataset.pc]);return;}var nx=document.querySelector('#pl-wrap [data-pr="'+nr+'"][data-pc="'+pe.dataset.pc+'"]');if(nx)nx.focus();return;}if(ev.key==='Escape'&&document.querySelector('.atpop')){var ab=document.querySelector('.atbtn[aria-expanded=true]');atClose();if(ab)ab.focus();return;}if(ev.key==='Escape'&&S.pmenu){S.pmenu=false;renderChrome();var av=document.querySelector('.avatar');if(av)av.focus();return;}if(ev.key==='Escape'&&$('daypop')){closeDayPop();return;}if(ev.key==='Escape'&&$('logdrawer')&&!$('dlg').open&&!$('dlg2').open){closeLog();return;}if(ev.key==='Escape'&&S.openMs){var id=S.openMs;S.openMs=null;render();var bb=$('msb-'+id);if(bb)bb.focus();}});
+document.addEventListener('keydown',function(ev){var pe=ev.target.closest&&ev.target.closest('[data-pr]');if(pe&&PL&&ev.key==='Enter'){ev.preventDefault();var nr=Number(pe.dataset.pr)+(ev.shiftKey?-1:1);if(nr<0)return;if(nr>=PL.rows.length&&!PL.ro){PL.rows.push({});plRedraw([nr,pe.dataset.pc]);return;}var nx=document.querySelector('#pl-wrap [data-pr="'+nr+'"][data-pc="'+pe.dataset.pc+'"]');if(nx)nx.focus();return;}if(ev.key==='Escape'&&document.querySelector('.atpop')){var ab=document.querySelector('.atbtn[aria-expanded=true]');atClose();if(ab)ab.focus();return;}if(ev.key==='Escape'&&S.pmenu){S.pmenu=false;renderChrome();var av=document.querySelector('.avatar');if(av)av.focus();return;}if(ev.key==='Escape'&&$('daypop')){closeDayPop();return;}if(ev.key==='Escape'&&$('logdrawer')&&!$('dlg').open&&!$('dlg2').open){closeLog();return;}if(ev.key==='Escape'&&$('actdrawer')&&!$('dlg').open){closeAct();return;}if(ev.key==='Escape'&&S.openMs){var id=S.openMs;S.openMs=null;render();var bb=$('msb-'+id);if(bb)bb.focus();}});
 function route(){var h=(location.hash||'').replace('#','');S.tab=TABS.some(function(t){return t[0]===h;})?h:'dashboard';render();}
 window.addEventListener('hashchange',route);
 
@@ -1836,9 +1852,9 @@ function viewPlacements(){
   var T={b:list.length,tot:0,placed:0,proc:0,notp:0,opt:0,hs:0,br:{},cos:{}};PBR.forEach(function(b){T.br[b]=0;});
   list.forEach(function(c){var o=plStats(c);T.tot+=o.tot;T.placed+=o.placed;T.proc+=o.proc;T.notp+=o.notp;T.opt+=o.opt;T.hs+=o.hs;PBR.forEach(function(b){T.br[b]+=o.br[b];});for(var k in o.cos)T.cos[k]=1;});
   h+='<section class="panel totals"><h3>Totals for the list below</h3><div class="tot-items">'+[['Batches',num(T.b)],['Students',num(T.tot)],['Placed',num(T.placed)],['Placement rate',pct(T.placed,T.tot)],['In process',num(T.proc)],['Not placed',num(T.notp)],['Opted out / higher studies',num(T.opt+T.hs)],['Companies',num(Object.keys(T.cos).length)]].map(function(i){return '<div><span class="lab">'+esc(i[0])+'</span><b>'+i[1]+'</b></div>';}).join('')+'</div><p class="sub">Package brackets of those placed: '+esc(brText(T.br))+'</p></section>';
-  h+='<section class="panel"><div class="scroll">'+tblOpen('plf',[300,112,124,116,104,84,80,90,200,180,220])+'<thead><tr>'+hf('plf','course',[['ptype','Programme type']],'Course')+hf('plf','gati',[['gati','Source']],'Source')+hf('plf','school',[['school','School']],'School')+hf('plf','campus',[['campus','Campus']],'Campus')+
+  h+='<section class="panel"><div class="scroll">'+tblOpen('plf',[300,112,124,116,104,84,80,90,200,180,320])+'<thead><tr>'+hf('plf','course',[['ptype','Programme type']],'Course')+hf('plf','gati',[['gati','Source']],'Source')+hf('plf','school',[['school','School']],'School')+hf('plf','campus',[['campus','Campus']],'Campus')+
     hf('plf','end',[['emonths','End month']],'Completed','',fy1)+hf('plf','nbatch',[['nbatch','Students']],'Students','n')+'<th class="n">Placed</th><th class="n">Placement %</th><th>Package brackets</th><th>Companies</th><th></th></tr></thead><tbody>'+
-    (list.length?list.map(function(c){var o=plStats(c),can=progFor(c),acts='<button class="sm'+(can&&!o.rows?' primary':'')+'" data-act="pl-open" data-id="'+esc(c.id)+'">'+(can?'Placement details':'View placements')+'</button>'+logBtn(c);
+    (list.length?list.map(function(c){var o=plStats(c),can=progFor(c),acts='<button class="sm'+(can&&!o.rows?' primary':'')+'" data-act="pl-open" data-id="'+esc(c.id)+'">'+(can?'Placement details':'View placements')+'</button><button class="sm" data-act="bdet" data-id="'+esc(c.id)+'">Batch details</button>'+logBtn(c);
       var cos=Object.keys(o.cos).sort(function(a,b){return o.cos[b]-o.cos[a];});
       return '<tr><td class="c-main">'+courseCell(c)+(can&&!o.rows?'<div class="var">Placement details not added</div>':'')+'</td><td>'+gchip(c.gati)+'</td><td title="'+esc(c.school)+'">'+esc((c.school||'').replace(/^School of /,''))+'</td><td>'+esc(c.campus)+'<div class="sub">'+esc(modeName(c.mode))+'</div></td>'+
         '<td>'+nice(c.actualEnd)+'</td><td class="n">'+num(o.tot)+'</td><td class="n">'+num(o.placed)+(o.proc?'<div class="sub">'+o.proc+' in process</div>':'')+'</td><td class="n">'+pct(o.placed,o.tot)+'</td><td>'+esc(brText(o.br))+'</td><td>'+(cos.length?esc(cos.slice(0,3).join(', '))+(cos.length>3?' <span class="sub">+'+(cos.length-3)+' more</span>':''):'<span class="muted">—</span>')+'</td><td class="acts"><div class="actbox">'+acts+'</div></td></tr>';}).join('')
@@ -1847,7 +1863,7 @@ function viewPlacements(){
 /* ----- the placement sheet (a spreadsheet in a pop-up) ----- */
 var PL=null;
 function plCols(){return (PL&&PL.cols)||PCOLS;}
-function plOpen(id){var c=byId(id);if(!c)return;PL={kind:'placements',cols:PCOLS,id:id,rows:JSON.parse(JSON.stringify(plRows(c))),ro:!progFor(c)};if(!PL.rows.length&&!PL.ro)PL.rows.push({});openDlg(plHTML());$('dlg').classList.add('xl');
+function plOpen(id){var c=byId(id);if(!c)return;SEL=null;PL={kind:'placements',cols:PCOLS,id:id,rows:JSON.parse(JSON.stringify(plRows(c))),ro:!progFor(c)};if(!PL.rows.length&&!PL.ro)PL.rows.push({});openDlg(plHTML());$('dlg').classList.add('xl');
   if(!plRows(c).length&&!PL.ro&&hasList(c))plLoad(true);}
 function plHTML(){var c=byId(PL.id);
   return '<div class="dlg" id="plf-dlg"><div class="pl-h"><div><h2>Placement details</h2><span class="sub">'+esc(c.title)+' · '+esc(c.campus||'')+' · completed '+nice(c.actualEnd)+'</span></div>'+
@@ -1858,13 +1874,13 @@ function plHTML(){var c=byId(PL.id);
 function plCell(r,i,col){var v=r[col[0]]==null?'':r[col[0]],dis=PL.ro?' disabled':'',a=' data-pr="'+i+'" data-pc="'+col[0]+'" aria-label="'+esc(col[1])+' row '+(i+1)+'"';
   if(col[3]==='s')return '<select'+a+dis+'><option value=""></option>'+col[4].map(function(o){return '<option'+(o===v?' selected':'')+'>'+esc(o)+'</option>';}).join('')+'</select>';
   return '<input type="'+(col[3]==='n'?'number':col[3]==='d'?'date':'text')+'"'+(col[3]==='n'?' step="0.1" min="0"':'')+a+dis+' value="'+esc(v)+'">';}
-function plGrid(){return '<table class="plgrid"><thead><tr><th class="rn">#</th>'+plCols().map(function(col,j){return '<th style="width:'+col[2]+'px;min-width:'+col[2]+'px"'+(j===0?' class="nm"':'')+'>'+esc(col[1])+'</th>';}).join('')+(PL.ro?'':'<th></th>')+'</tr></thead><tbody>'+
+function plGrid(){return '<table class="plgrid"><thead><tr><th class="rn">#</th>'+plCols().map(function(col,j){return '<th data-sc="'+j+'" style="width:'+col[2]+'px;min-width:'+col[2]+'px"'+(j===0?' class="nm"':'')+'>'+esc(col[1])+'</th>';}).join('')+(PL.ro?'':'<th></th>')+'</tr></thead><tbody>'+
   PL.rows.map(function(r,i){return '<tr><td class="rn">'+(i+1)+'</td>'+plCols().map(function(col,j){return '<td'+(j===0?' class="nm"':'')+'>'+plCell(r,i,col)+'</td>';}).join('')+(PL.ro?'':'<td class="rx"><button type="button" class="sm" data-act="pl-delrow" data-r="'+i+'" aria-label="Remove row '+(i+1)+'" title="Remove row">×</button></td>')+'</tr>';}).join('')+'</tbody></table>';}
 function plSum(){if(PL.kind==='students'){var k=PL.rows.filter(plFilled).length;return k+' learner'+(k===1?'':'s')+' in the list';}
 var o={placed:0,proc:0,other:0},n=0;PL.rows.forEach(function(r){if(!plFilled(r))return;n++;if(r.status==='Placed')o.placed++;else if(r.status==='In process')o.proc++;else if(r.status)o.other++;});
   return n+' student'+(n===1?'':'s')+' · '+o.placed+' placed ('+pct(o.placed,n)+') · '+o.proc+' in process · '+(n-o.placed-o.proc)+' other or not set';}
 function plFilled(r){return plCols().some(function(col){return r[col[0]]!=null&&String(r[col[0]]).trim()!=='';});}
-function plRedraw(focus){var w=$('pl-wrap');if(!w)return;var sl=w.scrollLeft,st=w.scrollTop;w.innerHTML=plGrid();w.scrollLeft=sl;w.scrollTop=st;$('pl-sum').innerHTML=plSum();if(focus){var el=w.querySelector('[data-pr="'+focus[0]+'"][data-pc="'+focus[1]+'"]');if(el)el.focus();}}
+function plRedraw(focus){var w=$('pl-wrap');if(!w)return;var sl=w.scrollLeft,st=w.scrollTop;w.innerHTML=plGrid();w.scrollLeft=sl;w.scrollTop=st;$('pl-sum').innerHTML=plSum();selPaint();if(!focus&&SEL){var b0=selBox(),a0=w.querySelector('[data-pr="'+b0.r0+'"][data-pc="'+plCols()[b0.c0][0]+'"]');if(a0)a0.focus({preventScroll:true});}if(focus){var el=w.querySelector('[data-pr="'+focus[0]+'"][data-pc="'+focus[1]+'"]');if(el)el.focus();}}
 /* Turn a pasted or uploaded value into what the column expects. */
 function plNorm(col,v){if(v==null)return '';if(col[3]==='d'){if(typeof v==='number'&&v>20000)return fd(new Date(Date.UTC(1899,11,30)+v*86400000));v=String(v).trim();var m=v.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})$/);if(m){var y=m[3].length===2?'20'+m[3]:m[3];return y+'-'+('0'+m[2]).slice(-2)+'-'+('0'+m[1]).slice(-2);}return /^\d{4}-\d{2}-\d{2}$/.test(v)?v:'';}
   v=String(v).trim();if(col[3]==='n'){var n=parseFloat(v.replace(/[^\d.]/g,''));return isNaN(n)?'':n;}
@@ -1872,9 +1888,11 @@ function plNorm(col,v){if(v==null)return '';if(col[3]==='d'){if(typeof v==='numb
   if(col[0]==='gender'){if(/^m/i.test(v))return 'Male';if(/^f/i.test(v))return 'Female';}
   return v;}
 function plSetVal(r,key,v){var col=plCols().filter(function(x){return x[0]===key;})[0];PL.rows[r]=PL.rows[r]||{};PL.rows[r][key]=plNorm(col,v);if(key==='pkg'){var b=brOf(PL.rows[r].pkg);if(b)PL.rows[r].bracket=b;}}
-function plInput(el){if(!PL||PL.ro)return;var r=Number(el.dataset.pr),k=el.dataset.pc;PL.rows[r]=PL.rows[r]||{};PL.rows[r][k]=el.type==='number'?(el.value===''?'':Number(el.value)):el.value;
+function plInput(el){if(!PL||PL.ro)return;if(selMulti()){SEL=null;selPaint();}var r=Number(el.dataset.pr),k=el.dataset.pc;PL.rows[r]=PL.rows[r]||{};PL.rows[r][k]=el.type==='number'?(el.value===''?'':Number(el.value)):el.value;
   if(k==='pkg'){var b=brOf(el.value);if(b){PL.rows[r].bracket=b;var bs=document.querySelector('#pl-wrap [data-pr="'+r+'"][data-pc="bracket"]');if(bs)bs.value=b;}}$('pl-sum').innerHTML=plSum();}
-function plPaste(ev,el){var t=(ev.clipboardData||window.clipboardData).getData('text');if(!t||!/[\t\n]/.test(t.replace(/\r?\n$/,'')))return;ev.preventDefault();
+function plPaste(ev,el){var t=(ev.clipboardData||window.clipboardData).getData('text');
+  if(t&&!/[\t\n]/.test(t.replace(/\r?\n$/,''))&&selMulti()){ev.preventDefault();var bx=selBox(),cs=plCols();for(var rr=bx.r0;rr<=bx.r1;rr++)for(var cc=bx.c0;cc<=bx.c1;cc++)plSetVal(rr,cs[cc][0],t.replace(/\r?\n$/,''));plRedraw();return;}
+  if(!t||!/[\t\n]/.test(t.replace(/\r?\n$/,'')))return;ev.preventDefault();if(selMulti()){var b0=selBox();el=document.querySelector('#pl-wrap [data-pr="'+b0.r0+'"][data-pc="'+plCols()[b0.c0][0]+'"]')||el;}
   var lines=t.replace(/\r/g,'').split('\n');if(lines.length>1&&lines[lines.length-1]==='')lines.pop();var r0=Number(el.dataset.pr),c0=plCols().map(function(x){return x[0];}).indexOf(el.dataset.pc);
   lines.forEach(function(line,i){line.split('\t').forEach(function(cell,j){var col=plCols()[c0+j];if(col)plSetVal(r0+i,col[0],cell);});});
   for(var i=0;i<PL.rows.length;i++)if(!PL.rows[i])PL.rows[i]={};plRedraw([r0,el.dataset.pc]);toast('Pasted '+lines.length+' row'+(lines.length>1?'s':''));}
@@ -1939,22 +1957,100 @@ function makeListFile(rows,c){var aoa=[SCOLS.map(function(x){return x[1];})].con
 /* Open the student sheet on top of the form (or the log), filled from what is there already. */
 function slOpen(p){var c=p==='lg'?byId(S.logId):byId(($(p)||{dataset:{}}).dataset.id);if(!c)return;if(typeof XLSX==='undefined')return toast('Excel could not load. Reload the page and try again.');
   var inp=$(p+'-list'),src=S.pend[p]?Promise.resolve(S.pend[p]):inp&&inp.files[0]?inp.files[0].arrayBuffer().then(parseStudents):hasList(c)?studentListAB(c).then(parseStudents):Promise.resolve([]);
-  src.catch(function(){return [];}).then(function(rows){PL={kind:'students',cols:SCOLS,id:c.id,p:p,rows:JSON.parse(JSON.stringify(rows)),ro:false};if(!PL.rows.length)PL.rows.push({});
+  src.catch(function(){return [];}).then(function(rows){SEL=null;PL={kind:'students',cols:SCOLS,id:c.id,p:p,rows:JSON.parse(JSON.stringify(rows)),ro:false};if(!PL.rows.length)PL.rows.push({});
     var d=$('dlg2');d.innerHTML=slHTML(c);d.classList.add('xl');if(!d.open)d.showModal();var f=d.querySelector('[data-pr="0"][data-pc="name"]');if(f)f.focus();});}
 function slHTML(c){return '<div class="dlg"><div class="pl-h"><div><h2>Student list</h2><span class="sub">'+esc(c.title)+' · '+esc(c.campus||'')+'</span></div><div class="row"><button type="button" class="sm" data-act="pl-tpl">Download Excel template</button><button type="button" class="sm" data-act="pl-upbtn">Upload Excel</button><input type="file" id="pl-up" accept=".xlsx,.xls,.csv" hidden></div></div>'+
   '<p class="sub">One row per learner. Type in the cells, or copy cells from Excel and paste them into any cell. Enter moves down.</p>'+
   '<div class="plgrid-wrap" id="pl-wrap">'+plGrid()+'</div><div class="pl-sum" id="pl-sum">'+plSum()+'</div><p class="err" id="pl-err" hidden></p>'+
-  '<div class="dlg-actions"><button type="button" class="sm" data-act="pl-addrow">+ Add row</button><span class="spacer"></span><button type="button" data-act="dlg2-close">Cancel</button><button type="button" class="primary" data-act="pl-save">'+(PL.p==='lg'?'Save the student list':'Use this list')+'</button></div></div>';}
-function closeDlg2(){var d=$('dlg2');if(d.open)d.close();d.innerHTML='';d.classList.remove('xl');PL=null;}
+  '<div class="dlg-actions"><button type="button" class="sm" data-act="pl-addrow">+ Add row</button><span class="spacer"></span><button type="button" data-act="dlg2-close">Cancel</button><button type="button" class="primary" data-act="pl-save">'+(PL.p==='lg'||PL.p==='bd'?'Save the student list':'Use this list')+'</button></div></div>';}
+function closeDlg2(){var d=$('dlg2');if(d.open)d.close();d.innerHTML='';d.classList.remove('xl');PL=null;SEL=null;}
 function slDone(){var rows=PL.rows.filter(plFilled).map(function(r){var o={};SCOLS.forEach(function(col){if(r[col[0]]!=null&&r[col[0]]!=='')o[col[0]]=r[col[0]];});return o;});
   var noname=rows.filter(function(r){return !r.name;}).length,e=$('pl-err');if(noname){e.textContent=noname+' row'+(noname>1?'s have':' has')+' no name. Add the name or remove the row.';e.hidden=false;return;}
   if(!rows.length){e.textContent='Add at least one learner.';e.hidden=false;return;}
   var p=PL.p,c=byId(PL.id);closeDlg2();
-  if(p==='lg'){var f=makeListFile(rows,c);return guard(function(){return storeFile(f,c.id,'students').then(function(up){var now=new Date().toISOString();
-      return courseRef(c.id).update({files:(c.files||[]).filter(function(x){return x.kind!=='students';}).concat([up]),log:(c.log||[]).concat([logEntry('files','Student list updated in the sheet · '+rows.length+' learners',[up])]),updatedAt:now,updatedBy:S.me.id});}).then(function(){toast('Student list saved');});});}
+  if(p==='lg'||p==='bd'){var f=makeListFile(rows,c);return guard(function(){return storeFile(f,c.id,'students').then(function(up){var now=new Date().toISOString();
+      return courseRef(c.id).update({files:(c.files||[]).filter(function(x){return x.kind!=='students';}).concat([up]),log:(c.log||[]).concat([logEntry('files','Student list updated in the sheet · '+rows.length+' learners',[up])]),updatedAt:now,updatedBy:S.me.id});}).then(function(){toast('Student list saved');if($('bd'))setTimeout(function(){var cc=byId(c.id);if(cc&&$('bd'))bdFill(cc);},400);});});}
   S.pend[p]=rows;var inp=$(p+'-list');if(inp)inp.value='';
   listInfo(p,'<span class="ok">'+rows.length+' learner'+(rows.length===1?'':'s')+' typed in the sheet</span> · <button type="button" class="linkish" data-act="sl-sheet" data-p="'+p+'">Edit</button>');
   if(p==='sf'&&$('sf-batch')){$('sf-batch').value=rows.length;calcPreview('sf');}var se=$(p+'-err');if(se)se.hidden=true;}
+
+/* ----- recent changes on a page: every log entry and change across its courses, newest first ----- */
+var PAGES={pipeline:['Pipeline',function(c){return c.stage==='pipeline'||c.stage==='dropped';}],batches:['Batches',function(c){return c.stage==='standby'||c.stage==='running';}],actuals:['Throughput',function(c){return c.stage==='actual';}],placements:['Placements',function(c){return c.stage==='actual'&&c.placement===true;}]};
+var HIDEH=['acknowledged','batch-confirmed','started','completed','leader-approved','leader-back','golive','imported'];
+function pageItems(pg){var P=PAGES[pg];if(!P)return [];var out=[];
+  S.courses.filter(P[1]).forEach(function(c){
+    (c.log||[]).forEach(function(e){out.push({c:c,at:e.at,by:e.by,what:LOGKIND[e.kind]||e.kind,text:e.text||'',files:(e.files||[]).length});});
+    (c.history||[]).forEach(function(hh){if(HIDEH.indexOf(hh.action)>=0)return;if(hh.action==='created'&&(c.log||[]).some(function(e){return e.kind==='added';}))return;
+      out.push({c:c,at:hh.at,by:hh.by,what:ACTIONS[hh.action]||hh.action,text:hh.note||'',changes:hh.changes});});
+    if(pg==='placements'){var Pd=S.placements[c.id];if(Pd&&Pd.updatedAt)out.push({c:c,at:Pd.updatedAt,by:Pd.updatedBy,what:'Placement details saved',text:(Pd.rows||[]).length+' students · '+(Pd.rows||[]).filter(function(r){return r.status==='Placed';}).length+' placed'});}});
+  return out.filter(function(x){return x.at;}).sort(function(a,b){return a.at<b.at?1:-1;}).slice(0,250);}
+function pageSeen(pg){return (S.me.seen||{})['pg:'+pg]||'';}
+function pageNew(pg){var since=pageSeen(pg);if(!since)return 0;return pageItems(pg).filter(function(x){return x.at>since&&x.by!==S.me.id;}).length;}
+function markPage(pg){var now=new Date().toISOString();S.me.seen=Object.assign({},S.me.seen||{});S.me.seen['pg:'+pg]=now;try{S.db.collection('users').doc(S.me.id).update(new firebase.firestore.FieldPath('seen','pg:'+pg),now).catch(function(){});}catch(e){}}
+function activityBtn(){var pg=S.tab;if(!PAGES[pg])return '';var n=pageNew(pg);return '<button type="button" data-act="activity" data-pg="'+pg+'">Recent changes'+(n?' <span class="count alert">'+n+' new</span>':'')+'</button>';}
+function openAct(pg){closeLog();S.act={pg:pg,since:pageSeen(pg),key:''};renderAct();markPage(pg);renderChrome();}
+function closeAct(){S.act=null;var d=$('actdrawer');if(d)d.remove();}
+function renderAct(){if(!S.act)return;var pg=S.act.pg,items=pageItems(pg),since=S.act.since,key=JSON.stringify([pg,items.length,items[0]&&items[0].at]);if(key===S.act.key&&$('actdrawer'))return;S.act.key=key;
+  var html='<div class="lg-h"><div><b>Recent changes · '+esc(PAGES[pg][0])+'</b><div class="sub">Every step, message and edit on this page, newest first.'+(since?' Marked: new since you last looked.':'')+'</div></div><button class="sm" data-act="act-close" aria-label="Close">✕</button></div>'+
+    '<ol class="lg-list act-list">'+(items.length?items.map(function(x){var nw=since&&x.at>since&&x.by!==S.me.id;
+      return '<li class="'+(nw?'new':'')+'"><div class="lg-meta"><b>'+esc(nameOf(x.by))+'</b> <span>'+esc(x.what)+'</span><time>'+esc(stamp(x.at))+'</time></div>'+
+        '<button type="button" class="linkish act-c" data-act="log" data-id="'+esc(x.c.id)+'">'+esc(x.c.title)+(x.c.batch?' · '+esc(x.c.batch):'')+'</button>'+
+        (x.text?'<p>'+esc(String(x.text).slice(0,240))+'</p>':'')+(x.files?'<p class="sub">'+x.files+' file'+(x.files>1?'s':'')+' attached</p>':'')+
+        (x.changes&&x.changes.length?'<p class="sub">'+x.changes.map(function(ch){return esc(LABELS[ch.f]||ch.f)+': '+esc(fmtVal(ch.f,ch.from))+' → '+esc(fmtVal(ch.f,ch.to));}).join(' · ')+'</p>':'')+'</li>';}).join(''):'<li class="muted">Nothing yet.</li>')+'</ol>';
+  var d=$('actdrawer');if(!d){d=document.createElement('aside');d.id='actdrawer';d.className='logdrawer';d.setAttribute('aria-label','Recent changes');document.body.appendChild(d);}d.innerHTML=html;}
+
+/* ----- batch details: the batch, its learners and (when eligible) their placements, read-only ----- */
+function bdOpen(id){var c=byId(id);if(!c)return;var e=eff(c),p=plan(c);
+  var info=[['Course',c.title],['Batch / code',c.batch||'—'],['Client / source',c.client||'—'],['Programme type',c.programType||'—'],['Source',gatiName(c.gati)],['School',c.school||'—'],['Campus',(c.campus||'—')+' · '+modeName(c.mode)],
+    ['Planned',nice(c.plannedStart)+' → '+nice(c.plannedEnd)+(c.batchSize!=null?' · '+num(c.batchSize)+' learners':'')],['Started',nice(c.actualStart)+(c.startBatch!=null?' · '+num(c.startBatch)+' learners':'')],['Completed',nice(c.actualEnd)],
+    ['Training days',String(Math.round(p.days*10)/10)],['Final throughput',num(e.batch)+(c.male!=null||c.female!=null?' · '+num(c.male)+' male · '+num(c.female)+' female':'')],['Throughput days',num(tpdOf(c))],
+    ['Lab utilisation',labsText(c.labs,c.classPct)||'—'],['Throughput eligible',elig(c)?'Yes':'No'],['Placement eligible',c.placement===true?'Yes':c.placement===false?'No':'Not set']];
+  var can=progFor(c);
+  openDlg('<div class="dlg" id="bd" data-id="'+esc(c.id)+'"><div class="pl-h"><div><h2>Batch details</h2><span class="sub">'+esc(c.title)+(c.batch?' · '+esc(c.batch):'')+'</span></div>'+
+    (can?'<div class="row"><button type="button" class="sm" data-act="sl-sheet" data-p="bd">Edit student list</button>'+(c.placement===true?'<button type="button" class="sm" data-act="pl-open" data-id="'+esc(c.id)+'">Edit placement details</button>':'')+'</div>':'')+'</div>'+
+    '<div class="bd-info">'+info.map(function(x){return '<div><span class="lab">'+esc(x[0])+'</span><b>'+esc(x[1])+'</b></div>';}).join('')+'</div>'+
+    '<div class="bd-sum" id="bd-sum"></div><div class="plgrid-wrap" id="bd-grid"><p class="muted" style="padding:12px">Loading the student list…</p></div>'+
+    '<div class="dlg-actions"><span class="sub">'+(can?'Read-only here. Use the Edit buttons above to change the list or placements.':'Read-only.')+'</span><span class="spacer"></span><button type="button" class="primary" data-act="dlg-close">Close</button></div></div>');
+  $('dlg').classList.add('xl');bdFill(c);}
+function bdFill(c){var pr=plRows(c),pl=c.placement===true;
+  (hasList(c)&&typeof XLSX!=='undefined'?studentListAB(c).then(parseStudents).catch(function(){return null;}):Promise.resolve([])).then(function(st){var box=$('bd-grid');if(!box||!$('bd')||$('bd').dataset.id!==c.id)return;
+    if(st===null)return box.innerHTML='<p class="muted" style="padding:12px">The student list could not be read.</p>';
+    var byName={},rows=[];pr.forEach(function(r){if(r.name)byName[String(r.name).toLowerCase().trim()]=r;});
+    st.forEach(function(s){var k=String(s.name).toLowerCase().trim();rows.push({s:s,p:pl?byName[k]:null});if(byName[k])byName[k].used=1;});
+    if(pl)pr.forEach(function(r){if(!r.used&&r.name)rows.push({s:{name:r.name,gender:r.gender,mobile:r.mobile,email:r.email},p:r});delete r.used;});
+    var sc=[['name','Name'],['gender','Gender'],['mobile','Mobile'],['email','Email'],['org','Organisation / college'],['branch','Designation / branch'],['city','City']];
+    var pc=[['status','Placement'],['company','Company'],['sector','Sector'],['role','Role'],['location','Location'],['region','Region'],['pkg','Salary (LPA)'],['bracket','Bracket'],['doj','Joining']];
+    if(!rows.length){box.innerHTML='<p class="muted" style="padding:12px">No student list has been added for this batch.</p>';$('bd-sum').textContent='';return;}
+    var placed=rows.filter(function(r){return r.p&&r.p.status==='Placed';}).length;
+    $('bd-sum').textContent=rows.length+' learner'+(rows.length===1?'':'s')+(pl?' · '+placed+' placed ('+pct(placed,rows.length)+')':'');
+    box.innerHTML='<table class="plgrid bdgrid"><thead><tr><th class="rn">#</th>'+sc.map(function(x){return '<th>'+esc(x[1])+'</th>';}).join('')+(pl?pc.map(function(x){return '<th class="pc">'+esc(x[1])+'</th>';}).join(''):'')+'</tr></thead><tbody>'+
+      rows.map(function(r,i){return '<tr><td class="rn">'+(i+1)+'</td>'+sc.map(function(x){return '<td>'+esc(r.s[x[0]]||'')+'</td>';}).join('')+(pl?pc.map(function(x){var v=r.p?r.p[x[0]]:'';return '<td class="pc">'+esc(x[0]==='doj'&&v?nice(v):v==null?'':v)+'</td>';}).join(''):'')+'</tr>';}).join('')+'</tbody></table>';});}
+
+/* ----- sheets: select a block of cells like Excel (drag, shift-click, row number, column heading), then copy, cut, delete or paste ----- */
+var SEL=null,selDrag=false;
+function selCell(el){var td=el&&el.closest&&el.closest('#pl-wrap td');if(!td)return null;var inp=td.querySelector('[data-pr]');if(!inp)return null;return {r:Number(inp.dataset.pr),c:plCols().map(function(x){return x[0];}).indexOf(inp.dataset.pc)};}
+function selBox(){if(!SEL)return null;return {r0:Math.min(SEL.r0,SEL.r1),r1:Math.max(SEL.r0,SEL.r1),c0:Math.min(SEL.c0,SEL.c1),c1:Math.max(SEL.c0,SEL.c1)};}
+function selMulti(){var b=selBox();return !!b&&(b.r0!==b.r1||b.c0!==b.c1);}
+function selPaint(){var w=$('pl-wrap');if(!w)return;var b=selBox(),cols=plCols().map(function(x){return x[0];});
+  [].forEach.call(w.querySelectorAll('td.sel'),function(td){td.classList.remove('sel');});if(!b||!selMulti())return;
+  [].forEach.call(w.querySelectorAll('[data-pr]'),function(inp){var r=Number(inp.dataset.pr),c=cols.indexOf(inp.dataset.pc);if(r>=b.r0&&r<=b.r1&&c>=b.c0&&c<=b.c1)inp.parentNode.classList.add('sel');});}
+function selTSV(){var b=selBox(),cols=plCols(),out=[];for(var r=b.r0;r<=b.r1;r++){var row=PL.rows[r]||{},line=[];for(var c=b.c0;c<=b.c1;c++){var v=row[cols[c][0]];line.push(v==null?'':String(v));}out.push(line.join('\t'));}return out.join('\n');}
+function selClear(){var b=selBox(),cols=plCols();for(var r=b.r0;r<=b.r1;r++){if(!PL.rows[r])continue;for(var c=b.c0;c<=b.c1;c++)delete PL.rows[r][cols[c][0]];}plRedraw();selPaint();}
+document.addEventListener('mousedown',function(ev){if(!PL||ev.button!==0)return;var w=$('pl-wrap');if(!w||!w.contains(ev.target)){return;}
+  var th=ev.target.closest('th[data-sc]'),rn=ev.target.closest('td.rn');var last=PL.rows.length-1;
+  if(th){ev.preventDefault();var ci=Number(th.dataset.sc);SEL={r0:0,c0:ci,r1:last,c1:ci};selPaint();var f=w.querySelector('[data-pr="0"][data-pc="'+plCols()[ci][0]+'"]');if(f)f.focus({preventScroll:true});return;}
+  if(rn){ev.preventDefault();var ri=Number(rn.textContent)-1;SEL={r0:ri,c0:0,r1:ri,c1:plCols().length-1};selPaint();var f2=w.querySelector('[data-pr="'+ri+'"][data-pc="'+plCols()[0][0]+'"]');if(f2)f2.focus({preventScroll:true});return;}
+  var cell=selCell(ev.target);if(!cell)return;
+  if(ev.shiftKey&&SEL){ev.preventDefault();SEL.r1=cell.r;SEL.c1=cell.c;selPaint();return;}
+  SEL={r0:cell.r,c0:cell.c,r1:cell.r,c1:cell.c};selDrag=true;selPaint();});
+document.addEventListener('mouseover',function(ev){if(!selDrag||!SEL)return;var cell=selCell(ev.target);if(!cell)return;if(cell.r!==SEL.r1||cell.c!==SEL.c1){SEL.r1=cell.r;SEL.c1=cell.c;selPaint();if(selMulti()){var w=$('pl-wrap');if(w)w.classList.add('selecting');try{window.getSelection().removeAllRanges();}catch(e){}}}});
+document.addEventListener('mouseup',function(){if(selDrag){selDrag=false;var w=$('pl-wrap');if(w)w.classList.remove('selecting');}});
+function selActive(){var w=$('pl-wrap');return !!w&&(w.contains(document.activeElement)||document.activeElement===document.body||document.activeElement===w.closest('dialog'));}
+document.addEventListener('copy',function(ev){if(PL&&selMulti()&&selActive()){ev.preventDefault();ev.clipboardData.setData('text/plain',selTSV());toast('Copied '+(selBox().r1-selBox().r0+1)+' × '+(selBox().c1-selBox().c0+1)+' cells');}});
+document.addEventListener('cut',function(ev){if(PL&&!PL.ro&&selMulti()&&selActive()){ev.preventDefault();ev.clipboardData.setData('text/plain',selTSV());selClear();}});
+document.addEventListener('keydown',function(ev){if(!PL||PL.ro||!selMulti()||!selActive())return;
+  if(ev.key==='Delete'||ev.key==='Backspace'){ev.preventDefault();selClear();$('pl-sum').innerHTML=plSum();}
+  else if(ev.key==='Escape'){ev.preventDefault();ev.stopPropagation();SEL=null;selPaint();}},true);
 
 /* ----- table columns: fixed widths, drag the header edge to resize, double-click it to fit ----- */
 function colW(){if(!S.colw){try{S.colw=JSON.parse(localStorage.getItem('colw')||'{}')||{};}catch(e){S.colw={};}}return S.colw;}
@@ -1997,7 +2093,7 @@ function boot(){
       var start=S.authState!=='in';S.authState='in';if(start)startData();render();
     },function(){S.authState='noprofile';render();});});
 }
-$('dlg2').addEventListener('close',function(){if(PL&&PL.kind==='students')PL=null;});
+$('dlg2').addEventListener('close',function(){if(PL&&PL.kind==='students'){PL=null;SEL=null;}});
 boot();
 })();
 </script>
