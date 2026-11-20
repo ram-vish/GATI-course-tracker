@@ -33,6 +33,8 @@ service cloud.firestore {
     function isProgram() { return hasProfile() && 'program' in roles(); }
     function isCP() { return hasProfile() && 'cp' in roles(); }
     function isLead() { return hasProfile() && 'lead' in roles(); }
+    // A program team member may be limited to some campuses ("campuses"); none listed means both.
+    function campusOK(d) { return me().get('campuses', []).size() == 0 || d.get('campus', '') in me().get('campuses', []); }
     // Anyone who takes part in the flow (not view-only).
     function involved() { return isProgram() || isCP() || isLead() || (hasProfile() && me().get('gatis', []).size() > 0); }
     function isHeadFor(g) { return hasProfile() && g in me().get('gatis', []); }
@@ -45,7 +47,7 @@ service cloud.firestore {
       allow read: if hasProfile();
       allow create: if isAdmin();
       allow update: if isAdmin()
-        || (hasProfile() && id == email() && changed().hasOnly(['defaultPassword']));
+        || (hasProfile() && id == email() && changed().hasOnly(['defaultPassword', 'seen']));
       allow delete: if isAdmin();
     }
 
@@ -83,15 +85,15 @@ service cloud.firestore {
         // Once course production has started, the course name, source and school stay fixed.
         && (was == 'awaiting' || (was == 'approved' && resource.data.get('courseReady', false) == true)
             || !changed().hasAny(['title', 'gati', 'school']))
-        // Only course production uploads course files.
-        && !changed().hasAny(['files']);
+        // Only course production uploads course files; the GATI head adds the student list when confirming the batch.
+        && (!changed().hasAny(['files']) || (was == 'approved' && now == 'leadership'));
     }
 
     match /courses/{id} {
       allow read: if hasProfile();
       allow create: if isAdmin()
         // Operations add confirmed batches straight to Upcoming batches; only the admin adds completed courses.
-        || (isProgram() && request.resource.data.stage == 'standby')
+        || (isProgram() && request.resource.data.stage == 'standby' && campusOK(request.resource.data))
         || (isHeadFor(request.resource.data.gati) && request.resource.data.stage == 'pipeline'
             && (rv(request.resource.data) == 'awaiting'
                 || (rv(request.resource.data) == 'approved' && request.resource.data.get('courseReady', false) == true)));
@@ -100,7 +102,8 @@ service cloud.firestore {
         || (involved() && changed().hasOnly(['log', 'updatedAt', 'updatedBy'])
             && request.resource.data.get('log', []).size() == resource.data.get('log', []).size() + 1)
         // Operations: standby, running and completed batches; may cancel a standby batch.
-        || (isProgram() && resource.data.stage in ['standby', 'running', 'actual']
+        || (isProgram() && campusOK(resource.data) && campusOK(request.resource.data)
+            && resource.data.stage in ['standby', 'running', 'actual']
             && request.resource.data.stage in ['standby', 'running', 'actual', 'dropped']
             && (request.resource.data.stage != 'dropped' || resource.data.stage == 'standby'))
         // Course production: upload the course with its lab utilisation, or add a note, while it is in the pipeline.

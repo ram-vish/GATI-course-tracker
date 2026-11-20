@@ -15,7 +15,7 @@ Tracks the courses brought in by the four GATI sources (Government, Academics, T
 
 ### How a course moves
 
-1. **Pipeline:** a GATI head adds the course and answers "Do we have course outline?". With **Request from course production**, course production uploads the course files with the lab utilisation, and the GATI head confirms it or asks for changes (back to course production). With **Already have course outline**, the GATI head fills in the lab utilisation and course production is skipped. Every step, file and message is kept in the course log. Anyone involved can add a message at any stage and mention a person, who then sees it under their profile picture. The log's **Uploaded files** button lists every file on the course with its category. Once approved, the GATI head confirms the batch, and leadership approves it (or sends it back to the GATI head).
+1. **Pipeline:** a GATI head adds the course and answers "Do we have course outline?". With **Request from course production**, course production uploads the course files with the lab utilisation, and the GATI head confirms it or asks for changes (back to course production). With **Already have course outline**, the GATI head fills in the lab utilisation and course production is skipped. Every step, file and message is kept in the course log. Anyone involved can add a message at any stage and mention a person, who then sees it under their profile picture. The log's **Uploaded files** button lists every file on the course with its category. Once approved, the GATI head confirms the batch with the student list, and leadership approves it (or sends it back to the GATI head).
 2. **Batches · Upcoming batches:** approved batches wait for their start day. The program team can also add a confirmed batch here directly. Operations click **Batch started** and enter the actual start date and learners present; the student list can be uploaded now or later.
 3. **Batches · Running:** shows progress and days left, and flags a missing student list. On the end day operations click **Batch completed** with the final throughput and gender split; the student list is required by then. Feedback and the group photo are optional and can be added from the log at any time, even after completion.
 4. **Throughput** (the completed list): locked. GATI heads can request an edit; the program team unlocks it.
@@ -26,7 +26,7 @@ Tracks the courses brought in by the four GATI sources (Government, Academics, T
 - **GATI head:** adds and edits pipeline courses for their own sources, confirms uploaded courses, confirms batches. A program team member can also head a source.
 - **Course production:** uploads courses for review and adds notes in the pipeline.
 - **Leadership:** approves confirmed batches into Upcoming batches, or sends them back to the GATI head.
-- **Program team (operations):** adds upcoming batches, starts and completes batches, edits upcoming/running/completed records, manages schools, labs and holidays. View only in the pipeline.
+- **Program team (operations):** adds upcoming batches, starts and completes batches, edits upcoming/running/completed records, manages schools, labs and holidays. A member can be limited to one campus (`campuses` on their profile). View only in the pipeline.
 - **Viewer:** sees everything, changes nothing.
 
 ### Data in Firestore
