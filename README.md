@@ -19,6 +19,7 @@ Tracks the courses brought in by the four GATI sources (Government, Academics, T
 2. **Batches · Upcoming batches:** approved batches wait for their start day. The program team can also add a confirmed batch here directly. Operations click **Batch started** and enter the actual start date and learners present; the student list can be uploaded now or later.
 3. **Batches · Running:** shows progress and days left, and flags a missing student list. On the end day operations click **Batch completed** with the final throughput and gender split; the student list is required by then. Feedback and the group photo are optional and can be added from the log at any time, even after completion.
 4. **Throughput** (the completed list): locked. GATI heads can request an edit; the program team unlocks it.
+5. **Placements:** when operations complete a batch they say whether it is placement eligible (on by default for Fresh Skilling). Eligible batches also appear on the Placements tab, where the program team fills a sheet per batch (student, status, company, sector, role, location, region, package and bracket, joining date) by typing, pasting from Excel or uploading the template. The sheet starts from the batch's student list.
 
 ### Who can do what
 
@@ -34,6 +35,7 @@ Tracks the courses brought in by the four GATI sources (Government, Academics, T
 - `courses/{id}`: one document per course. `stage` is `pipeline`, `standby`, `running`, `actual` or `dropped`; `review` tracks the pipeline review; `log` is the conversation log; `files` lists attached files.
 - `files/{id}` and `files/{id}/chunks/{n}`: attached files (up to 5 MB), stored in pieces because the project has no file storage.
 - `users/{email}`: one document per person with access. `roles` lists any of `program`, `cp` and `lead` (a person can have several); `gatis` lists the sources they head; nothing listed means view only. Older entries have a single `role`.
+- `placements/{courseId}`: the placement sheet of a completed batch (`rows`, one per student).
 - `config/main`: schools, labs, holidays and the named GATI heads.
 
 ## How the numbers are worked out

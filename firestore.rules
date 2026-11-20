@@ -89,6 +89,12 @@ service cloud.firestore {
         && (!changed().hasAny(['files']) || (was == 'approved' && now == 'leadership'));
     }
 
+    // Placement details of completed batches. Anyone signed in reads; the program team (for its campus) and the admin edit.
+    match /placements/{id} {
+      allow read: if hasProfile();
+      allow write: if isAdmin() || (isProgram() && campusOK(get(/databases/$(database)/documents/courses/$(id)).data));
+    }
+
     match /courses/{id} {
       allow read: if hasProfile();
       allow create: if isAdmin()
