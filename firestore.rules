@@ -80,13 +80,20 @@ service cloud.firestore {
         && (now == was || (was == 'review' && now in ['approved', 'changes']) || (was == 'approved' && now == 'leadership')
             || (was == 'awaiting' && now == 'approved' && request.resource.data.get('courseReady', false) == true)
             || (was == 'approved' && now == 'awaiting' && resource.data.get('courseReady', false) == true))
-        // Stays in the pipeline; may be dropped until the course is approved.
-        && (st == 'pipeline' || (st == 'dropped' && !(was in ['approved', 'leadership'])))
+        // Stays in the pipeline; the GATI head may drop it at any step.
+        && (st == 'pipeline' || st == 'dropped')
         // Once course production has started, the course name, source and school stay fixed.
         && (was == 'awaiting' || (was == 'approved' && resource.data.get('courseReady', false) == true)
             || !changed().hasAny(['title', 'gati', 'school']))
         // Only course production uploads course files; the GATI head adds the student list when confirming the batch.
         && (!changed().hasAny(['files']) || (was == 'approved' && now == 'leadership'));
+    }
+
+    // Feedback about the tracker. Anyone signed in sends it; only the admin reads all of it and marks it done.
+    match /feedback/{id} {
+      allow create: if hasProfile() && request.resource.data.by == email();
+      allow read: if isAdmin() || (hasProfile() && resource.data.by == email());
+      allow update, delete: if isAdmin();
     }
 
     // Placement details of completed batches. Anyone signed in reads; the program team (for its campus) and the admin edit.
@@ -127,7 +134,7 @@ service cloud.firestore {
         // GATI heads: their own pipeline courses.
         || (isHeadFor(resource.data.gati) && resource.data.stage == 'pipeline' && headPipelineOK())
         // GATI heads: restore their own course dropped before approval.
-        || (isHeadFor(resource.data.gati) && resource.data.stage == 'dropped' && rv(resource.data) != 'approved'
+        || (isHeadFor(resource.data.gati) && resource.data.stage == 'dropped'
             && isHeadFor(request.resource.data.gati) && request.resource.data.stage in ['pipeline', 'dropped'])
         // GATI heads: completed courses, an edit request, or one edit once the program team unlocks it.
         || (isHeadFor(resource.data.gati) && resource.data.stage == 'actual' && request.resource.data.stage == 'actual'

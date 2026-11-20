@@ -21,10 +21,12 @@ Tracks the courses brought in by the four GATI sources (Government, Academics, T
 4. **Throughput** (the completed list): locked. GATI heads can request an edit; the program team unlocks it. **Batch details** shows the batch, its learners and, when placement eligible, their placements, read-only; the program team edits through its Edit buttons.
 5. **Placements:** when operations complete a batch they choose Yes or No for placement eligibility. Eligible batches also appear on the Placements tab, where the program team fills a sheet per batch (student, status, company, sector, role, location, region, package and bracket, joining date) by typing, pasting from Excel or uploading the template. The sheet starts from the batch's student list.
 
+Learner lists carry a registration number for each learner; it is required when a batch is completed. A GATI head can confirm a batch without the list by ticking "Not available right now"; the batch is then flagged until the list is added. Setup and **Give feedback** (with screenshots) are in the profile menu at the top right; only the admin sees the feedback, in Setup.
+
 ### Who can do what
 
 - **Admin** (ram.viswanath@tataiis.org): everything, and the only one who can add people, change their access, add completed courses directly and delete records.
-- **GATI head:** adds and edits pipeline courses for their own sources, confirms uploaded courses, confirms batches. A program team member can also head a source.
+- **GATI head:** adds and edits pipeline courses for their own sources, confirms uploaded courses, confirms batches, and can drop a course from the pipeline at any step. A program team member can also head a source.
 - **Course production:** uploads courses for review and adds notes in the pipeline.
 - **Leadership:** approves confirmed batches into Upcoming batches, or sends them back to the GATI head.
 - **Program team (operations):** adds upcoming batches, starts and completes batches, edits upcoming/running/completed records, manages schools, labs and holidays. A member can be limited to one campus (`campuses` on their profile). View only in the pipeline.
@@ -35,6 +37,7 @@ Tracks the courses brought in by the four GATI sources (Government, Academics, T
 - `courses/{id}`: one document per course. `stage` is `pipeline`, `standby`, `running`, `actual` or `dropped`; `review` tracks the pipeline review; `log` is the conversation log; `files` lists attached files.
 - `files/{id}` and `files/{id}/chunks/{n}`: attached files (up to 5 MB), stored in pieces because the project has no file storage.
 - `users/{email}`: one document per person with access. `roles` lists any of `program`, `cp` and `lead` (a person can have several); `gatis` lists the sources they head; nothing listed means view only. Older entries have a single `role`.
+- `feedback/{id}`: feedback sent from the profile menu, with any screenshots.
 - `placements/{courseId}`: the placement sheet of a completed batch (`rows`, one per student).
 - `config/main`: schools, labs, holidays and the named GATI heads.
 
