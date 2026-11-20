@@ -364,10 +364,10 @@ tr.subhead > td{background:var(--surface-2);font-weight:600;font-size:12px;color
 .daypop .dp-f{display:flex;justify-content:flex-end}
 .steps{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:5px}
 .stepper{display:inline-flex;align-items:center;margin:2px 0 6px;cursor:pointer;padding:2px 0}
-.stepper i{width:16px;height:16px;border-radius:50%;border:2px solid var(--line-2);background:var(--surface);box-sizing:border-box;display:inline-grid;place-items:center;font-size:9px;font-style:normal;font-weight:700;color:#fff;line-height:1;flex:none}
+.stepper i{width:18px;height:18px;font-size:10px!important;border-radius:50%;border:2px solid var(--line-2);background:var(--surface);box-sizing:border-box;display:inline-grid;place-items:center;font-size:9px;font-style:normal;font-weight:700;color:#fff;line-height:1;flex:none}
 .stepper i.done{background:var(--s-green);border-color:var(--s-green)}
 .stepper i.now{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
-.stepper b{width:14px;height:2px;background:var(--line-2);flex:none}
+.stepper b{width:22px;height:2px;background:var(--line-2);flex:none}
 .stepper b.done{background:var(--s-green)}
 table.fixed{table-layout:fixed}
 table.fixed td.c-main{min-width:0;max-width:none}
@@ -385,9 +385,16 @@ body.resizing{cursor:col-resize;user-select:none}
 .colmeasure{position:absolute;left:-9999px;top:0;visibility:hidden;white-space:nowrap;display:inline-block}
 .colmeasure *{white-space:nowrap!important}
 .colmeasure div,.colmeasure p{display:block}
-.actbox{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
-.actbox button{margin:0}
-.actbox .actneed{order:-1;flex-basis:100%;margin:0;white-space:normal}
+.actbox{display:flex;flex-wrap:wrap;column-gap:6px;row-gap:4px;align-items:center}
+.actbox button{margin:0;flex:none;white-space:nowrap}
+.actbox .actneed{order:99;flex-basis:100%;margin:0;white-space:normal}
+table.fixed td.acts{overflow:visible}
+button.ico{width:30px;padding:0;display:inline-grid;place-items:center}
+button.ico svg{width:15px;height:15px}
+.listbox{display:flex;flex-direction:column;gap:6px;border:1px solid var(--line-2);border-radius:8px;padding:10px 12px}
+.listbox .lb-row{align-items:center}
+.listbox .lb-old{font-size:13px}
+.listbox .ok{color:var(--good-ink);font-weight:600}
 .ftip.rich{white-space:normal;max-width:340px;padding:10px 12px}
 .ftip.rich h5{margin:0 0 8px;font-size:11px;font-family:var(--font-head);text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3)}
 .vs{display:flex;gap:10px;position:relative;padding-bottom:12px}
@@ -512,6 +519,7 @@ table.plgrid{border-collapse:separate;border-spacing:0;font-size:12px;width:max-
   <main id="main"><div class="panel"><div class="empty"><p>Loading the tracker…</p></div></div></main>
 </div>
 <dialog id="dlg"></dialog>
+<dialog id="dlg2"></dialog>
 <div id="toast" role="status" hidden></div>
 
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -543,7 +551,7 @@ var MONL=['January','February','March','April','May','June','July','August','Sep
 var TABS=[['dashboard','Dashboard'],['actuals','Throughput'],['batches','Batches'],['pipeline','Pipeline'],['calendar','Calendar'],['placements','Placements'],['setup','Setup']];
 var QUICK=[['Full year',0,12],['H1',0,6],['H2',6,12],['Q1',0,3],['Q2',3,6],['Q3',6,9],['Q4',9,12]];
 
-var S={mexp:{},placements:{},plf:{fys:curFY(),smonths:null,emonths:null,sdx:null,edx:null,gati:null,school:null,campus:null,mode:null,ptype:null,ndays:null,nbatch:null,ntpd:null,q:'',view:'all'},db:null,auth:null,authState:'loading',me:{id:null,name:'',email:'',role:'',gatis:[],isOwner:false},users:[],courses:[],config:null,names:{},
+var S={mexp:{},placements:{},plf:{fys:curFY(),smonths:null,emonths:null,sdx:null,edx:null,gati:null,school:null,campus:null,mode:null,ptype:null,ndays:null,nbatch:null,ntpd:null,pbatch:null,pbr:null,q:'',view:'all'},listOld:{},pend:{},db:null,auth:null,authState:'loading',me:{id:null,name:'',email:'',role:'',gatis:[],isOwner:false},users:[],courses:[],config:null,names:{},
   loaded:false,slow:false,err:null,tab:'dashboard',holSet:new Set(),openHist:new Set(),armed:null,online:false,
   openMs:null,mview:'both',dl:null,
   cal:{view:'month',anchor:today(),group:'school',scrollKey:'',jump:today().slice(0,8)+'01',keepDate:null},
@@ -653,7 +661,7 @@ function monIdx(ym){return (Number(ym.slice(5,7))+8)%12;}
 
 /* ---------- multi-select filters ---------- */
 var MSOPTS={};
-function valOf(c,key){if(key==='gati')return c.gati||'-';if(key==='school')return c.school||'-';if(key==='campus')return c.campus||'-';if(key==='mode')return c.mode||'-';if(key==='ptype')return c.programType||'-';if(key==='conf')return c.confidence||'yellow';if(key==='status')return liveStatus(c);if(key==='elig')return elig(c)?'yes':'no';if(key==='kind')return bucket(c);if(key==='ndays')return String(Math.round(plan(c).days*10)/10);if(key==='nbatch')return String(eff(c).batch);if(key==='ntpd')return String(Math.round(tpdOf(c)));return '';}
+function valOf(c,key){if(key==='gati')return c.gati||'-';if(key==='school')return c.school||'-';if(key==='campus')return c.campus||'-';if(key==='mode')return c.mode||'-';if(key==='ptype')return c.programType||'-';if(key==='conf')return c.confidence||'yellow';if(key==='status')return liveStatus(c);if(key==='elig')return elig(c)?'yes':'no';if(key==='kind')return bucket(c);if(key==='pbatch')return c.batch||'-';if(key==='ndays')return String(Math.round(plan(c).days*10)/10);if(key==='nbatch')return String(eff(c).batch);if(key==='ntpd')return String(Math.round(tpdOf(c)));return '';}
 var NKEYS=['ndays','nbatch','ntpd'];
 /* The courses the current list is drawn from: number and day filters offer only values found here. */
 var NUMSRC=[];
@@ -673,6 +681,8 @@ function optsFor(key,fy){
   if(key==='fys')return fyOptions().map(function(y){return {k:String(y),n:fyLabel(y)};});
   if(/months$/.test(key)){var fm=fy!=null?fyMonths(fy):null;return [9,10,11,0,1,2,3,4,5,6,7,8].map(function(i){return {k:String(i),n:fm?monthLong(fm[i]):MONL[(3+i)%12]};});}
   var seen={},out=[],extra=[],blankv=false;
+  if(key==='pbr')return PBR.map(function(b){return {k:b,n:b};}).concat([{k:'none',n:'None placed yet'}]);
+  if(key==='pbatch'){var bv={},bn=false;NUMSRC.forEach(function(c){if(c.batch)bv[c.batch]=1;else bn=true;});return Object.keys(bv).sort(function(a,b){return a.localeCompare(b,undefined,{numeric:true});}).map(function(v){return {k:v,n:v};}).concat(bn?[{k:'-',n:'Not set'}]:[]);}
   if(NKEYS.indexOf(key)>=0){var nv={};NUMSRC.forEach(function(c){if(valid(c))nv[valOf(c,key)]=1;});return Object.keys(nv).map(Number).sort(function(a,b){return a-b;}).map(function(v){return {k:String(v),n:key==='ndays'?(v===1?'1 day':v+' days'):num(v)};});}
   if(key==='ptype'){PTYPES.forEach(function(g){[g.n].concat(g.items.map(function(it){return ptLabel(g.k,it[0]);})).forEach(function(x){seen[x]=1;out.push({k:x,n:ptDisplay(x),s:x,g:g.k});});
       var oth={};S.courses.forEach(function(c){var v=c.programType;if(v&&!seen[v]&&ptGroup(v)===g.k)oth[v]=1;});Object.keys(oth).sort().forEach(function(x){seen[x]=1;out.push({k:x,n:ptDisplay(x),s:x,g:g.k});});});}
@@ -851,7 +861,7 @@ function monthRowC(label,keys,cls){return '<tr'+(cls?' class="'+cls+'"':'')+'><t
 function defaults(scope){
   if(scope==='f')return {fys:curFY(),months:null,gati:null,school:null,campus:null,mode:null,ptype:null,elig:{yes:1},mcats:{done:1},tcats:{done:1},by:S.f.by};
   if(scope==='pf')return {fys:curFY(),smonths:null,emonths:null,sdx:null,edx:null,gati:null,school:null,campus:null,mode:null,ptype:null,ndays:null,nbatch:null,ntpd:null,conf:null,status:null,q:'',view:'active'};
-  if(scope==='plf')return {fys:curFY(),smonths:null,emonths:null,sdx:null,edx:null,gati:null,school:null,campus:null,mode:null,ptype:null,ndays:null,nbatch:null,ntpd:null,q:'',view:'all'};
+  if(scope==='plf')return {fys:curFY(),smonths:null,emonths:null,sdx:null,edx:null,gati:null,school:null,campus:null,mode:null,ptype:null,ndays:null,nbatch:null,ntpd:null,pbatch:null,pbr:null,q:'',view:'all'};
   if(scope==='kf')return {gati:null,school:null,campus:null,mode:null,ptype:null,kind:null};
   if(scope==='bf')return {fys:null,smonths:null,emonths:null,sdx:null,edx:null,gati:null,school:null,campus:null,mode:null,ptype:null,ndays:null,nbatch:null,ntpd:null,q:'',view:S.bf.view};
   return {fys:curFY(),smonths:null,emonths:null,sdx:null,edx:null,gati:null,school:null,campus:null,mode:null,ptype:null,ndays:null,nbatch:null,ntpd:null,elig:{yes:1},q:'',view:'completed'};}
@@ -952,7 +962,7 @@ function stepsCell(c){var st=pipeStatus(c),L=c.log||[];
   function by(e){return e?' · '+nameOf(e.by)+', '+stamp(e.at).split(',')[0]:'';}
   var steps=c.courseReady&&(st==='approved'||st==='leadership')
     ?[['Added',true,false,last('added')],['Course outline available',true,false,null],['Batch confirmed',st==='leadership',st==='approved',last('confirm')],['Leadership approved',false,st==='leadership',null]]
-    :[['Added',true,false,last('added')],['Course uploaded',st!=='awaiting'&&st!=='changes',st==='awaiting'||st==='changes',last('upload')],['GATI head confirmed',st==='approved'||st==='leadership',st==='review',last('approve')],['Batch confirmed',st==='leadership',st==='approved',last('confirm')],['Leadership approved',false,st==='leadership',null]];
+    :[['Added',true,false,last('added')],['Course uploaded',st!=='awaiting'&&st!=='changes',st==='awaiting'||st==='changes',last('upload')],['GATI head course confirmed',st==='approved'||st==='leadership',st==='review',last('approve')],['Batch confirmed',st==='leadership',st==='approved',last('confirm')],['Leadership approved',false,st==='leadership',null]];
   var lines=steps.map(function(x){return (x[1]?'✓ ':x[2]?'→ ':'○ ')+x[0]+(x[1]?by(x[3]):x[2]?' · waiting':'');});
   var rich='<h5>Pipeline progress</h5>'+steps.map(function(x){return '<div class="vs '+(x[1]?'done':x[2]?'now':'todo')+'"><i>'+(x[1]?'✓':'')+'</i><div><b>'+esc(x[0])+'</b>'+(x[1]&&x[3]?'<span>'+esc(nameOf(x[3].by)+' · '+stamp(x[3].at))+'</span>':x[2]?'<span>In progress · '+esc(statusText(st,c))+'</span>':'')+'</div></div>';}).join('');
   var h='<div class="stepper" role="img" aria-label="'+esc(lines.join('; '))+'"'+tip(lines.join('\n'))+' data-tiph="'+esc(rich)+'">'+steps.map(function(x,i){return (i?'<b'+(x[1]||x[2]?' class="done"':'')+'></b>':'')+'<i class="'+(x[1]?'done':x[2]?'now':'')+'">'+(x[1]?'✓':'')+'</i>';}).join('')+'</div>';
@@ -976,10 +986,10 @@ function viewPipeline(){
     if(cb)h+='<div class="note warn"><span><b>'+cb+' confirmed course'+(cb>1?'s need':' needs')+' the batch confirmed.</b> Confirm the final dates and learners to send '+(cb>1?'them':'it')+' to leadership for approval.</span></div>';}
   if(!active.length&&!drops.length)return h+'<div class="panel"><div class="empty"><h2>The pipeline is empty</h2><p>GATI heads add the courses they expect to bring, with dates, batch size and how likely each one is.</p></div></div>';
   h+=totalsBox(list,'pipeline');
-  h+='<section class="panel"><div class="scroll">'+tblOpen('pf',[300,112,124,116,88,88,74,78,80,118,170,170])+'<thead><tr>'+hf('pf','course',[['ptype','Programme type']],'Course')+hf('pf','gati',[['gati','Source']],'Source')+hf('pf','school',[['school','School']],'School')+hf('pf','campus',[['campus','Campus']],'Campus')+hf('pf','start',[['smonths','Start month']],'Start','',fy1)+hf('pf','end',[['emonths','End month']],'End','',fy1)+hf('pf','ndays',[['ndays','Training days']],'Days','n')+hf('pf','nbatch',[['nbatch','Batch size']],'Batch','n')+hf('pf','ntpd',[['ntpd','TP days']],'TP days','n')+(dropped?'<th>Reason</th><th>Status</th>':hf('pf','conf',[['conf','Confidence']],'Confidence')+hf('pf','status',[['status','Stage']],'Stage'))+'<th></th></tr></thead><tbody>'+
+  h+='<section class="panel"><div class="scroll">'+tblOpen('pf',[300,112,124,116,88,88,74,78,80,118,200,250])+'<thead><tr>'+hf('pf','course',[['ptype','Programme type']],'Course')+hf('pf','gati',[['gati','Source']],'Source')+hf('pf','school',[['school','School']],'School')+hf('pf','campus',[['campus','Campus']],'Campus')+hf('pf','start',[['smonths','Start month']],'Start','',fy1)+hf('pf','end',[['emonths','End month']],'End','',fy1)+hf('pf','ndays',[['ndays','Training days']],'Days','n')+hf('pf','nbatch',[['nbatch','Batch size']],'Batch','n')+hf('pf','ntpd',[['ntpd','TP days']],'TP days','n')+(dropped?'<th>Reason</th><th>Status</th>':hf('pf','conf',[['conf','Confidence']],'Confidence')+hf('pf','status',[['status','Stage']],'Stage'))+'<th></th></tr></thead><tbody>'+
     (list.length?list.map(function(c){var can=canEditCourse(c),acts='';
       if(dropped){if(can)acts+='<button class="sm" data-act="restore" data-id="'+esc(c.id)+'">Restore</button>';acts+=logBtn(c);if(S.me.isAdmin)acts+=delBtn(c);}
-      else{acts+=logBtn(c);if(canConfirmBatch(c))acts+='<button class="sm primary" data-act="confirm-batch" data-id="'+esc(c.id)+'">Confirm batch</button>';if(can)acts+='<button class="sm" data-act="edit" data-id="'+esc(c.id)+'">Edit</button>';if(canDrop(c))acts+='<button class="sm danger" data-act="drop" data-id="'+esc(c.id)+'">Drop</button>';if(S.me.isAdmin)acts+=delBtn(c);}
+      else{acts+=logBtn(c);if(canConfirmBatch(c))acts+='<button class="sm primary" data-act="confirm-batch" data-id="'+esc(c.id)+'">Confirm batch</button>';if(can)acts+=icoBtn('edit',c,'Edit',ICO.edit);if(canDrop(c))acts+=icoBtn('drop',c,'Drop from the pipeline',ICO.drop,'danger');if(S.me.isAdmin)acts+=delBtn(c);}
       return '<tr><td class="c-main">'+courseCell(c)+'</td><td>'+gchip(c.gati)+'</td><td title="'+esc(c.school)+'">'+esc((c.school||'').replace(/^School of /,''))+'</td><td>'+esc(c.campus)+'<div class="sub nowrap">'+esc(modeName(c.mode))+'</div></td>'+
         '<td class="nowrap">'+nice(c.plannedStart)+'</td><td class="nowrap">'+nice(c.plannedEnd)+'</td><td class="n">'+daysCell(c)+'</td><td class="n">'+num(c.batchSize)+'</td><td class="n">'+tpdCell(c)+'</td><td>'+(dropped?esc(c.dropReason||'—'):confPill(c.confidence))+'</td><td>'+(dropped?'<span class="pill plain">Dropped</span>':stepsCell(c))+'</td>'+
         '<td class="acts"><div class="actbox">'+acts+'</div></td></tr>';}).join('')
@@ -987,7 +997,11 @@ function viewPipeline(){
     (canAdd()&&!dropped?'<tr class="addrow"><td colspan="12"><button class="addnew" data-act="add"><b>+</b> Add new course</button></td></tr>':'')+'</tbody></table></div></section>';
   return h;
 }
-function delBtn(c){return '<button class="sm danger'+(S.armed===c.id?' armed':'')+'" data-act="del" data-id="'+esc(c.id)+'">'+(S.armed===c.id?'Click again to delete':'Delete')+'</button>';}
+var ICO={edit:'<svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M11.1 1.6a1.5 1.5 0 0 1 2.1 0l1.2 1.2a1.5 1.5 0 0 1 0 2.1L5.6 13.7 2 14.5l.8-3.6zM3.9 11.5l-.3 1.4 1.4-.3 7.4-7.4-1.1-1.1z"/></svg>',
+  drop:'<svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M8 1.5a6.5 6.5 0 1 1 0 13 6.5 6.5 0 0 1 0-13zm-3.9 3.7A5 5 0 0 0 10.8 12L4.1 5.2zm7.8 5.6A5 5 0 0 0 5.2 4.1l6.7 6.7z"/></svg>',
+  del:'<svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M6 1.5h4l.5 1H14V4H2V2.5h3.5zM3 5h10l-.8 9.1a1 1 0 0 1-1 .9H4.8a1 1 0 0 1-1-.9zm3 1.5v6h1.2v-6zm2.8 0v6H10v-6z"/></svg>'};
+function icoBtn(act,c,label,ico,cls){return '<button class="sm ico'+(cls?' '+cls:'')+'" data-act="'+act+'" data-id="'+esc(c.id)+'" aria-label="'+esc(label)+'" title="'+esc(label)+'">'+ico+'</button>';}
+function delBtn(c){return S.armed===c.id?'<button class="sm danger armed" data-act="del" data-id="'+esc(c.id)+'">Click again to delete</button>':icoBtn('del',c,'Delete for good',ICO.del,'danger');}
 
 /* ----- actuals ----- */
 function viewActuals(){
@@ -1002,14 +1016,14 @@ function viewActuals(){
   if(!all.length)return h+'<div class="panel"><div class="empty"><h2>No completed courses yet</h2><p>When operations complete a running batch, it moves here and is locked.</p></div></div>';
   h+=totalsBox(list,'completed');
   var shown=list.slice(0,300);
-  h+='<section class="panel"><div class="panel-h"><span class="sub">Completed courses are locked. A GATI head requests an edit; the program team approves it. Courses arrive here when operations click Batch completed. Only the admin can add or delete one directly.</span></div><div class="scroll">'+tblOpen('af',[300,112,124,116,88,88,74,104,80,150,110,170])+'<thead><tr>'+hf('af','course',[['ptype','Programme type']],'Course')+hf('af','gati',[['gati','Source']],'Source')+hf('af','school',[['school','School']],'School')+hf('af','campus',[['campus','Campus']],'Campus')+hf('af','start',[['smonths','Start month']],'Start','',fy1)+hf('af','end',[['emonths','End month']],'End','',fy1)+hf('af','ndays',[['ndays','Training days']],'Days','n')+hf('af','nbatch',[['nbatch','Throughput']],'Throughput','n')+hf('af','ntpd',[['ntpd','TP days']],'TP days','n')+'<th>Lab split</th><th>Confirmed</th><th></th></tr></thead><tbody>'+
+  h+='<section class="panel"><div class="panel-h"><span class="sub">Completed courses are locked. A GATI head requests an edit; the program team approves it. Courses arrive here when operations click Batch completed. Only the admin can add or delete one directly.</span></div><div class="scroll">'+tblOpen('af',[300,112,124,116,88,88,74,104,80,150,110,280])+'<thead><tr>'+hf('af','course',[['ptype','Programme type']],'Course')+hf('af','gati',[['gati','Source']],'Source')+hf('af','school',[['school','School']],'School')+hf('af','campus',[['campus','Campus']],'Campus')+hf('af','start',[['smonths','Start month']],'Start','',fy1)+hf('af','end',[['emonths','End month']],'End','',fy1)+hf('af','ndays',[['ndays','Training days']],'Days','n')+hf('af','nbatch',[['nbatch','Throughput']],'Throughput','n')+hf('af','ntpd',[['ntpd','TP days']],'TP days','n')+'<th>Lab split</th><th>Confirmed</th><th></th></tr></thead><tbody>'+
     (shown.length?shown.map(function(c){var b=Number(c.actualBatch)||0;
       var sv=(c.plannedStart&&c.actualStart!==c.plannedStart)?'<div class="var">Planned '+nice(c.plannedStart)+'</div>':'';
       var ev=(c.plannedEnd&&c.actualEnd!==c.plannedEnd)?'<div class="var">Planned '+nice(c.plannedEnd)+'</div>':'';
       var bv=(c.batchSize!=null&&(Number(c.batchSize)!==b||(c.startBatch!=null&&Number(c.startBatch)!==b)))?'<div class="var">'+(c.source==='master'?'Enrolled ':'Planned ')+num(c.batchSize)+(c.startBatch!=null?' · started '+num(c.startBatch):'')+'</div>':'';
       var mf=(c.male!=null||c.female!=null)?'<div class="sub">'+num(c.male)+' M · '+num(c.female)+' F</div>':'';
       var req=c.editRequest&&!c.unlocked,acts='';
-      if(progFor(c)){acts+='<button class="sm" data-act="edit" data-id="'+esc(c.id)+'">Edit</button>';if(req)acts+='<button class="sm primary" data-act="approve" data-id="'+esc(c.id)+'">Unlock for the GATI head</button><button class="sm" data-act="decline" data-id="'+esc(c.id)+'">Decline</button>';}
+      if(progFor(c)){acts+=icoBtn('edit',c,'Edit',ICO.edit);if(req)acts+='<button class="sm primary" data-act="approve" data-id="'+esc(c.id)+'" title="Unlock for the GATI head to make one edit">Unlock edit</button><button class="sm" data-act="decline" data-id="'+esc(c.id)+'">Decline</button>';}
       else if(ownsGati(c)){if(c.unlocked)acts+='<button class="sm primary" data-act="edit" data-id="'+esc(c.id)+'">Edit (unlocked)</button>';else if(!req)acts+='<button class="sm" data-act="request" data-id="'+esc(c.id)+'">Request edit</button>';}
       acts+=logBtn(c);if(S.me.isAdmin)acts+=delBtn(c);
       var fm=c.completedVia==='batches'&&!(c.files||[]).some(function(x){return x.kind==='feedback';})?'<div class="var">Feedback missing</div>':'';
@@ -1039,12 +1053,12 @@ function viewBatches(){
   if(!all.length)return h+'<div class="panel"><div class="empty"><h2>'+(isRun?'No batches are running':'No upcoming batches')+'</h2><p>'+(isRun?'When operations click Batch started on an upcoming batch, it shows here until it is completed.':'When leadership approves a confirmed batch, it waits here until its start day.')+'</p></div></div>';
   h+=totalsBox(list,isRun?'running':'pipeline');
   var cols=11;
-  h+='<section class="panel"><div class="scroll">'+tblOpen('bf',[300,112,124,116,100,108,74,92,84,190,170])+'<thead><tr>'+hf('bf','course',[['ptype','Programme type']],'Course')+hf('bf','gati',[['gati','Source']],'Source')+hf('bf','school',[['school','School']],'School')+hf('bf','campus',[['campus','Campus']],'Campus')+
+  h+='<section class="panel"><div class="scroll">'+tblOpen('bf',[300,112,124,116,100,108,74,92,84,190,250])+'<thead><tr>'+hf('bf','course',[['ptype','Programme type']],'Course')+hf('bf','gati',[['gati','Source']],'Source')+hf('bf','school',[['school','School']],'School')+hf('bf','campus',[['campus','Campus']],'Campus')+
     hf('bf','start',[['smonths','Start month']],isRun?'Started':'Start','',fy1)+hf('bf','end',[['emonths','End month']],isRun?'Expected end':'End','',fy1)+hf('bf','ndays',[['ndays','Training days']],'Days','n')+hf('bf','nbatch',[['nbatch','Learners']],'Learners','n')+hf('bf','ntpd',[['ntpd','TP days']],'TP days','n')+'<th>'+(isRun?'Progress':'Status')+'</th><th></th></tr></thead><tbody>'+
     (list.length?list.map(function(c){var e=eff(c),acts='';
       if(isRun){if(progFor(c)&&runStatus(c)==='due')acts+='<button class="sm primary" data-act="bdone" data-id="'+esc(c.id)+'">Batch completed</button>';}
       else if(progFor(c)){acts+='<button class="sm'+(sbStatus(c)==='due'?' primary':'')+'" data-act="bstart" data-id="'+esc(c.id)+'"'+(sbStatus(c)==='due'?'':' disabled title="Available from the start day"')+'>Batch started</button>';}
-      acts+=logBtn(c);if(canEditCourse(c))acts+='<button class="sm" data-act="edit" data-id="'+esc(c.id)+'">Edit</button>';if(canDrop(c))acts+='<button class="sm danger" data-act="drop" data-id="'+esc(c.id)+'">Cancel batch</button>';if(S.me.isAdmin)acts+=delBtn(c);
+      acts+=logBtn(c);if(canEditCourse(c))acts+=icoBtn('edit',c,'Edit',ICO.edit);if(canDrop(c))acts+=icoBtn('drop',c,'Cancel batch',ICO.drop,'danger');if(S.me.isAdmin)acts+=delBtn(c);
       var sv=isRun&&c.plannedStart&&e.start!==c.plannedStart?'<div class="var">Planned '+nice(c.plannedStart)+'</div>':'',ev=isRun&&c.plannedEnd&&e.end!==c.plannedEnd?'<div class="var">Planned '+nice(c.plannedEnd)+'</div>':'';
       var bv=isRun&&c.batchSize!=null&&Number(c.batchSize)!==e.batch?'<div class="var">Planned '+num(c.batchSize)+'</div>':'';
       var who=isRun?(c.startedBy?esc(nameOf(c.startedBy)):'—'):(c.batchConfirmedBy?esc(nameOf(c.batchConfirmedBy))+' · '+esc(stamp(c.batchConfirmedAt).split(',')[0]):'—');
@@ -1270,7 +1284,7 @@ function renderLog(){var c=S.logId&&byId(S.logId);if(!c){if(S.logId)closeLog();r
   else if(canLead(c))form+='<div class="lg-act"><span class="lab">Leadership approval</span><div class="msgbox"><textarea id="lg-note" maxlength="600" placeholder="Comments (needed when sending it back)"></textarea>'+atBtn()+'</div>'+'<div class="row two"><button class="primary" data-act="lg-lead">Approve · move to Upcoming batches</button><button data-act="lg-leadback">Send back to GATI head</button></div></div>';
   else if(canConfirmBatch(c))form+='<div class="lg-act"><span class="lab">Next step</span><div class="row"><button class="primary" data-act="confirm-batch" data-id="'+esc(c.id)+'">Confirm batch</button></div></div>';
   var fileOK=c.stage==='pipeline'?isCPUser():progFor(c);
-  if(!form&&canNote(c))form+='<div class="lg-act"><span class="lab">'+(fileOK?'Add files or a message':'Add a message')+'</span>'+(fileOK?(c.stage==='pipeline'?'<input type="file" id="lg-files" multiple>':'<div class="row"><select id="lg-kind" aria-label="What the files are">'+opts([{k:'students',n:'Student list'},{k:'feedback',n:'Feedback'},{k:'photo',n:'Group photo'},{k:'',n:'Other'}],firstMissing(c),null)+'</select><input type="file" id="lg-files" multiple></div><div class="kindinfo" id="lg-kindinfo">'+kindInfo(c,firstMissing(c))+'</div>'):'')+'<div class="msgbox"><textarea id="lg-note" maxlength="600" placeholder="Write a message. Use @ to tag people."></textarea>'+atBtn()+'</div>'+'<div class="row"><button data-act="lg-note">Add to log</button></div></div>';
+  if(!form&&canNote(c))form+='<div class="lg-act"><span class="lab">'+(fileOK?'Add files or a message':'Add a message')+'</span>'+(fileOK?(c.stage==='pipeline'?'<input type="file" id="lg-files" multiple>':'<div class="row"><select id="lg-kind" aria-label="What the files are">'+opts([{k:'students',n:'Student list'},{k:'feedback',n:'Feedback'},{k:'photo',n:'Group photo'},{k:'',n:'Other'}],firstMissing(c),null)+'</select><input type="file" id="lg-files" multiple><button type="button" class="sm" data-act="sl-sheet" data-p="lg">Student list sheet</button></div><div class="kindinfo" id="lg-kindinfo">'+kindInfo(c,firstMissing(c))+'</div>'):'')+'<div class="msgbox"><textarea id="lg-note" maxlength="600" placeholder="Write a message. Use @ to tag people."></textarea>'+atBtn()+'</div>'+'<div class="row"><button data-act="lg-note">Add to log</button></div></div>';
   else if(form&&canNote(c)&&!canUpload(c))form+='<div class="lg-act sub"><button class="linkish" data-act="lg-note-only">Add a note without confirming</button></div>';
   var html='<div class="lg-h"><div><b>'+esc(c.title)+'</b><div class="sub">'+esc([gatiName(c.gati),c.school,c.campus].filter(Boolean).join(' · '))+'</div></div><div class="lg-hbtns"><button class="sm" data-act="lg-allfiles" aria-pressed="'+!!S.logFiles+'">Uploaded files · '+(c.files||[]).length+'</button><button class="sm" data-act="log-close" aria-label="Close">✕</button></div></div>'+
     (S.logFiles?'<div class="lg-allfiles">'+((c.files||[]).length?fileRows(c):'<span class="muted">No files uploaded yet.</span>')+'</div>':'')+
@@ -1357,6 +1371,7 @@ function viewSetup(){
 /* ---------- dialogs ---------- */
 function openDlg(html){var d=$('dlg');d.classList.remove('xl');d.innerHTML=html;if(!d.open)d.showModal();}
 function closeDlg(){var d=$('dlg');if(d.open)d.close();d.innerHTML='';d.classList.remove('xl');PL=null;}
+function plcField(p,v){return '<div class="fld wide"><span>Placement eligible?'+(p==='mf'?' · choose one':'')+'</span><div class="ready-opts"><label class="check"><input type="radio" name="'+p+'-plc" id="'+p+'-plc-yes"'+(v===true?' checked':'')+'>Yes · placement support is given; tracked on the Placements tab</label><label class="check"><input type="radio" name="'+p+'-plc" id="'+p+'-plc-no"'+(v===false?' checked':'')+'>No</label></div></div>';}
 function genderHTML(p,c){return '<label class="fld"><span>Male</span><input type="number" id="'+p+'-male" min="0" step="1" value="'+esc(c&&c.male!=null?c.male:'')+'"></label><label class="fld"><span>Female</span><input type="number" id="'+p+'-female" min="0" step="1" value="'+esc(c&&c.female!=null?c.female:'')+'"></label>';}
 function extrasHTML(p,c){return genderHTML(p,c)+labsHTML(p,c,false);}
 /* Lab utilisation: up to three labs plus the classroom, adding up to 100%. */
@@ -1413,7 +1428,7 @@ function courseForm(c,newActual){
     '<div class="fld"><span>Training days · worked out from the dates</span><div class="tdwrap"><input type="number" id="cf-td" min="0" step="1" aria-label="Training days" data-auto="'+(c&&c.trainingDays?0:1)+'" value="'+esc(c&&c.trainingDays?c.trainingDays:'')+'"'+(c&&c.trainingDays?'':' readonly')+'><button type="button" class="sm" data-act="td-toggle">'+(c&&c.trainingDays?'Use dates':'Change')+'</button></div></div>'+
     '<div class="wide incl"><span class="lab">Include</span><label class="check"><input type="checkbox" id="cf-sat"'+(c&&c.sat?' checked':'')+'>Saturday</label><label class="check"><input type="checkbox" id="cf-sun"'+(c&&c.sun?' checked':'')+'>Sunday</label><span class="sub">as training days</span></div>'+
     '<div class="fld wide"><span>Throughput</span><div class="ready-opts"><label class="check"><input type="radio" name="cf-elig" id="cf-elig" value="yes"'+(!c||c.tpEligible!==false?' checked':'')+'>Eligible for throughput</label><label class="check"><input type="radio" name="cf-elig" id="cf-elig-no" value="no"'+(c&&c.tpEligible===false?' checked':'')+'>Non-eligible for throughput · left out of throughput and throughput days</label></div></div>'+
-    (isA?'<label class="check wide"><input type="checkbox" id="cf-plc"'+(c&&c.placement?' checked':'')+'>Placement eligible · tracked on the Placements tab</label>':'')+
+    (isA?plcField('cf',c?c.placement:null):'')+
     (showReady?'<div class="fld wide"><span>Do we have course outline?</span><div class="ready-opts"><label class="check"><input type="radio" name="cf-ready" id="cf-ready-no" value="no"'+(c&&c.courseReady?'':' checked')+'>Request from course production</label><label class="check"><input type="radio" name="cf-ready" id="cf-ready-yes" value="yes"'+(c&&c.courseReady?' checked':'')+'>Already have course outline</label></div></div>':'')+
     (isA?extrasHTML('cf',c):isR?'':labsHTML('cf',c,!showLabs))+
     '<label class="fld wide"><span>Notes</span><textarea id="cf-notes" maxlength="600">'+esc(c?c.notes:'')+'</textarea></label></div>'+
@@ -1435,24 +1450,22 @@ function confirmBatchForm(c){
     '<label class="fld"><span>Start date</span><input type="date" id="cbf-start" value="'+esc(c.plannedStart)+'"></label>'+
     '<label class="fld"><span>End date</span><input type="date" id="cbf-end" value="'+esc(c.plannedEnd)+'"></label>'+
     '<label class="fld wide"><span>Learners confirmed</span><input type="number" id="cbf-batch" min="1" step="1" value="'+esc(c.batchSize)+'"></label>'+
-    (hasList(c)?'<label class="fld wide"><span>Student list · '+esc(filesOf(c,'students').map(function(x){return x.name;}).join(', '))+' ✓ · choose a file only to replace it</span><input type="file" id="cbf-list" accept=".xlsx,.xls,.csv"></label>':'<label class="fld wide"><span>Student list (Excel) · required</span><input type="file" id="cbf-list" accept=".xlsx,.xls,.csv"></label>')+
-    '<div class="wide row"><button type="button" class="sm" data-act="student-template">Download the student list template</button></div>'+
+    listField('cbf',c)+
     '<label class="fld wide"><span>Note (optional)</span><input type="text" id="cbf-note" maxlength="300"></label></div>'+
     '<div class="calc" id="cbf-calc"></div><p class="err" id="cbf-err" hidden></p>'+
     '<div class="dlg-actions"><button type="button" data-act="dlg-close">Cancel</button><button type="submit" class="primary">Confirm batch · send to leadership</button></div></form>');
-  calcPreview('cbf');}
+  calcPreview('cbf');listOpen('cbf',c);}
 function startForm(c){var t=today();
   openDlg('<form class="dlg" id="sf" novalidate data-id="'+esc(c.id)+'" data-sat="'+(c.sat?1:0)+'" data-sun="'+(c.sun?1:0)+'" data-td="'+esc(c.trainingDays||'')+'" data-mode="'+esc(c.mode||'')+'"><h2>Batch started</h2><p><b>'+esc(c.title)+'</b><br><span class="sub">'+esc(gatiName(c.gati))+' · '+esc(c.school||'')+' · '+esc(c.campus||'')+'</span></p>'+
     '<span class="lab">As planned</span>'+planBox([['Start',nice(c.plannedStart)],['End',nice(c.plannedEnd)],['Learners',num(c.batchSize)]])+
     '<span class="lab">Actual</span><div class="fgrid">'+
     '<label class="fld"><span>Actual start date</span><input type="date" id="sf-start" value="'+esc(c.plannedStart>t?t:c.plannedStart)+'" max="'+t+'"></label>'+
     '<label class="fld"><span>Expected end date</span><input type="date" id="sf-end" value="'+esc(c.plannedEnd)+'"></label>'+
-    '<label class="fld wide"><span>Student list (Excel) · optional now, needed before Batch completed</span><input type="file" id="sf-list" accept=".xlsx,.xls,.csv"></label>'+
-    '<div class="wide row"><button type="button" class="sm" data-act="student-template">Download the student list template</button><span class="sub" id="sf-listinfo">Fill one row per learner and upload it. The learner count below fills in from the list.</span></div>'+
+    listField('sf',c)+
     '<label class="fld wide"><span>Learners present</span><input type="number" id="sf-batch" min="1" step="1" value="'+esc(c.batchSize)+'"></label></div>'+
     '<div class="calc" id="sf-calc"></div><p class="err" id="sf-err" hidden></p>'+
     '<div class="dlg-actions"><button type="button" data-act="dlg-close">Cancel</button><button type="submit" class="primary" id="sf-go">Confirm · move to Running batches</button></div></form>');
-  calcPreview('sf');}
+  calcPreview('sf');listOpen('sf',c);}
 function confirmForm(c){
   var t=today(),e=eff(c);
   openDlg('<form class="dlg" id="mf" novalidate data-id="'+esc(c.id)+'" data-sat="'+(c.sat?1:0)+'" data-sun="'+(c.sun?1:0)+'" data-td="'+esc(c.trainingDays||'')+'" data-mode="'+esc(c.mode||'')+'"><h2>Batch completed</h2><p><b>'+esc(c.title)+'</b><br><span class="sub">'+esc(gatiName(c.gati))+' · '+esc(c.school||'')+' · '+esc(c.campus||'')+'</span></p>'+
@@ -1462,13 +1475,13 @@ function confirmForm(c){
     '<label class="fld"><span>Actual end</span><input type="date" id="mf-end" value="'+esc(e.end>t?t:e.end)+'" max="'+t+'"></label>'+
     '<label class="fld wide"><span>Final throughput: learners who completed</span><input type="number" id="mf-batch" min="1" step="1" value="'+esc(e.batch)+'"></label>'+
     genderHTML('mf',c)+
-    (hasList(c)?'<p class="wide sub">Student list: '+esc((c.files||[]).filter(function(x){return x.kind==='students';}).map(function(x){return x.name;}).join(', '))+' ✓</p>':'<label class="fld wide"><span>Student list (Excel) · required</span><input type="file" id="mf-list" accept=".xlsx,.xls,.csv"></label><div class="wide row"><button type="button" class="sm" data-act="student-template">Download the student list template</button></div>')+
-    '<label class="check wide"><input type="checkbox" id="mf-plc"'+((c.placement!=null?c.placement:c.ptCat==='FS')?' checked':'')+'>Placement eligible · placement support is given, and the batch is tracked on the Placements tab</label>'+
+    listField('mf',c,true)+
+    plcField('mf',null)+
     '<label class="fld"><span>Feedback (Excel) · optional</span><input type="file" id="mf-fb" accept=".xlsx,.xls,.csv,.pdf"></label>'+
     '<label class="fld"><span>Group photo · optional</span><input type="file" id="mf-ph" accept="image/*"></label></div>'+
     '<div class="calc" id="mf-calc"></div><p class="sub">Files up to 5 MB each; photos are shrunk automatically. They can also be added later from the log. Once completed, this record is locked.</p><p class="err" id="mf-err" hidden></p>'+
     '<div class="dlg-actions"><button type="button" data-act="dlg-close">Cancel</button><button type="submit" class="primary" id="mf-go">Confirm · move to Throughput</button></div></form>');
-  calcPreview('mf');labSum('mf');
+  calcPreview('mf');labSum('mf');listOpen('mf',c);
 }
 function textForm(id,c,title,blurb,label,btn){
   openDlg('<form class="dlg" id="'+id+'" novalidate data-id="'+esc(c.id)+'"><h2>'+title+'</h2><p><b>'+esc(c.title)+'</b><br><span class="sub">'+blurb+'</span></p>'+
@@ -1501,7 +1514,7 @@ function submitCourse(form){
   else if(!c)return showErr('cf','Choose the programme type.');
   var lb=$('cf-labbox');if(lb&&!lb.hidden&&!isA){var lx=readLabs('cf',!c||c.stage==='pipeline'?needsLabs(v.mode):false);if(lx.err)return showErr('cf',lx.err);v.labs=lx.labs;v.classPct=lx.classPct;}
   if(isA&&e>today())return showErr('cf','An actual end date cannot be in the future.');
-  if(isA){var x=readExtras('cf',b);if(x.err)return showErr('cf',x.err);v.actualStart=s;v.actualEnd=e;v.actualBatch=b;v.labs=x.labs;v.classPct=x.classPct;v.male=x.male;v.female=x.female;v.placement=$('cf-plc').checked;}
+  if(isA){var x=readExtras('cf',b);if(x.err)return showErr('cf',x.err);v.actualStart=s;v.actualEnd=e;v.actualBatch=b;v.labs=x.labs;v.classPct=x.classPct;v.male=x.male;v.female=x.female;if($('cf-plc-yes').checked)v.placement=true;else if($('cf-plc-no').checked)v.placement=false;}
   else if(isR){v.actualStart=s;v.expectedEnd=e;v.startBatch=b;}
   else{v.plannedStart=s;v.plannedEnd=e;v.batchSize=b;v.confidence=$('cf-conf')?$('cf-conf').value:(c&&c.confidence||'green');}
   var rdy=$('cf-ready-yes');if(rdy){v.courseReady=rdy.checked;if(!c||pipeStatus(c)==='awaiting'||pipeStatus(c)==='approved')v.review=rdy.checked?'approved':'awaiting';}
@@ -1520,7 +1533,7 @@ function logEntry(kind,text,files,extra){var e={at:new Date().toISOString(),by:S
 function submitConfirmBatch(form){var c=byId(form.dataset.id);if(!c)return closeDlg();
   var s=$('cbf-start').value,e=$('cbf-end').value,b=Math.round(Number($('cbf-batch').value)),note=$('cbf-note').value.trim();
   if(!s||!e)return showErr('cbf','Enter both dates.');if(e<s)return showErr('cbf','The end date is before the start date.');if(!(b>=1))return showErr('cbf','Enter the number of learners.');
-  var lf=$('cbf-list').files[0];if(!lf&&!hasList(c))return showErr('cbf','Upload the student list. Use the template if you need one.');
+  var lf=listFileFor('cbf',c);if(!lf&&!hasList(c))return showErr('cbf','Add the student list: upload it, or type or paste it.');
   guard(function(){return (lf?storeFile(lf,c.id,'students'):Promise.resolve(null)).then(function(up){var now=new Date().toISOString(),ch=[],patch={review:'leadership',batchConfirmedBy:S.me.id,batchConfirmedAt:now,updatedAt:now,updatedBy:S.me.id};
     if(s!==c.plannedStart){ch.push({f:'plannedStart',from:c.plannedStart,to:s});patch.plannedStart=s;}if(e!==c.plannedEnd){ch.push({f:'plannedEnd',from:c.plannedEnd,to:e});patch.plannedEnd=e;}if(b!==Number(c.batchSize)){ch.push({f:'batchSize',from:c.batchSize,to:b});patch.batchSize=b;}
     if(up)patch.files=(c.files||[]).filter(function(x){return x.kind!=='students';}).concat([up]);
@@ -1533,16 +1546,16 @@ function submitStart(form){
   if(s>today())return showErr('sf','The batch has not started yet. Use a start date of today or earlier.');
   if(e<s)return showErr('sf','The expected end is before the start date.');
   if(!(b>=1))return showErr('sf','Enter the number of learners present.');
-  var lf=$('sf-list').files[0];
+  var lf=listFileFor('sf',c);
   var go=$('sf-go');go.disabled=true;go.textContent=lf?'Saving the student list…':'Saving…';
   guard(function(){return (lf?storeFile(lf,c.id,'students'):Promise.resolve(null)).then(function(up){var ups=up?[up]:[],now=new Date().toISOString(),ch=[];
     if(s!==c.plannedStart)ch.push({f:'actualStart',from:c.plannedStart,to:s});if(e!==c.plannedEnd)ch.push({f:'expectedEnd',from:c.plannedEnd,to:e});if(b!==Number(c.batchSize))ch.push({f:'startBatch',from:c.batchSize,to:b});
-    return courseRef(c.id).update({stage:'running',actualStart:s,expectedEnd:e,startBatch:b,startedBy:S.me.id,startedAt:now,updatedAt:now,updatedBy:S.me.id,files:(c.files||[]).concat(ups),log:(c.log||[]).concat([logEntry('started','Batch started '+nice(s)+' with '+b+' learners (planned '+num(c.batchSize)+')'+(up?'':' · student list to follow'),ups)]),history:hist(c,{action:'started',changes:ch})});})
+    return courseRef(c.id).update({stage:'running',actualStart:s,expectedEnd:e,startBatch:b,startedBy:S.me.id,startedAt:now,updatedAt:now,updatedBy:S.me.id,files:(c.files||[]).filter(function(x){return !(up&&x.kind==='students');}).concat(ups),log:(c.log||[]).concat([logEntry('started','Batch started '+nice(s)+' with '+b+' learners (planned '+num(c.batchSize)+')'+(up?'':' · student list to follow'),ups)]),history:hist(c,{action:'started',changes:ch})});})
       .then(function(){closeDlg();toast('Batch started. It is now in Running batches.');})
       .catch(function(err){go.disabled=false;go.textContent='Confirm · move to Running batches';if(err&&err.code==='too-big')return showErr('sf',err.name+' is larger than 5 MB.');throw err;});});}
 var STUDENT_COLS=['Sr No','Full name','Gender (Male/Female)','Mobile','Email','Organisation / college','Designation / branch','City','Remarks'];
-function studentTemplate(){if(typeof XLSX==='undefined')return toast('Excel could not load. Reload the page and try again.');var c=byId(($('sf')||$('mf')||$('cbf')||{dataset:{}}).dataset.id)||{};
-  var ws=XLSX.utils.aoa_to_sheet([STUDENT_COLS,[1,'','','','','','','','']]);ws['!cols']=STUDENT_COLS.map(function(h,i){return {wch:i===0?6:i===1?28:18};});
+function studentTemplate(){if(typeof XLSX==='undefined')return toast('Excel could not load. Reload the page and try again.');var c=byId(($('sf')||$('mf')||$('cbf')||{dataset:{}}).dataset.id)||byId(S.logId)||{};
+  var ws=XLSX.utils.aoa_to_sheet([SCOLS.map(function(x){return x[1];})]);ws['!cols']=SCOLS.map(function(x){return {wch:Math.round(x[2]/7)};});
   var wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Students');var buf=XLSX.write(wb,{bookType:'xlsx',type:'array'});
   download({filename:'Student list - '+(c.title||'batch').replace(/[\\/:*?"<>|]/g,'').slice(0,60)+'.xlsx',data:new Blob([buf])});}
 /* Count learners in a chosen student list and fill in the number present. */
@@ -1558,15 +1571,23 @@ function submitConfirm(form){
   if(e<s)return showErr('mf','The end date is before the start date.');
   if(e>today())return showErr('mf','The batch has not ended yet. Use an end date of today or earlier.');
   if(!(b>=1))return showErr('mf','Enter the number of learners who completed.');
-  var x=readGender('mf',b);if(x.err)return showErr('mf',x.err);var plc=!!($('mf-plc')&&$('mf-plc').checked);
-  var fb=$('mf-fb').files[0],ph=$('mf-ph').files[0],go=$('mf-go'),sl=$('mf-list')?$('mf-list').files[0]:null;
-  if($('mf-list')&&!sl)return showErr('mf','Upload the student list before completing the batch. Use the template if you need one.');
+  var x=readGender('mf',b);if(x.err)return showErr('mf',x.err);
+  if(!$('mf-plc-yes').checked&&!$('mf-plc-no').checked)return showErr('mf','Choose whether this batch is placement eligible: Yes or No.');var plc=$('mf-plc-yes').checked;
+  var fb=$('mf-fb').files[0],ph=$('mf-ph').files[0],go=$('mf-go'),sl=listFileFor('mf',c);
+  if(!sl&&!hasList(c))return showErr('mf','Add the final student list: upload it, or type or paste it.');
+  if(!sl&&!$('mf-listok').checked)return showErr('mf','Tick "This list is correct and final", or upload the final list.');
+  if(typeof XLSX==='undefined')return showErr('mf','Excel could not load. Reload the page and try again.');
+  go.disabled=true;(sl?sl.arrayBuffer():studentListAB(c)).then(function(ab){var n=parseStudents(ab).length;go.disabled=false;
+    if(n!==b)return showErr('mf','The student list has '+n+' learner'+(n===1?'':'s')+', but the final throughput is '+b+'. They must match.');finishConfirm(c,ef,s,e,b,x,plc,fb,ph,sl,go);})
+    .catch(function(){go.disabled=false;showErr('mf','The student list could not be read. Upload it again or type it in.');});
+}
+function finishConfirm(c,ef,s,e,b,x,plc,fb,ph,sl,go){
   guard(function(){var up=[];go.disabled=true;go.textContent='Saving files…';
     var p=Promise.resolve();[[sl,'students'],[fb,'feedback'],[ph,'photo']].forEach(function(z){if(z[0])p=p.then(function(){return storeFile(z[0],c.id,z[1]).then(function(r){up.push(r);});});});
     return p.then(function(){var now=new Date().toISOString(),ch=[];
       if(s!==ef.start)ch.push({f:'actualStart',from:ef.start,to:s});if(e!==ef.end)ch.push({f:'actualEnd',from:ef.end,to:e});if(b!==ef.batch)ch.push({f:'actualBatch',from:ef.batch,to:b});
       return courseRef(c.id).update({stage:'actual',actualStart:s,actualEnd:e,actualBatch:b,male:x.male,female:x.female,placement:plc,confirmedBy:S.me.id,confirmedAt:now,completedVia:'batches',unlocked:false,editRequest:null,updatedAt:now,updatedBy:S.me.id,
-        files:(c.files||[]).concat(up),log:(c.log||[]).concat([logEntry('completed','Batch completed '+nice(e)+' with '+b+' learners (started '+num(ef.batch)+')'+(up.length?'':' · no feedback files yet'),up)]),history:hist(c,{action:'completed',changes:ch})});})
+        files:(c.files||[]).filter(function(x){return !(sl&&x.kind==='students');}).concat(up),log:(c.log||[]).concat([logEntry('completed','Batch completed '+nice(e)+' with '+b+' learners (started '+num(ef.batch)+') · final student list '+(sl?'uploaded':'confirmed')+(plc?' · placement eligible':''),up)]),history:hist(c,{action:'completed',changes:ch})});})
       .then(function(){var slf=sl;closeDlg();if(plc)seedPlacements(c.id,slf);toast('Batch completed. It is now in Throughput'+(plc?' and Placements.':'.'));})
       .catch(function(err){go.disabled=false;go.textContent='Confirm · move to Throughput';if(err&&err.code==='too-big')return showErr('mf',err.name+' is larger than 5 MB. Choose a smaller file.');throw err;});});
 }
@@ -1626,6 +1647,8 @@ document.addEventListener('click',function(ev){
   if(a==='pl-addrow'&&PL){PL.rows.push({});plRedraw([PL.rows.length-1,'name']);return;}
   if(a==='pl-delrow'&&PL){PL.rows.splice(Number(b.dataset.r),1);if(!PL.rows.length)PL.rows.push({});plRedraw();return;}
   if(a==='pl-save')return plSave();
+  if(a==='sl-sheet')return slOpen(b.dataset.p);
+  if(a==='dlg2-close')return closeDlg2();
   if(a==='pl-load')return plLoad();
   if(a==='pl-tpl')return plTemplate();
   if(a==='pl-upbtn'){$('pl-up').click();return;}
@@ -1666,7 +1689,7 @@ document.addEventListener('click',function(ev){
 document.addEventListener('submit',function(ev){ev.preventDefault();var f=ev.target;if(f.id==='login')return doLogin();if(f.id==='cbf')return submitConfirmBatch(f);if(f.id==='luf')return submitLabs();if(f.id==='sf')return submitStart(f);if(f.id==='pw')return submitPw(f);if(f.id==='pf-person')return submitPerson(f);if(f.id==='cf')submitCourse(f);else if(f.id==='mf')submitConfirm(f);else if(f.id==='rf')submitRequest(f);else if(f.id==='df')submitDrop(f);});
 function setF(obj,k,el){obj[k]=el.type==='checkbox'?el.checked:(k==='fy'?(el.value===''?'':Number(el.value)):el.value);}
 document.addEventListener('change',function(ev){var el=ev.target,d=el.dataset;
-  if(el.id==='sf-list'){readStudentList(el.files[0]);return;}
+  if(/^(sf|mf|cbf)-list$/.test(el.id)){listChosen(el.id.split('-')[0],el.files[0]);return;}
   if(el.dataset&&el.dataset.pr!=null){plInput(el);return;}
   if(el.id==='pl-up'){plUpload(el.files[0]);el.value='';return;}
   if(el.id==='lg-kind'){var kc=byId(S.logId),ki=$('lg-kindinfo');if(kc&&ki)ki.innerHTML=kindInfo(kc,el.value);return;}
@@ -1721,7 +1744,7 @@ document.addEventListener('focusin',function(ev){var t=ev.target.closest&&ev.tar
 document.addEventListener('focusout',function(){if(!tipPin&&tipEl)tipEl.hidden=true;});
 document.addEventListener('click',function(ev){var t=ev.target.closest&&ev.target.closest('[data-tip]');if(t&&!ev.target.closest('[data-act]')){if(tipPin===t){tipHide();return;}tipPin=null;tipShow(t,ev.clientX,ev.clientY);tipPin=t;}else if(tipPin)tipHide();});
 document.addEventListener('paste',function(ev){var el=ev.target.closest&&ev.target.closest('[data-pr]');if(el&&PL&&!PL.ro)plPaste(ev,el);});
-document.addEventListener('keydown',function(ev){var pe=ev.target.closest&&ev.target.closest('[data-pr]');if(pe&&PL&&ev.key==='Enter'){ev.preventDefault();var nr=Number(pe.dataset.pr)+(ev.shiftKey?-1:1);if(nr<0)return;if(nr>=PL.rows.length&&!PL.ro){PL.rows.push({});plRedraw([nr,pe.dataset.pc]);return;}var nx=document.querySelector('#pl-wrap [data-pr="'+nr+'"][data-pc="'+pe.dataset.pc+'"]');if(nx)nx.focus();return;}if(ev.key==='Escape'&&document.querySelector('.atpop')){var ab=document.querySelector('.atbtn[aria-expanded=true]');atClose();if(ab)ab.focus();return;}if(ev.key==='Escape'&&S.pmenu){S.pmenu=false;renderChrome();var av=document.querySelector('.avatar');if(av)av.focus();return;}if(ev.key==='Escape'&&$('daypop')){closeDayPop();return;}if(ev.key==='Escape'&&$('logdrawer')&&!$('dlg').open){closeLog();return;}if(ev.key==='Escape'&&S.openMs){var id=S.openMs;S.openMs=null;render();var bb=$('msb-'+id);if(bb)bb.focus();}});
+document.addEventListener('keydown',function(ev){var pe=ev.target.closest&&ev.target.closest('[data-pr]');if(pe&&PL&&ev.key==='Enter'){ev.preventDefault();var nr=Number(pe.dataset.pr)+(ev.shiftKey?-1:1);if(nr<0)return;if(nr>=PL.rows.length&&!PL.ro){PL.rows.push({});plRedraw([nr,pe.dataset.pc]);return;}var nx=document.querySelector('#pl-wrap [data-pr="'+nr+'"][data-pc="'+pe.dataset.pc+'"]');if(nx)nx.focus();return;}if(ev.key==='Escape'&&document.querySelector('.atpop')){var ab=document.querySelector('.atbtn[aria-expanded=true]');atClose();if(ab)ab.focus();return;}if(ev.key==='Escape'&&S.pmenu){S.pmenu=false;renderChrome();var av=document.querySelector('.avatar');if(av)av.focus();return;}if(ev.key==='Escape'&&$('daypop')){closeDayPop();return;}if(ev.key==='Escape'&&$('logdrawer')&&!$('dlg').open&&!$('dlg2').open){closeLog();return;}if(ev.key==='Escape'&&S.openMs){var id=S.openMs;S.openMs=null;render();var bb=$('msb-'+id);if(bb)bb.focus();}});
 function route(){var h=(location.hash||'').replace('#','');S.tab=TABS.some(function(t){return t[0]===h;})?h:'dashboard';render();}
 window.addEventListener('hashchange',route);
 
@@ -1793,26 +1816,27 @@ function submitPerson(form){var id=form.dataset.id,isNew=!id,name=$('pp-name').v
 var PSTAT=['Placed','In process','Not placed','Opted out','Higher studies'];
 var PBR=['0–3 LPA','3–5 LPA','5–8 LPA','8+ LPA'];
 /* Columns of the placement sheet: key, heading, width, type (t text, n number, d date, s choice), choices */
-var PCOLS=[['name','Student name',170,'t'],['gender','Gender',80,'t'],['mobile','Mobile',110,'t'],['email','Email',180,'t'],['status','Status',120,'s',PSTAT],['company','Company',160,'t'],['sector','Sector',130,'t'],['role','Role / designation',150,'t'],['location','Location (city)',120,'t'],['region','Region / state',120,'t'],['pkg','Package (LPA)',96,'n'],['bracket','Package bracket',112,'s',PBR],['doj','Joining date',130,'d'],['remarks','Remarks',180,'t']];
+var PCOLS=[['name','Student name',170,'t'],['gender','Gender',80,'t'],['mobile','Mobile',110,'t'],['email','Email',180,'t'],['status','Status',120,'s',PSTAT],['company','Company',160,'t'],['sector','Sector',130,'t'],['role','Role / designation',150,'t'],['location','Location (city)',120,'t'],['region','Region / state',120,'t'],['pkg','Salary (LPA)',96,'n',null,['package (lpa)','package','ctc','salary']],['bracket','Package bracket',112,'s',PBR],['doj','Joining date',130,'d'],['remarks','Remarks',180,'t']];
 function brOf(p){p=Number(p);if(!(p>0))return '';return p<3?PBR[0]:p<5?PBR[1]:p<8?PBR[2]:PBR[3];}
 function plRows(c){var P=S.placements[c.id];return (P&&P.rows)||[];}
 function plStats(c){var rows=plRows(c),o={tot:rows.length||eff(c).batch,rows:rows.length,placed:0,proc:0,notp:0,opt:0,hs:0,br:{},cos:{}};PBR.forEach(function(b){o.br[b]=0;});
   rows.forEach(function(r){if(r.status==='Placed'){o.placed++;var b=r.bracket||brOf(r.pkg);if(b)o.br[b]++;if(r.company)o.cos[r.company]=(o.cos[r.company]||0)+1;}else if(r.status==='In process')o.proc++;else if(r.status==='Not placed')o.notp++;else if(r.status==='Opted out')o.opt++;else if(r.status==='Higher studies')o.hs++;});return o;}
 function pct(a,b){return b?Math.round(a*100/b)+'%':'—';}
 function brText(br){var t=PBR.filter(function(b){return br[b];}).map(function(b){return b+': '+br[b];});return t.length?t.join(' · '):'—';}
+function brPass(c,sel){if(!sel)return true;var o=plStats(c);return PBR.some(function(b){return sel[b]&&o.br[b]>0;})||(!!sel.none&&o.placed===0);}
 function viewPlacements(){
   var f=S.plf,q=f.q.trim().toLowerCase(),fy1=oneFY(f);
   var all=S.courses.filter(function(c){return c.stage==='actual'&&c.placement===true;});NUMSRC=all;
-  var list=all.filter(function(c){return pass(c,f,FKEYS.concat(NKEYS))&&matchQ(c,q)&&datePass(c,f);}).sort(function(a,b){return (b.actualEnd||'')<(a.actualEnd||'')?-1:1;});
+  var list=all.filter(function(c){return pass(c,f,FKEYS.concat(NKEYS,['pbatch']))&&matchQ(c,q)&&datePass(c,f)&&brPass(c,f.pbr);}).sort(function(a,b){return (b.actualEnd||'')<(a.actualEnd||'')?-1:1;});
   VIEW={list:list,kind:'placements'};
-  var h='<section class="panel"><div class="panel-b filters">'+ms('plf','fys','Financial year')+ms('plf','campus','Campus')+ms('plf','mode','Mode')+
+  var h='<section class="panel"><div class="panel-b filters">'+ms('plf','fys','Financial year')+ms('plf','campus','Campus')+ms('plf','gati','Source')+ms('plf','school','School')+ms('plf','ptype','Programme type')+ms('plf','pbatch','Batch')+ms('plf','pbr','Package bracket')+ms('plf','mode','Mode')+
     '<label class="fld"><span>Search</span><input type="search" id="plf-q" data-plf="q" placeholder="Course, client, batch, school" value="'+esc(f.q)+'"></label>'+
     resetBtn('plf')+hfHint()+'<span class="spacer"></span>'+exportBtn()+'</div></section>';
   if(!all.length)return h+'<div class="panel"><div class="empty"><h2>No placement batches yet</h2><p>When operations click Batch completed and tick Placement eligible, the batch appears here. A completed course can also be marked placement eligible from Edit on the Throughput tab.</p></div></div>';
   var T={b:list.length,tot:0,placed:0,proc:0,notp:0,opt:0,hs:0,br:{},cos:{}};PBR.forEach(function(b){T.br[b]=0;});
   list.forEach(function(c){var o=plStats(c);T.tot+=o.tot;T.placed+=o.placed;T.proc+=o.proc;T.notp+=o.notp;T.opt+=o.opt;T.hs+=o.hs;PBR.forEach(function(b){T.br[b]+=o.br[b];});for(var k in o.cos)T.cos[k]=1;});
   h+='<section class="panel totals"><h3>Totals for the list below</h3><div class="tot-items">'+[['Batches',num(T.b)],['Students',num(T.tot)],['Placed',num(T.placed)],['Placement rate',pct(T.placed,T.tot)],['In process',num(T.proc)],['Not placed',num(T.notp)],['Opted out / higher studies',num(T.opt+T.hs)],['Companies',num(Object.keys(T.cos).length)]].map(function(i){return '<div><span class="lab">'+esc(i[0])+'</span><b>'+i[1]+'</b></div>';}).join('')+'</div><p class="sub">Package brackets of those placed: '+esc(brText(T.br))+'</p></section>';
-  h+='<section class="panel"><div class="scroll">'+tblOpen('plf',[300,112,124,116,104,84,80,90,200,180,190])+'<thead><tr>'+hf('plf','course',[['ptype','Programme type']],'Course')+hf('plf','gati',[['gati','Source']],'Source')+hf('plf','school',[['school','School']],'School')+hf('plf','campus',[['campus','Campus']],'Campus')+
+  h+='<section class="panel"><div class="scroll">'+tblOpen('plf',[300,112,124,116,104,84,80,90,200,180,220])+'<thead><tr>'+hf('plf','course',[['ptype','Programme type']],'Course')+hf('plf','gati',[['gati','Source']],'Source')+hf('plf','school',[['school','School']],'School')+hf('plf','campus',[['campus','Campus']],'Campus')+
     hf('plf','end',[['emonths','End month']],'Completed','',fy1)+hf('plf','nbatch',[['nbatch','Students']],'Students','n')+'<th class="n">Placed</th><th class="n">Placement %</th><th>Package brackets</th><th>Companies</th><th></th></tr></thead><tbody>'+
     (list.length?list.map(function(c){var o=plStats(c),can=progFor(c),acts='<button class="sm'+(can&&!o.rows?' primary':'')+'" data-act="pl-open" data-id="'+esc(c.id)+'">'+(can?'Placement details':'View placements')+'</button>'+logBtn(c);
       var cos=Object.keys(o.cos).sort(function(a,b){return o.cos[b]-o.cos[a];});
@@ -1822,7 +1846,8 @@ function viewPlacements(){
   return h;}
 /* ----- the placement sheet (a spreadsheet in a pop-up) ----- */
 var PL=null;
-function plOpen(id){var c=byId(id);if(!c)return;PL={id:id,rows:JSON.parse(JSON.stringify(plRows(c))),ro:!progFor(c)};if(!PL.rows.length&&!PL.ro)PL.rows.push({});openDlg(plHTML());$('dlg').classList.add('xl');
+function plCols(){return (PL&&PL.cols)||PCOLS;}
+function plOpen(id){var c=byId(id);if(!c)return;PL={kind:'placements',cols:PCOLS,id:id,rows:JSON.parse(JSON.stringify(plRows(c))),ro:!progFor(c)};if(!PL.rows.length&&!PL.ro)PL.rows.push({});openDlg(plHTML());$('dlg').classList.add('xl');
   if(!plRows(c).length&&!PL.ro&&hasList(c))plLoad(true);}
 function plHTML(){var c=byId(PL.id);
   return '<div class="dlg" id="plf-dlg"><div class="pl-h"><div><h2>Placement details</h2><span class="sub">'+esc(c.title)+' · '+esc(c.campus||'')+' · completed '+nice(c.actualEnd)+'</span></div>'+
@@ -1833,11 +1858,12 @@ function plHTML(){var c=byId(PL.id);
 function plCell(r,i,col){var v=r[col[0]]==null?'':r[col[0]],dis=PL.ro?' disabled':'',a=' data-pr="'+i+'" data-pc="'+col[0]+'" aria-label="'+esc(col[1])+' row '+(i+1)+'"';
   if(col[3]==='s')return '<select'+a+dis+'><option value=""></option>'+col[4].map(function(o){return '<option'+(o===v?' selected':'')+'>'+esc(o)+'</option>';}).join('')+'</select>';
   return '<input type="'+(col[3]==='n'?'number':col[3]==='d'?'date':'text')+'"'+(col[3]==='n'?' step="0.1" min="0"':'')+a+dis+' value="'+esc(v)+'">';}
-function plGrid(){return '<table class="plgrid"><thead><tr><th class="rn">#</th>'+PCOLS.map(function(col,j){return '<th style="width:'+col[2]+'px;min-width:'+col[2]+'px"'+(j===0?' class="nm"':'')+'>'+esc(col[1])+'</th>';}).join('')+(PL.ro?'':'<th></th>')+'</tr></thead><tbody>'+
-  PL.rows.map(function(r,i){return '<tr><td class="rn">'+(i+1)+'</td>'+PCOLS.map(function(col,j){return '<td'+(j===0?' class="nm"':'')+'>'+plCell(r,i,col)+'</td>';}).join('')+(PL.ro?'':'<td class="rx"><button type="button" class="sm" data-act="pl-delrow" data-r="'+i+'" aria-label="Remove row '+(i+1)+'" title="Remove row">×</button></td>')+'</tr>';}).join('')+'</tbody></table>';}
-function plSum(){var o={placed:0,proc:0,other:0},n=0;PL.rows.forEach(function(r){if(!plFilled(r))return;n++;if(r.status==='Placed')o.placed++;else if(r.status==='In process')o.proc++;else if(r.status)o.other++;});
+function plGrid(){return '<table class="plgrid"><thead><tr><th class="rn">#</th>'+plCols().map(function(col,j){return '<th style="width:'+col[2]+'px;min-width:'+col[2]+'px"'+(j===0?' class="nm"':'')+'>'+esc(col[1])+'</th>';}).join('')+(PL.ro?'':'<th></th>')+'</tr></thead><tbody>'+
+  PL.rows.map(function(r,i){return '<tr><td class="rn">'+(i+1)+'</td>'+plCols().map(function(col,j){return '<td'+(j===0?' class="nm"':'')+'>'+plCell(r,i,col)+'</td>';}).join('')+(PL.ro?'':'<td class="rx"><button type="button" class="sm" data-act="pl-delrow" data-r="'+i+'" aria-label="Remove row '+(i+1)+'" title="Remove row">×</button></td>')+'</tr>';}).join('')+'</tbody></table>';}
+function plSum(){if(PL.kind==='students'){var k=PL.rows.filter(plFilled).length;return k+' learner'+(k===1?'':'s')+' in the list';}
+var o={placed:0,proc:0,other:0},n=0;PL.rows.forEach(function(r){if(!plFilled(r))return;n++;if(r.status==='Placed')o.placed++;else if(r.status==='In process')o.proc++;else if(r.status)o.other++;});
   return n+' student'+(n===1?'':'s')+' · '+o.placed+' placed ('+pct(o.placed,n)+') · '+o.proc+' in process · '+(n-o.placed-o.proc)+' other or not set';}
-function plFilled(r){return PCOLS.some(function(col){return r[col[0]]!=null&&String(r[col[0]]).trim()!=='';});}
+function plFilled(r){return plCols().some(function(col){return r[col[0]]!=null&&String(r[col[0]]).trim()!=='';});}
 function plRedraw(focus){var w=$('pl-wrap');if(!w)return;var sl=w.scrollLeft,st=w.scrollTop;w.innerHTML=plGrid();w.scrollLeft=sl;w.scrollTop=st;$('pl-sum').innerHTML=plSum();if(focus){var el=w.querySelector('[data-pr="'+focus[0]+'"][data-pc="'+focus[1]+'"]');if(el)el.focus();}}
 /* Turn a pasted or uploaded value into what the column expects. */
 function plNorm(col,v){if(v==null)return '';if(col[3]==='d'){if(typeof v==='number'&&v>20000)return fd(new Date(Date.UTC(1899,11,30)+v*86400000));v=String(v).trim();var m=v.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})$/);if(m){var y=m[3].length===2?'20'+m[3]:m[3];return y+'-'+('0'+m[2]).slice(-2)+'-'+('0'+m[1]).slice(-2);}return /^\d{4}-\d{2}-\d{2}$/.test(v)?v:'';}
@@ -1845,15 +1871,19 @@ function plNorm(col,v){if(v==null)return '';if(col[3]==='d'){if(typeof v==='numb
   if(col[3]==='s'){var lv=v.toLowerCase().replace(/\s+/g,' ');if(!lv)return '';var hit=col[4].filter(function(o){var lo=o.toLowerCase();return lo===lv||lo.indexOf(lv)===0||(col[0]==='bracket'&&lo.replace(/[^\d+]/g,'')===lv.replace(/[^\d+]/g,''));})[0];return hit||'';}
   if(col[0]==='gender'){if(/^m/i.test(v))return 'Male';if(/^f/i.test(v))return 'Female';}
   return v;}
-function plSetVal(r,key,v){var col=PCOLS.filter(function(x){return x[0]===key;})[0];PL.rows[r]=PL.rows[r]||{};PL.rows[r][key]=plNorm(col,v);if(key==='pkg'){var b=brOf(PL.rows[r].pkg);if(b)PL.rows[r].bracket=b;}}
+function plSetVal(r,key,v){var col=plCols().filter(function(x){return x[0]===key;})[0];PL.rows[r]=PL.rows[r]||{};PL.rows[r][key]=plNorm(col,v);if(key==='pkg'){var b=brOf(PL.rows[r].pkg);if(b)PL.rows[r].bracket=b;}}
 function plInput(el){if(!PL||PL.ro)return;var r=Number(el.dataset.pr),k=el.dataset.pc;PL.rows[r]=PL.rows[r]||{};PL.rows[r][k]=el.type==='number'?(el.value===''?'':Number(el.value)):el.value;
   if(k==='pkg'){var b=brOf(el.value);if(b){PL.rows[r].bracket=b;var bs=document.querySelector('#pl-wrap [data-pr="'+r+'"][data-pc="bracket"]');if(bs)bs.value=b;}}$('pl-sum').innerHTML=plSum();}
 function plPaste(ev,el){var t=(ev.clipboardData||window.clipboardData).getData('text');if(!t||!/[\t\n]/.test(t.replace(/\r?\n$/,'')))return;ev.preventDefault();
-  var lines=t.replace(/\r/g,'').split('\n');if(lines.length>1&&lines[lines.length-1]==='')lines.pop();var r0=Number(el.dataset.pr),c0=PCOLS.map(function(x){return x[0];}).indexOf(el.dataset.pc);
-  lines.forEach(function(line,i){line.split('\t').forEach(function(cell,j){var col=PCOLS[c0+j];if(col)plSetVal(r0+i,col[0],cell);});});
+  var lines=t.replace(/\r/g,'').split('\n');if(lines.length>1&&lines[lines.length-1]==='')lines.pop();var r0=Number(el.dataset.pr),c0=plCols().map(function(x){return x[0];}).indexOf(el.dataset.pc);
+  lines.forEach(function(line,i){line.split('\t').forEach(function(cell,j){var col=plCols()[c0+j];if(col)plSetVal(r0+i,col[0],cell);});});
   for(var i=0;i<PL.rows.length;i++)if(!PL.rows[i])PL.rows[i]={};plRedraw([r0,el.dataset.pc]);toast('Pasted '+lines.length+' row'+(lines.length>1?'s':''));}
-/* Read a student list (Excel) into rows: name, gender, mobile, email. */
+/* Read a student list (Excel) into rows. */
 function parseStudents(ab){var wb=XLSX.read(new Uint8Array(ab),{type:'array'}),rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:''});
+  var head=(rows[0]||[]).map(function(x){return String(x).toLowerCase();});function ix(re){return head.findIndex(function(x){return re.test(x);});}
+  var I={name:ix(/name/),gender:ix(/gender|sex/),mobile:ix(/mobile|phone|contact/),email:ix(/mail/),org:ix(/organi|college|institut|company/),branch:ix(/designation|branch|trade|department/),city:ix(/city|location|place/),remarks:ix(/remark|note/)};if(I.name<0)I.name=1;
+  return rows.slice(1).filter(function(r){return String(r[I.name]||'').trim();}).map(function(r){var o={};for(var k in I){if(I[k]>=0){var v=String(r[I[k]]).trim();if(v)o[k]=v;}}if(o.gender)o.gender=/^m/i.test(o.gender)?'Male':/^f/i.test(o.gender)?'Female':o.gender;return o;});}
+function parseStudentsBasic(ab){var wb=XLSX.read(new Uint8Array(ab),{type:'array'}),rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:''});
   var head=(rows[0]||[]).map(function(x){return String(x).toLowerCase();});function ix(re){return head.findIndex(function(x){return re.test(x);});}
   var ni=ix(/name/),gi=ix(/gender|sex/),mi=ix(/mobile|phone|contact/),ei=ix(/mail/);if(ni<0)ni=1;
   return rows.slice(1).filter(function(r){return String(r[ni]||'').trim();}).map(function(r){var g=String(gi>=0?r[gi]:'').trim();return {name:String(r[ni]).trim(),gender:/^m/i.test(g)?'Male':/^f/i.test(g)?'Female':g,mobile:mi>=0?String(r[mi]).trim():'',email:ei>=0?String(r[ei]).trim():''};});}
@@ -1864,17 +1894,18 @@ function plLoad(quiet){var c=byId(PL.id);if(typeof XLSX==='undefined')return toa
     st.forEach(function(x){if(!have[x.name.toLowerCase()]){PL.rows.push(x);add++;}});if(!PL.rows.length)PL.rows.push({});plRedraw();if(!quiet||add)toast(add?'Added '+add+' student'+(add>1?'s':'')+' from the student list':'Everyone on the student list is already here');})
     .catch(function(e){if(!quiet)toast(e&&e.code==='no-list'?'This batch has no student list yet. Upload one from the log.':'The student list could not be read.');});}
 function plTemplate(){if(typeof XLSX==='undefined')return toast('Excel could not load. Reload the page and try again.');var c=byId(PL.id)||{};
-  var aoa=[PCOLS.map(function(x){return x[1];})].concat(PL.rows.filter(plFilled).map(function(r){return PCOLS.map(function(col){return r[col[0]]==null?'':r[col[0]];});}));
-  var ws=XLSX.utils.aoa_to_sheet(aoa);ws['!cols']=PCOLS.map(function(x){return {wch:Math.round(x[2]/7)};});var wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Placements');
+  var aoa=[plCols().map(function(x){return x[1];})].concat(PL.rows.filter(plFilled).map(function(r){return plCols().map(function(col){return r[col[0]]==null?'':r[col[0]];});}));
+  var ws=XLSX.utils.aoa_to_sheet(aoa);ws['!cols']=plCols().map(function(x){return {wch:Math.round(x[2]/7)};});var wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,PL.kind==='students'?'Students':'Placements');
+  if(PL.kind==='students')return download({filename:'Student list - '+String(c.title||'batch').replace(/[\\/:*?"<>|]/g,'').slice(0,60)+'.xlsx',data:new Blob([XLSX.write(wb,{bookType:'xlsx',type:'array'})])});
   var vs=XLSX.utils.aoa_to_sheet([['Status'].concat(PSTAT),['Package bracket'].concat(PBR),['Joining date','Use dd-mm-yyyy']]);XLSX.utils.book_append_sheet(wb,vs,'Allowed values');
-  download({filename:'Placements - '+String(c.title||'batch').replace(/[\\/:*?"<>|]/g,'').slice(0,60)+'.xlsx',data:new Blob([XLSX.write(wb,{bookType:'xlsx',type:'array'})])});}
+  download({filename:(PL.kind==='students'?'Student list - ':'Placements - ')+String(c.title||'batch').replace(/[\\/:*?"<>|]/g,'').slice(0,60)+'.xlsx',data:new Blob([XLSX.write(wb,{bookType:'xlsx',type:'array'})])});}
 function plUpload(file){if(!file||typeof XLSX==='undefined')return;file.arrayBuffer().then(function(ab){var wb=XLSX.read(new Uint8Array(ab),{type:'array'}),rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:'',raw:true});
-    var head=(rows[0]||[]).map(function(x){return String(x).toLowerCase().trim();}),map=PCOLS.map(function(col){return head.indexOf(col[1].toLowerCase());}),used={};map.forEach(function(i){if(i>=0)used[i]=1;});
-    map=map.map(function(i,j){if(i>=0)return i;var col=PCOLS[j],k=head.findIndex(function(hh,x){return !used[x]&&hh&&(hh.indexOf(col[0])===0||hh.indexOf(col[1].toLowerCase().split(' ')[0])===0);});if(k>=0)used[k]=1;return k;});
-    if(map[0]<0)return toast('The sheet needs a "Student name" column. Use the template.');
-    PL.rows=[];rows.slice(1).forEach(function(r){var o={};PCOLS.forEach(function(col,j){if(map[j]>=0)o[col[0]]=plNorm(col,r[map[j]]);});if(!o.bracket&&o.pkg)o.bracket=brOf(o.pkg);if(plFilled(o))PL.rows.push(o);});
+    var head=(rows[0]||[]).map(function(x){return String(x).toLowerCase().trim();}),map=plCols().map(function(col){var i=head.indexOf(col[1].toLowerCase());if(i<0&&col[5])col[5].some(function(a){i=head.indexOf(a);return i>=0;});return i;}),used={};map.forEach(function(i){if(i>=0)used[i]=1;});
+    map=map.map(function(i,j){if(i>=0)return i;var col=plCols()[j],k=head.findIndex(function(hh,x){return !used[x]&&hh&&(hh.indexOf(col[0])===0||hh.indexOf(col[1].toLowerCase().split(' ')[0])===0);});if(k>=0)used[k]=1;return k;});
+    if(map[0]<0)return toast('The sheet needs a "'+plCols()[0][1]+'" column. Use the template.');
+    PL.rows=[];rows.slice(1).forEach(function(r){var o={};plCols().forEach(function(col,j){if(map[j]>=0)o[col[0]]=plNorm(col,r[map[j]]);});if(!o.bracket&&o.pkg)o.bracket=brOf(o.pkg);if(plFilled(o))PL.rows.push(o);});
     if(!PL.rows.length)PL.rows.push({});plRedraw();toast('Loaded '+PL.rows.filter(plFilled).length+' rows. Check them and press Save.');}).catch(function(){toast('The file could not be read.');});}
-function plSave(){var c=byId(PL.id);if(!c||PL.ro)return;var rows=PL.rows.filter(plFilled).map(function(r){var o={};PCOLS.forEach(function(col){if(r[col[0]]!=null&&r[col[0]]!=='')o[col[0]]=r[col[0]];});if(!o.bracket&&o.pkg)o.bracket=brOf(o.pkg);return o;});
+function plSave(){var c=byId(PL.id);if(!c||PL.ro)return;if(PL.kind==='students')return slDone();var rows=PL.rows.filter(plFilled).map(function(r){var o={};plCols().forEach(function(col){if(r[col[0]]!=null&&r[col[0]]!=='')o[col[0]]=r[col[0]];});if(!o.bracket&&o.pkg)o.bracket=brOf(o.pkg);return o;});
   var noname=rows.filter(function(r){return !r.name;}).length;if(noname){var e=$('pl-err');e.textContent=noname+' row'+(noname>1?'s have':' has')+' no student name. Add the name or remove the row.';e.hidden=false;return;}
   guard(function(){var now=new Date().toISOString();return S.db.collection('placements').doc(c.id).set({courseId:c.id,rows:rows,updatedAt:now,updatedBy:S.me.id}).then(function(){PL=null;closeDlg();toast('Placement details saved');});});}
 /* When a placement-eligible batch is completed, start its sheet from the student list. */
@@ -1885,6 +1916,45 @@ function exportPlacements(){var head=['Course','Batch / code','Client / source',
     if(!rows.length)out.push(base);rows.forEach(function(r){out.push(base.concat(PCOLS.map(function(col){var v=r[col[0]];return v==null?'':col[3]==='d'?xdate(v):v;})));});});
   var ws=XLSX.utils.aoa_to_sheet(out);ws['!cols']=head.map(function(h,i){return {wch:i===0?40:16};});var wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Placements');
   download({filename:'GATI-placements-'+today()+'.xlsx',data:new Blob([XLSX.write(wb,{bookType:'xlsx',type:'array'})])}).then(function(){toast('Saved '+(out.length-1)+' rows to Excel');});}
+
+/* ----- student lists: upload a file, keep the one already added, or type / paste into a sheet ----- */
+var SCOLS=[['name','Full name',190,'t'],['gender','Gender',96,'s',['Male','Female','Other']],['mobile','Mobile',120,'t'],['email','Email',200,'t'],['org','Organisation / college',190,'t'],['branch','Designation / branch',160,'t'],['city','City',120,'t'],['remarks','Remarks',180,'t']];
+function listField(p,c,final){var have=filesOf(c,'students');
+  return '<div class="wide listbox"><span class="lab">'+(final?'Final student list · required · the number of learners must match the final throughput':p==='sf'?'Student list · optional now, needed before Batch completed':'Student list · required')+'</span>'+
+    (have.length?'<div class="lb-old">Already added: <b>'+esc(have.map(function(x){return x.name;}).join(', '))+'</b> <span class="sub" id="'+p+'-oldn"></span></div>'+(final?'<label class="check"><input type="checkbox" id="'+p+'-listok">This list is correct and final</label><span class="sub">Or replace it with the final list:</span>':''):'')+
+    '<div class="row lb-row"><input type="file" id="'+p+'-list" accept=".xlsx,.xls,.csv" aria-label="Upload the student list"><span class="sub">or</span><button type="button" class="sm" data-act="sl-sheet" data-p="'+p+'">Type or paste the list</button><button type="button" class="sm" data-act="student-template">Template</button></div>'+
+    '<div class="sub" id="'+p+'-listinfo"></div></div>';}
+/* When a form opens: forget earlier typed lists and count the list already added. */
+function listOpen(p,c){delete S.pend[p];delete S.listOld[p];if(!hasList(c)||typeof XLSX==='undefined')return;studentListAB(c).then(function(ab){var n=parseStudents(ab).length;S.listOld[p]=n;var el=$(p+'-oldn');if(el)el.textContent='('+n+' learner'+(n===1?'':'s')+')';}).catch(function(){});}
+function listInfo(p,t){var el=$(p+'-listinfo');if(el)el.innerHTML=t;}
+function listChosen(p,file){var se=$(p+'-err');if(se)se.hidden=true;if(!file)return listInfo(p,'');delete S.pend[p];if(typeof XLSX==='undefined')return;
+  file.arrayBuffer().then(function(ab){var st=parseStudents(ab),m=st.filter(function(x){return x.gender==='Male';}).length,f=st.filter(function(x){return x.gender==='Female';}).length;
+    listInfo(p,'<span class="ok">'+st.length+' learner'+(st.length===1?'':'s')+' in the file</span>'+(m||f?' · '+m+' male, '+f+' female':''));if(p==='sf'&&st.length&&$('sf-batch')){$('sf-batch').value=st.length;calcPreview('sf');}})
+    .catch(function(){listInfo(p,'The file could not be read, but it will still be uploaded.');});}
+/* The file to store for a form: a chosen file, or one made from the typed sheet. */
+function listFileFor(p,c){var inp=$(p+'-list');if(inp&&inp.files[0])return inp.files[0];if(S.pend[p]&&S.pend[p].length)return makeListFile(S.pend[p],c);return null;}
+function makeListFile(rows,c){var aoa=[SCOLS.map(function(x){return x[1];})].concat(rows.map(function(r){return SCOLS.map(function(col){return r[col[0]]==null?'':r[col[0]];});}));
+  var ws=XLSX.utils.aoa_to_sheet(aoa);ws['!cols']=SCOLS.map(function(x){return {wch:Math.round(x[2]/7)};});var wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Students');
+  return new File([XLSX.write(wb,{bookType:'xlsx',type:'array'})],'Student list - '+String((c&&c.title)||'batch').replace(/[\\/:*?"<>|]/g,'').slice(0,60)+'.xlsx',{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});}
+/* Open the student sheet on top of the form (or the log), filled from what is there already. */
+function slOpen(p){var c=p==='lg'?byId(S.logId):byId(($(p)||{dataset:{}}).dataset.id);if(!c)return;if(typeof XLSX==='undefined')return toast('Excel could not load. Reload the page and try again.');
+  var inp=$(p+'-list'),src=S.pend[p]?Promise.resolve(S.pend[p]):inp&&inp.files[0]?inp.files[0].arrayBuffer().then(parseStudents):hasList(c)?studentListAB(c).then(parseStudents):Promise.resolve([]);
+  src.catch(function(){return [];}).then(function(rows){PL={kind:'students',cols:SCOLS,id:c.id,p:p,rows:JSON.parse(JSON.stringify(rows)),ro:false};if(!PL.rows.length)PL.rows.push({});
+    var d=$('dlg2');d.innerHTML=slHTML(c);d.classList.add('xl');if(!d.open)d.showModal();var f=d.querySelector('[data-pr="0"][data-pc="name"]');if(f)f.focus();});}
+function slHTML(c){return '<div class="dlg"><div class="pl-h"><div><h2>Student list</h2><span class="sub">'+esc(c.title)+' · '+esc(c.campus||'')+'</span></div><div class="row"><button type="button" class="sm" data-act="pl-tpl">Download Excel template</button><button type="button" class="sm" data-act="pl-upbtn">Upload Excel</button><input type="file" id="pl-up" accept=".xlsx,.xls,.csv" hidden></div></div>'+
+  '<p class="sub">One row per learner. Type in the cells, or copy cells from Excel and paste them into any cell. Enter moves down.</p>'+
+  '<div class="plgrid-wrap" id="pl-wrap">'+plGrid()+'</div><div class="pl-sum" id="pl-sum">'+plSum()+'</div><p class="err" id="pl-err" hidden></p>'+
+  '<div class="dlg-actions"><button type="button" class="sm" data-act="pl-addrow">+ Add row</button><span class="spacer"></span><button type="button" data-act="dlg2-close">Cancel</button><button type="button" class="primary" data-act="pl-save">'+(PL.p==='lg'?'Save the student list':'Use this list')+'</button></div></div>';}
+function closeDlg2(){var d=$('dlg2');if(d.open)d.close();d.innerHTML='';d.classList.remove('xl');PL=null;}
+function slDone(){var rows=PL.rows.filter(plFilled).map(function(r){var o={};SCOLS.forEach(function(col){if(r[col[0]]!=null&&r[col[0]]!=='')o[col[0]]=r[col[0]];});return o;});
+  var noname=rows.filter(function(r){return !r.name;}).length,e=$('pl-err');if(noname){e.textContent=noname+' row'+(noname>1?'s have':' has')+' no name. Add the name or remove the row.';e.hidden=false;return;}
+  if(!rows.length){e.textContent='Add at least one learner.';e.hidden=false;return;}
+  var p=PL.p,c=byId(PL.id);closeDlg2();
+  if(p==='lg'){var f=makeListFile(rows,c);return guard(function(){return storeFile(f,c.id,'students').then(function(up){var now=new Date().toISOString();
+      return courseRef(c.id).update({files:(c.files||[]).filter(function(x){return x.kind!=='students';}).concat([up]),log:(c.log||[]).concat([logEntry('files','Student list updated in the sheet · '+rows.length+' learners',[up])]),updatedAt:now,updatedBy:S.me.id});}).then(function(){toast('Student list saved');});});}
+  S.pend[p]=rows;var inp=$(p+'-list');if(inp)inp.value='';
+  listInfo(p,'<span class="ok">'+rows.length+' learner'+(rows.length===1?'':'s')+' typed in the sheet</span> · <button type="button" class="linkish" data-act="sl-sheet" data-p="'+p+'">Edit</button>');
+  if(p==='sf'&&$('sf-batch')){$('sf-batch').value=rows.length;calcPreview('sf');}var se=$(p+'-err');if(se)se.hidden=true;}
 
 /* ----- table columns: fixed widths, drag the header edge to resize, double-click it to fit ----- */
 function colW(){if(!S.colw){try{S.colw=JSON.parse(localStorage.getItem('colw')||'{}')||{};}catch(e){S.colw={};}}return S.colw;}
@@ -1927,6 +1997,7 @@ function boot(){
       var start=S.authState!=='in';S.authState='in';if(start)startData();render();
     },function(){S.authState='noprofile';render();});});
 }
+$('dlg2').addEventListener('close',function(){if(PL&&PL.kind==='students')PL=null;});
 boot();
 })();
 </script>
